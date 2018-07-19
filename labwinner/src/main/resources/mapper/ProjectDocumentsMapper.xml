@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProjectDocumentsDao">
+      
+      <resultMap id="projectDocumentsMap" type="com.labwinner.domain.ProjectDocuments">
+            <id property="proDocId" column="pro_doc_id"/>
+            <result property="proDocument" column="pro_document"/>
+            <result property="documentName" column="document_name"/>
+            <result property="documentDescription" column="document_description"/>
+            <result column="attachment_name" property="attachmentName" />
+			<result column="attachment_content" property="attachmentContent" />
+			<result property="pdfCount" column="pdf_count" />
+			<result property="pdfUrl" column="pdf_url" />
+			<result column="conversion_count" property="conversionCount"  />
+	        <association property="projectBasicInfo"
+			resultMap="com.labwinner.dao.ProjectBasicInfoDao.proInfoMap"></association>
+      </resultMap>
+      
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ProjectDocuments" resultMap="projectDocumentsMap">
+		select * from project_documents
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.ProjectDocuments"
+		useGeneratedKeys="true" keyProperty="proDocId">
+		insert into
+		project_documents
+		(document_name,pro_document,
+		document_description,pro_id,pdf_count,pdf_url,conversion_count)
+		value(
+		#{documentName},
+		#{proDocument},
+		#{documentDescription},
+		#{projectBasicInfo.proId},
+		#{pdfCount},
+		#{pdfUrl},
+		#{conversionCount})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from project_documents where
+		pro_id=#{proId}
+	</delete>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getByProId" parameterType="Integer"
+		resultType="string">
+		select document_name,pro_document,document_description from project_documents where pro_id=#{proId}
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getById" resultType="com.labwinner.domain.ProjectDocuments" resultMap="projectDocumentsMap">
+		select * from project_documents where pro_doc_id=#{proDocId}
+	</select>
+	
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.ProjectDocuments">
+		update project_documents 
+		set
+		document_name=#{documentName},
+		pro_document=#{proDocument},
+		document_description=#{documentDescription},
+		pro_id=#{projectBasicInfo.proId},
+		pdf_url=#{pdfUrl},
+		pdf_count=#{pdfCount},
+		conversion_count=#{conversionCount}
+		where 
+		pro_doc_id=#{proDocId}
+	</update>
+	
+	
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllConversion" resultType="com.labwinner.domain.ProjectDocuments" resultMap="projectDocumentsMap">
+		select  * from project_documents where pdf_count=0 and conversion_count<![CDATA[<   ]]>5
+		order by pro_doc_id
+	</select>
+	
+	
+	<update id="updatePdfCount" parameterType="Integer">
+	update project_documents set pdf_count=1 where pro_doc_id=#{proDocId}
+	</update>
+	
+</mapper> 

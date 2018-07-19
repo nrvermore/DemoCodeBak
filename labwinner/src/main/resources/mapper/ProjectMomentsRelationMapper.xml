@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProjectMomentsRelationDao">
+
+	<resultMap id="projectMomentsRelationMap" type="com.labwinner.domain.ProjectMomentsRelation">
+		<id column="relation_id" property="relationId" />
+		<association property="projectMoments" javaType="com.labwinner.domain.ProjectMoments">
+			<id column="project_moments_id" property="projectMomentsId" />
+			<result column="publish_time" property="publishTime" />
+			<result column="publish_content" property="publishContent" />
+			<result column="url" property="url" />
+		</association>
+		<association property="projectBasicInfo" javaType="com.labwinner.domain.ProjectBasicInfo">
+			<id property="proId" column="pro_id" />
+		    <result property="proName" column="pro_name" />
+		</association>
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ProjectMomentsRelation" resultMap="projectMomentsRelationMap">
+		select * from project_moments_relation
+	</select>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from project_moments_relation where project_moments_id = #{id}
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.ProjectMomentsRelation"
+		useGeneratedKeys="true" keyProperty="relationId">
+		insert into
+		project_moments_relation
+		(project_moments_id,pro_id)
+		value(
+		#{projectMoments.projectMomentsId},
+		#{projectBasicInfo.proId})
+	</insert>
+</mapper>

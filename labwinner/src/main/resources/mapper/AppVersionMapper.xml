@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 专利 -->
+<mapper namespace="com.labwinner.dao.AppVersionDao">
+
+	<resultMap id="appVersionMap" type="com.labwinner.domain.AppVersion">
+		<id property="versionId" column="version_id" />
+		<result property="versionName" column="version_name" />
+		<result property="downloadUrl" column="download_url" />
+		<result property="versionContent" column="version_content" />
+		<result property="updateDate" column="update_date" />
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getByLast" resultType="com.labwinner.domain.AppVersion" resultMap="appVersionMap">
+		select * from labwinner_base.app_version where update_date  in (
+select max(update_date) from labwinner_base.app_version) 
+	</select>
+</mapper> 
+
+

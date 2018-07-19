@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.DevicePictureDao">
+       
+       <resultMap id="devicePictureMap" type="com.labwinner.domain.DevicePicture">
+            <id property="picturesId" column="pictures_id"/>
+            <result property="picture" column="picture"/>
+            <result property="pictureNote" column="picture_note"/>
+            
+            <association property="device" javaType="com.labwinner.domain.Device">
+            <id property="deviceId" column="device_id"/>
+            <result property="deviceName" column="device_name"/>
+            </association>                   
+        </resultMap>
+        
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.DevicePicture" resultMap="devicePictureMap">
+		select * from device_picture
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getByPictureId" parameterType="Integer"
+		resultType="string">
+		select picture_note from device_picture where device_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.DevicePicture"
+		useGeneratedKeys="true" keyProperty="picturesId">
+		insert into
+		device_picture(         
+			picture,             
+			picture_note,         
+			device_id)
+		value(
+		#{picture},
+		#{pictureNote},
+        #{device.deviceId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.DevicePicture">
+		update
+		device_picture set
+		pictures_id=#{picturesId},
+		picture=#{picture},
+		picture_note=#{pictureNote},
+		device_id=#{device.deviceId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete">
+		delete from device_picture where
+		device_id=#{arg0}
+		and picture_note = #{arg1}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByDeviceId">
+		delete from device_picture where
+		device_id=#{id}
+		
+	</delete>
+
+</mapper> 

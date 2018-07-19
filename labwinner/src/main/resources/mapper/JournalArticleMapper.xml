@@ -1,0 +1,1688 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.JournalArticleDao">
+
+	<resultMap id="journalArticleResultMap" type="com.labwinner.domain.JournalArticle">
+		<id property="journalArticleId" column="journal_article_id" />
+		<result property="title" column="title" />
+		<result property="author" column="author" />
+		<result property="writeDate" column="write_date" />
+		<result property="keyWords" column="key_words" />
+		<result property="abstract_" column="abstract" />
+		<result property="authorUnit" column="author_unit" />
+		<result property="pageNum" column="page_num" />
+		<result property="issn" column="issn" />
+		<result property="callNumber" column="call_number" />
+		<result property="databaseSources" column="database_sources" />
+		<result property="uploadTime" column="upload_time" />
+		<result property="issue" column="issue" />
+		<result property="volume" column="volume" />
+		<result property="pdfCode" column="pdf_code" />
+		<result property="creater" column="creater" />
+		<result property="createDate" column="create_date" />
+		<result property="modifier" column="modifier" />
+		<result property="modifyDate" column="modify_date" />
+		<result property="source" column="source" />
+		<result property="knowledgeField" column="knowledge_field" />
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="userImage" column="user_image" />
+		</association>
+		<association property="secureRank" javaType="com.labwinner.domain.SecureRank">
+			<id property="secureRankId" column="secure_rank_id" />
+			<result property="secureRank" column="secure_rank" />
+		</association>
+		<association property="magazine" javaType="com.labwinner.domain.Magazine">
+			<id property="magazineId" column="magazine_id" />
+			<result property="chName" column="ch_name" />
+			<result property="enName" column="en_name" />
+			<result property="issn" column="issn" />
+		</association>
+		<association property="knowledgeAcc" javaType="com.labwinner.domain.KnowledgeAcc">
+			<id property="knowledgeAccId" column="knowledge_acc_id" />
+			<result property="uploadFiles" column="upload_files" />
+			<result property="pdfCount" column="pdf_count" />
+		</association>
+		<association property="materialField" javaType="com.labwinner.domain.MaterialField">
+			<id property="cid" column="material_field_id" />
+			<result property="label" column="material_field" />
+			<result property="pid" column="material_field_pid" />
+		</association>
+		<!-- <collection property="journalUser" ofType="com.labwinner.domain.JournalUser"> 
+			<id property="journalUserId" column="journal_user_id"/> <result property="userId" 
+			column="user_id"/> <result property="dissolvantDescribe" column="dissolvant_describe"/> 
+			</collection> -->
+	</resultMap>
+
+	<!-- <sql id="columns">journal_article_id, user_id, title, author,write_date,key_words,abstract,author_unit, 
+		magazine_id,page_num,issn,call_number,database_sources,upload_time,issue,volume,secure_rank_id, 
+		pdf_code,creater,create_date,modifier,modify_date </sql> -->
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select result.* from
+		(select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,e.knowledge_acc_id,d.secure_rank_id,d.secure_rank,e.upload_files,e.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		secure_rank d on d.secure_rank_id=a.secure_rank_id
+		left outer join
+		knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id and
+		e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source in (0,#{angency})
+		UNION ALL
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,f.knowledge_acc_id,e.secure_rank_id,e.secure_rank,f.upload_files,f.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source in (0,#{angency})
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{id} or d.user_id=#{id})
+		</if>
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+	<select id="getAllBase" resultType="java.util.Map">
+	select result.journal_article_id,result.title,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.journal_article_id,a.title,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from journal_article a
+		left outer join knowledge_pro_rela b on
+		a.journal_article_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=1
+		left outer join knowledge_classify_reac_rela c on
+		a.journal_article_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=1
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where  a.source =0
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		group by journal_article_id,title,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+
+	<select id="getAllKnowlist" resultType="java.util.Map">
+		select result.* from
+		(
+		select
+		a.journal_article_id,a.title,a.author,a.key_words,a.write_date,a.abstract,a.knowledge_acc_id,a.user_id,a.source,e.upload_files,f.ch_name,f.en_name
+		from journal_article a
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		left outer join magazine f on a.magazine_id=f.magazine_id
+		where a.source=0
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		order by journal_article_id desc
+	</select>
+
+
+
+	<select id="getAllIds" resultType="Integer">
+		select result.journal_article_id from
+		(select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,e.knowledge_acc_id,d.secure_rank_id,d.secure_rank,e.upload_files,e.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		secure_rank d on d.secure_rank_id=a.secure_rank_id
+		left outer join
+		knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id and
+		e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source in (0,#{agencyId})
+		UNION ALL
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,f.knowledge_acc_id,e.secure_rank_id,e.secure_rank,f.upload_files,f.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source in (0,#{agencyId})
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+
+	<select id="getAllPerson" resultType="java.util.Map">
+	select result.journal_article_id,result.title,result.user_id as
+		userId,result.creater as creater ,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.journal_article_id,a.title,a.user_id,a.creater,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from journal_article a
+		left outer join knowledge_pro_rela b on
+		a.journal_article_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=1
+		left outer join knowledge_classify_reac_rela c on
+		a.journal_article_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=1
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source =#{angency}
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		UNION ALL
+		select
+		a.journal_article_id,a.title,a.user_id,a.creater,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from journal_article a
+		left outer join knowledge_pro_rela b on
+		a.journal_article_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=1
+		left outer join knowledge_classify_reac_rela c on
+		a.journal_article_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=1
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source =#{angency}
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+			group by journal_article_id,title,user_id,creater,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+	
+	
+	<select id="getSelfKnowledge" resultType="java.util.Map">
+	select result.journal_article_id,result.title,result.user_id as
+		userId,result.creater as creater ,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.journal_article_id,a.title,a.user_id,a.creater,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from journal_article a
+		left outer join knowledge_pro_rela b on
+		a.journal_article_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=1
+		left outer join knowledge_classify_reac_rela c on
+		a.journal_article_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=1
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.user_id=#{userId}
+		and a.source =#{agencyId}
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+			group by journal_article_id,title,user_id,creater,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+	
+	
+	
+	<select id="getAgencyJournalArticle" resultType="com.labwinner.domain.JournalArticle" resultMap="journalArticleResultMap">
+		select result.* from 
+	(select distinct
+		a.journal_article_id,a.title,a.create_date,a.knowledge_field,b.user_id,b.realname,b.user_image
+		from journal_article a
+	  left outer join sys_user b on a.user_id=b.user_id
+		where a.secure_rank_id=1
+		and a.source =#{angency}
+		UNION ALL
+		select distinct
+		a.journal_article_id,a.title,a.create_date,a.knowledge_field,b.user_id,b.realname,b.user_image
+		from journal_article a
+	  left outer join sys_user b on a.user_id=b.user_id
+	  	left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source =#{angency}
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		)as result
+		order by journal_article_id desc limit 4
+	</select>
+	
+	<select id="getBaseJournalArticle" resultType="com.labwinner.domain.JournalArticle" resultMap="journalArticleResultMap">
+	select
+		a.journal_article_id,a.title,a.create_date,b.material_field_id,b.material_field
+		from journal_article a
+	  	left outer join labwinner_base.material_field b on a.material_field_id=b.material_field_id
+		where  a.source =0
+		order by journal_article_id desc limit 5
+	</select>
+	
+	
+
+	<select id="getAllPersonByFiledId" resultType="java.util.Map">
+		select result.journal_article_id,result.title,result.user_id as
+		userId,result.creater as creater ,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.journal_article_id,a.title,a.user_id,a.creater,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from journal_article a
+		left outer join knowledge_pro_rela b on
+		a.journal_article_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=1
+		left outer join knowledge_classify_reac_rela c on
+		a.journal_article_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=1
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source =#{angency}
+		and find_in_set(#{filedId},a.knowledge_field)
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		UNION ALL
+		select
+		a.journal_article_id,a.title,a.user_id,a.creater,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from journal_article a
+		left outer join knowledge_pro_rela b on
+		a.journal_article_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=1
+		left outer join knowledge_classify_reac_rela c on
+		a.journal_article_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=1
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source =#{angency}
+		and find_in_set(#{filedId},a.knowledge_field)
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		group by journal_article_id,title,user_id,creater,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+
+
+
+	<select id="getAllBaseByFiledId" resultType="java.util.Map">
+		select result.journal_article_id,result.title,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.journal_article_id,a.title,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from journal_article a
+		left outer join knowledge_pro_rela b on
+		a.journal_article_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=1
+		left outer join knowledge_classify_reac_rela c on
+		a.journal_article_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=1
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where  a.source =0
+		and a.material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{filedId} or material_field_pid=#{filedId})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{filedId} or
+		material_field_pid=#{filedId}))
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+				group by journal_article_id,title,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+	
+	
+	<select id="getMaterialNum" resultType="java.lang.Integer">
+		select count(*) from journal_article where source=0 and material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{cid} or material_field_pid=#{cid})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{cid} or
+		material_field_pid=#{cid}))
+	</select>
+	
+	
+
+	<select id="getAllBaseKnowByFiledId" resultType="java.util.Map">
+		select result.* from
+		(
+		select
+		a.journal_article_id,a.title,a.author,a.key_words,a.write_date,a.abstract,a.knowledge_acc_id,a.user_id,a.source,e.upload_files,f.ch_name,f.en_name
+		from journal_article a
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		left outer join magazine f on a.magazine_id=f.magazine_id
+		where a.source=0
+		and a.material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{filedId} or material_field_pid=#{filedId})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{filedId} or
+		material_field_pid=#{filedId}))
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		order by journal_article_id desc
+	</select>
+
+
+	<select id="getAllPersonKnowlist" resultType="java.util.Map">
+		select result.* from
+		(
+		select
+		a.journal_article_id,a.title,a.author,a.key_words,a.write_date,a.abstract,a.knowledge_acc_id,a.user_id,a.source,e.upload_files,f.ch_name,f.en_name
+		from journal_article a
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		left outer join magazine f on a.magazine_id=f.magazine_id
+		where a.source!=0
+		and  a.secure_rank_id=1
+		<if test="filedId != 0 ">
+		and find_in_set(#{filedId},a.knowledge_field) 
+		</if>
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		union all
+		select
+		a.journal_article_id,a.title,a.author,a.key_words,a.write_date,a.abstract,a.knowledge_acc_id,a.user_id,a.source,e.upload_files,f.ch_name,f.en_name
+		from journal_article a
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		left outer join magazine f on a.magazine_id=f.magazine_id
+		where a.source!=0
+		and  a.secure_rank_id=2
+		<if test="roleName != 'ROLE_TEAM'">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		<if test="filedId != 0 ">
+		and find_in_set(#{filedId},a.knowledge_field)
+		</if>
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		order by journal_article_id desc
+	</select>
+
+	<select id="getByFiledId" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select result.* from
+		(select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,e.knowledge_acc_id,d.secure_rank_id,d.secure_rank,e.upload_files,e.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		secure_rank d on d.secure_rank_id=a.secure_rank_id
+		left outer join
+		knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id and
+		e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source in (0,#{angency})
+		and a.material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{filedId} or material_field_pid=#{filedId})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{filedId} or
+		material_field_pid=#{filedId}))
+		UNION ALL
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,f.knowledge_acc_id,e.secure_rank_id,e.secure_rank,f.upload_files,f.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source in (0,#{angency})
+		and a.material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{filedId} or material_field_pid=#{filedId})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{filedId} or
+		material_field_pid=#{filedId}))
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+	<select id="getByAll" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select result.* from
+		(select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,e.knowledge_acc_id,d.secure_rank_id,d.secure_rank,e.upload_files,e.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		secure_rank d on d.secure_rank_id=a.secure_rank_id
+		left outer join
+		knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id and
+		e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source in (0,#{angency})
+		and a.title LIKE CONCAT('%',#{keyword},'%')
+		and a.material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{filedId} or material_field_pid=#{filedId})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{filedId} or
+		material_field_pid=#{filedId}))
+		UNION ALL
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,f.knowledge_acc_id,e.secure_rank_id,e.secure_rank,f.upload_files,f.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source in (0,#{angency})
+		and a.title LIKE CONCAT('%',#{keyword},'%')
+		and a.material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{filedId} or material_field_pid=#{filedId})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{filedId} or
+		material_field_pid=#{filedId}))
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+	<!-- 获取专家所有对象列表 -->
+	<select id="getAllByExpert" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select result.* from
+		(select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,c.realname as
+		creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,e.knowledge_acc_id,
+		d.secure_rank_id,d.secure_rank,e.upload_files,e.pdf_count,a.source
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		secure_rank d on d.secure_rank_id=a.secure_rank_id
+		left outer join
+		knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id and
+		e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source in (0,#{angency})
+		and find_in_set(#{name},author)
+		UNION ALL
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,c.realname as
+		creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,f.knowledge_acc_id,
+		e.secure_rank_id,e.secure_rank,f.upload_files,f.pdf_count,a.source
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source in (0,#{angency})
+		and find_in_set(#{name},author)
+		<if test="roleName != 'ROLE_TEAM'">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+	<select id="getAllByExpertWord" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select result.* from
+		(select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,c.realname as
+		creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,e.knowledge_acc_id,
+		d.secure_rank_id,d.secure_rank,e.upload_files,e.pdf_count,a.source
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		secure_rank d on d.secure_rank_id=a.secure_rank_id
+		left outer join
+		knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id and
+		e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and find_in_set(#{name},author)
+		and a.title LIKE CONCAT('%',#{keyword},'%')
+		and a.source in (0,#{angency})
+		UNION ALL
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,c.realname as
+		creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,f.knowledge_acc_id,
+		e.secure_rank_id,e.secure_rank,f.upload_files,f.pdf_count,a.source
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and find_in_set(#{name},author)
+		and a.source in (0,#{angency})
+		and a.title LIKE CONCAT('%',#{keyword},'%')
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="journalArticleResultMap">
+		select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,a.source,d.secure_rank_id,d.secure_rank,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,a.knowledge_acc_id,e.upload_files,e.pdf_count,
+		f.material_field_id ,f.material_field,f.material_field_pid,a.source,a.knowledge_field
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		secure_rank d on a.secure_rank_id=d.secure_rank_id
+		left outer join
+		knowledge_acc e on a.knowledge_acc_id=e.knowledge_acc_id and
+		e.knowledge_classify_id=1
+		left outer join labwinner_base.material_field
+		f on a.material_field_id=f.material_field_id
+		where
+		a.journal_article_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.JournalArticle"
+		useGeneratedKeys="true" keyProperty="journalArticleId">
+		insert into
+		journal_article(
+		user_id, title, author,write_date,key_words,abstract,author_unit,
+		magazine_id,page_num,issn,call_number,database_sources,upload_time,issue,volume,secure_rank_id,
+		pdf_code,creater,create_date,modifier,modify_date,knowledge_acc_id,material_field_id,knowledge_field,source
+		)
+		value(
+		#{sysUser.userId},
+		#{title}, #{author},
+		#{writeDate},
+		#{keyWords},
+		#{abstract_}, #{authorUnit},
+		#{magazine.magazineId},
+		#{pageNum},
+		#{magazine.issn}, #{callNumber},
+		#{databaseSources},
+		#{uploadTime},
+		#{issue},#{volume},
+		#{secureRank.secureRankId},#{pdfCode},
+		#{creater}, #{createDate},
+		#{modifier}, #{modifyDate},
+		#{knowledgeAcc.knowledgeAccId},
+		#{materialField.cid},
+		#{knowledgeField},
+		#{source})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.JournalArticle">
+		update
+		journal_article set
+		user_id=#{sysUser.userId},
+		title=#{title},
+		author=#{author},
+		write_date=#{writeDate},
+		key_words=#{keyWords},
+		abstract=#{abstract_},
+		author_unit=#{authorUnit},
+		magazine_id=#{magazine.magazineId},
+		page_num=#{pageNum},
+		issn=#{magazine.issn},
+		call_number=#{callNumber},
+		database_sources=#{databaseSources},
+		upload_time=#{uploadTime},
+		issue=#{issue},
+		secure_rank_id=#{secureRank.secureRankId},
+		pdf_code=#{pdfCode},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate},
+		knowledge_acc_id=#{knowledgeAcc.knowledgeAccId},
+		material_field_id=#{materialField.cid},
+		knowledge_field=#{knowledgeField},
+		source=#{source}
+		where
+		journal_article_id=#{journalArticleId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from journal_article
+		where
+		journal_article_id=#{id}
+	</delete>
+
+
+	<!-- 根据名字获取对象方法 -->
+	<select id="getByName" resultMap="journalArticleResultMap">
+		select result.* from
+		(select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,d.knowledge_acc_id,e.secure_rank_id,e.secure_rank,d.upload_files,d.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		knowledge_acc d on d.knowledge_acc_id=a.knowledge_acc_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on
+		a.secure_rank_id=e.secure_rank_id
+		where a.secure_rank_id=1 and a.title LIKE CONCAT('%',#{keyword},'%')
+		and a.source in (0,#{angency})
+		UNION ALL
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,e.knowledge_acc_id,f.secure_rank_id,f.secure_rank,e.upload_files,e.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id
+		and e.knowledge_classify_id=1
+		left outer join secure_rank f on a.secure_rank_id=f.secure_rank_id
+		where a.secure_rank_id=2
+		and a.source in (0,#{angency})
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{id} or d.user_id=#{id})
+		</if>
+		and a.title LIKE CONCAT('%',#{keyword},'%')
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+	<!-- 根据名字获取对象方法 -->
+	<select id="getResult" resultMap="journalArticleResultMap">
+		select
+		*
+		from journal_article
+		where title=#{title} and author=#{author}
+		and write_date=#{writeDate}
+		<if test="secure == ''">
+			and issn=#{issn}
+		</if>
+		<if test="secure == 2">
+			and user_id=#{userId}
+		</if>
+	</select>
+	<!-- 首页知识展示 -->
+	<select id="getKnowledge" resultType="java.util.Map">
+		SELECT
+		a.journal_article_id as id,a.title as title,IFNULL(COUNT(distinct
+		d.knowledge_classify_postil_id),0) as
+		replyNum,d.upload_files,d.pdf_count as pdfNum,
+		d.knowledge_acc_id as knowledgeAccId,COUNT(distinct(f.knowledge_thumbs_up_id)) as
+		thumbNum,1 as classify,a.create_date as time
+		FROM journal_article a
+		LEFT OUTER JOIN (
+		SELECT
+		c.knowledge_acc_id,b.knowledge_classify_postil_id,c.upload_files,c.knowledge_classify_id,c.pdf_count
+		FROM knowledge_acc c left outer join knowledge_classify_postil b on
+		b.knowledge_acc_id = c.knowledge_acc_id
+		where b.postil_id is null
+		) as d on a.knowledge_acc_id=d.knowledge_acc_id
+		LEFT OUTER JOIN knowledge_thumbs_up f on
+		a.knowledge_acc_id=f.knowledge_acc_id
+		where a.secure_rank_id=1
+		GROUP by id,title,upload_files,pdfNum,knowledgeAccId,classify,time
+		UNION all
+		SELECT
+		a.journal_article_id as id,a.title as title,IFNULL(COUNT(distinct
+		d.knowledge_classify_postil_id),0) as
+		replyNum,d.upload_files,d.pdf_count as pdfNum,
+		d.knowledge_acc_id as knowledgeAccId,COUNT(distinct(f.knowledge_thumbs_up_id)) as
+		thumbNum,1 as classify,a.create_date as time
+		FROM journal_article a
+		left outer join journal_user j on
+		a.journal_article_id=j.journal_article_id and knowledge_classify_id=1
+		LEFT OUTER JOIN (
+		SELECT
+		c.knowledge_acc_id,b.knowledge_classify_postil_id,c.upload_files,c.knowledge_classify_id,c.pdf_count
+		FROM knowledge_acc c left outer join knowledge_classify_postil b on
+		b.knowledge_acc_id = c.knowledge_acc_id
+		where b.postil_id is null
+		) as d on a.knowledge_acc_id=d.knowledge_acc_id
+		LEFT OUTER JOIN knowledge_thumbs_up f on
+		a.knowledge_acc_id=f.knowledge_acc_id
+		where a.secure_rank_id=2
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or j.user_id=#{userId})
+		</if>
+		GROUP by id,title,upload_files,pdfNum,knowledgeAccId,classify,time
+		UNION all
+		SELECT a.self_paper_id as id ,a.title as title,IFNULL(COUNT(distinct
+		d.knowledge_classify_postil_id),0) as
+		replyNum,d.upload_files,d.pdf_count as pdfNum,
+		d.knowledge_acc_id as knowledgeAccId,COUNT(distinct(f.knowledge_thumbs_up_id)) as
+		thumbNum,2 as classify,a.create_date as time
+		FROM self_paper a
+		LEFT OUTER JOIN (
+		SELECT
+		c.knowledge_acc_id,b.knowledge_classify_postil_id,c.upload_files,c.knowledge_classify_id,c.pdf_count
+		FROM knowledge_acc c left outer join knowledge_classify_postil b on
+		b.knowledge_acc_id = c.knowledge_acc_id
+		where b.postil_id is null
+		) as d on a.knowledge_acc_id=d.knowledge_acc_id
+		LEFT OUTER JOIN knowledge_thumbs_up f on
+		a.knowledge_acc_id=f.knowledge_acc_id
+		where a.secure_rank_id=1
+		GROUP by id,title,upload_files,pdfNum,knowledgeAccId,classify,time
+		UNION all
+		SELECT a.self_paper_id as id ,a.title as title,IFNULL(COUNT(distinct
+		d.knowledge_classify_postil_id),0) as
+		replyNum,d.upload_files,d.pdf_count as pdfNum,
+		d.knowledge_acc_id as knowledgeAccId,COUNT(distinct(f.knowledge_thumbs_up_id)) as
+		thumbNum,2 as classify,a.create_date as time
+		FROM self_paper a
+		left outer join journal_user j on a.self_paper_id=j.journal_article_id and
+		knowledge_classify_id=2
+		LEFT OUTER JOIN (
+		SELECT
+		c.knowledge_acc_id,b.knowledge_classify_postil_id,c.upload_files,c.knowledge_classify_id,c.pdf_count
+		FROM knowledge_acc c left outer join knowledge_classify_postil b on
+		b.knowledge_acc_id = c.knowledge_acc_id
+		where b.postil_id is null
+		) as d on a.knowledge_acc_id=d.knowledge_acc_id
+		LEFT OUTER JOIN knowledge_thumbs_up f on
+		a.knowledge_acc_id=f.knowledge_acc_id
+		where a.secure_rank_id=2
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or j.user_id=#{userId})
+		</if>
+		GROUP by id,title,upload_files,pdfNum,knowledgeAccId,classify,time
+		UNION all
+		SELECT a.patent_id as id ,a.patent_name as title,IFNULL(COUNT(distinct
+		d.knowledge_classify_postil_id),0) as
+		replyNum,d.upload_files,d.pdf_count as pdfNum,
+		d.knowledge_acc_id as knowledgeAccId,COUNT(distinct(f.knowledge_thumbs_up_id)) as
+		thumbNum,4 as classify,a.create_date as time
+		FROM patent a
+		LEFT OUTER JOIN (
+		SELECT
+		c.knowledge_acc_id,b.knowledge_classify_postil_id,c.upload_files,c.knowledge_classify_id,c.pdf_count
+		FROM knowledge_acc c left outer join knowledge_classify_postil b on
+		b.knowledge_acc_id = c.knowledge_acc_id
+		where b.postil_id is null
+		) as d on a.knowledge_acc_id=d.knowledge_acc_id
+		LEFT OUTER JOIN knowledge_thumbs_up f on
+		a.knowledge_acc_id=f.knowledge_acc_id
+		GROUP by id,title,upload_files,pdfNum,knowledgeAccId,classify,time
+		order by replyNum desc
+	</select>
+	<!-- 首页团队数量 -->
+	<select id="getInventoryNum" parameterType="Integer" resultType="java.lang.Integer">
+		select count(*) from material_purchase
+		<if test="roleName!='ROLE_TEAM' ">
+			where user_id =#{userId}
+		</if>
+	</select>
+
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAllForApp" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,a.source,b.magazine_id,a.title,e.knowledge_acc_id,d.secure_rank_id,d.secure_rank,e.upload_files
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		secure_rank d on d.secure_rank_id=a.secure_rank_id
+		left outer join
+		knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id and
+		e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		UNION ALL
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,a.source,b.magazine_id,a.title,f.knowledge_acc_id,e.secure_rank_id,e.secure_rank,f.upload_files
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		order by journal_article_id desc
+		LIMIT #{size}
+	</select>
+
+
+	<!-- 根据名字获取对象方法 -->
+	<select id="getByNameForApp" resultMap="journalArticleResultMap">
+		select result.* from (select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,a.source,b.magazine_id,a.title,d.knowledge_acc_id,a.secure_rank_id,d.upload_files
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		knowledge_acc d on d.knowledge_acc_id=a.knowledge_acc_id and
+		d.knowledge_classify_id=1
+		where a.secure_rank_id=1 and a.title LIKE CONCAT('%',#{keyword},'%')
+		UNION ALL
+		select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,a.source,b.magazine_id,a.title,e.knowledge_acc_id,a.secure_rank_id,e.upload_files
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id
+		left outer join knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id
+		and e.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		and a.title LIKE CONCAT('%',#{keyword},'%')
+		) as result
+		order by result.journal_article_id desc
+		LIMIT #{size}
+	</select>
+	<select id="getUpKnowledge" resultType="java.util.Map">
+		select count(res.id) as num ,res.user,a.realname from
+		(select user_id as user,journal_article_id as id from journal_article
+		where source!=0
+		UNION ALL
+		select user_id as user,self_paper_id as id from self_paper
+		UNION ALL
+		select user_id as user ,patent_id as id from patent) as res
+		left outer join sys_user a on res.user=a.user_id
+		where date_sub(now(),interval 30 day)
+		group by res.user,a.realname order by num desc
+	</select>
+	<select id="getUpProject" resultType="java.util.Map">
+		select count(a.pro_id) as num,b.user_id,d.realname from project_basic_info a
+		left outer join project_number b on a.pro_id=b.pro_id
+		left outer join project_role c on b.pro_role_id=c.pro_role_id
+		left outer join sys_user d on b.user_id=d.user_id
+		left outer join sys_role e on d.role_id=e.role_id
+		where e.role_name='ROLE_TEAM' and date_sub(now(),interval 30 day)
+		group by b.user_id ,d.realname order by num desc
+	</select>
+	<!-- 根据主键获取对象 -->
+	<select id="getCrnter" parameterType="Integer" resultType="String">
+		select b.latitude_longitude from sys_user a left join
+		sys_signing_agency b on a.agency_id=b.agency_id where
+		a.user_id=#{userId}
+	</select>
+	<!-- 删除对象方法 -->
+	<delete id="deletePro" parameterType="Integer">
+		delete from
+		knowledge_pro_rela
+		where
+		knowledge_classify_id=#{i} and
+		mapping_knowledge_idl=#{id}
+	</delete>
+
+	<delete id="deleteReac" parameterType="Integer">
+		delete from
+		knowledge_classify_reac_rela
+		where
+		knowledge_classify_id=#{i} and
+		mapping_knowledge_idl=#{id}
+	</delete>
+	<select id="getProRole" resultType="String">
+		select b.pro_role_type from project_number a ,project_role b where
+		a.pro_role_id=b.pro_role_id and a.pro_id=#{proId} and
+		user_id=#{userId}
+	</select>
+
+	<!-- 分享No1 -->
+	<select id="getShare" resultType="java.util.Map">
+		select result.name as name,sum(result.num) as number from (
+		select s.realname as name,count(t.project_moments_id) as num from
+		project_moments t ,sys_user s
+		where t.user_id=s.user_id
+		group by name ) as result
+		group by result.name order by number desc
+	</select>
+
+	<!-- 首页预约数量 -->
+	<select id="getDeviceAppointment" parameterType="Integer"
+		resultType="java.lang.Integer">
+		select count(*) from device_appointment
+		<if test="roleName!='ROLE_TEAM' ">
+			where user_id =#{userId}
+		</if>
+	</select>
+	<!-- 首页预约数量 -->
+	<select id="getJournalNum" resultType="java.lang.Integer">
+		select count(1) from
+		(select
+		a.*
+		from journal_article a
+		left outer join sys_user c on
+		a.user_id=c.user_id
+		left outer join secure_rank d on
+		d.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source in(0,#{angency})
+		UNION ALL
+		select distinct
+		a.*
+		from journal_article a
+		left outer join sys_user c on
+		a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source in(0,#{angency})
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		)as result
+	</select>
+	<select id="journalBaseNum" resultType="java.lang.Integer">
+		select count(*) from journal_article where source=0
+	</select>
+	
+	<select id="journalSlefNum" resultType="java.lang.Integer">
+		select count(*) from journal_article where source=#{angency} and user_id=#{userId}
+	</select>
+	
+	<select id="journalAgencyNum" resultType="java.lang.Integer">
+		select count(*) from journal_article where source=#{angency} and user_id !=#{userId}
+	</select>
+
+	<select id="getHotSearch" resultType="java.util.Map">
+		select * from hot_search
+		order by search_num desc limit 30
+	</select>
+
+	<select id="getExpertNameCh" resultType="java.util.Map">
+		select
+		expert_id,expert_name_ch,expert_name_en,img_url,professional_title as
+		achievement,research_area,user_id from expert
+	</select>
+	<select id="getUserExpert" resultType="java.util.Map">
+		select
+		expert_id,expert_name_ch,expert_name_en,img_url,professional_title as
+		achievement,research_area,user_id from expert
+		where expert_id in (select expert_id from labwinner_base.base_user where
+		expert_id is not null) and source=0
+	</select>
+
+
+	<select id="getExpertNameEn" resultType="java.util.Map">
+		select
+		expert_name_en,img_url from expert where expert_name_en is not null
+	</select>
+
+	<select id="getExpertName" resultType="java.util.Map">
+		select
+		expert_id,expert_name_ch,expert_name_en,img_url,achievement,research_area,user_id,source
+		from expert
+	</select>
+
+
+
+
+	<select id="getKnowledgeFirst" resultType="java.util.Map">
+		select distinct g.* from (SELECT
+		a.journal_article_id as id,a.title as title,1 as classify,a.create_date as
+		createTime,b.realname as creater,b.user_image as url,e.knowledge_acc_id,e.upload_files
+		FROM journal_article a
+		left outer join sys_user b on a.user_id=b.user_id
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source!=0
+		UNION all
+		SELECT
+		a.journal_article_id as id,a.title as title,1 as classify,a.create_date as
+		createTime,b.realname as creater,b.user_image as url,e.knowledge_acc_id,e.upload_files
+		FROM journal_article a
+		left outer join journal_user j on
+		a.journal_article_id=j.journal_article_id and knowledge_classify_id=1
+		left outer join sys_user b on a.user_id=b.user_id
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source!=0
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or j.user_id=#{userId})
+		</if>
+		) g
+		order by g.createTime desc
+	</select>
+	
+	<select id="getKnowledgeFirstBase" resultType="java.util.Map">
+		SELECT
+		a.journal_article_id as id,a.title as title,1 as classify,a.create_date as
+		createTime,e.knowledge_acc_id,e.upload_files
+		FROM journal_article a
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where  a.source=0
+		order by createTime desc
+	</select>
+	
+	
+	
+
+
+	<select id="getKnowledgeNum" resultType="java.lang.Integer">
+		select count(1) from (select distinct result.* from
+		(SELECT a.journal_article_id as id,1 as classfy
+		FROM journal_article a
+		where a.secure_rank_id=1 and a.title like CONCAT('%',#{searchName},'%') or
+		a.key_words like CONCAT('%',#{searchName},'%') or a.abstract like
+		CONCAT('%',#{searchName},'%')
+		UNION all
+		SELECT
+		a.journal_article_id as id,1 as classfy
+		FROM journal_article a
+		left outer join journal_user j on
+		a.journal_article_id=j.journal_article_id and knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.title like CONCAT('%',#{searchName},'%') or a.key_words like
+		CONCAT('%',#{searchName},'%') or a.abstract like
+		CONCAT('%',#{searchName},'%')
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or j.user_id=#{userId})
+		</if>
+		UNION all
+		SELECT a.self_paper_id as id ,2 as classfy
+		FROM self_paper a
+		where a.secure_rank_id=1 and a.title like CONCAT('%',#{searchName},'%') or
+		a.key_words like CONCAT('%',#{searchName},'%') or a.abstract like
+		CONCAT('%',#{searchName},'%')
+		UNION all
+		SELECT a.self_paper_id as id ,2 as classfy
+		FROM self_paper a
+		left outer join journal_user j on a.self_paper_id=j.journal_article_id and
+		knowledge_classify_id=2
+		where a.secure_rank_id=2
+		and a.title like CONCAT('%',#{searchName},'%') or a.key_words like
+		CONCAT('%',#{searchName},'%') or a.abstract like
+		CONCAT('%',#{searchName},'%')
+		<if test="roleName != 'ROLE_TEAM' ">
+			and (a.user_id=#{userId} or j.user_id=#{userId})
+		</if>
+		UNION all
+		SELECT distinct a.patent_id as id ,4 as classfy
+		FROM patent a
+		left outer join sys_user s on a.user_id=s.user_id
+		where a.patent_name like CONCAT('%',#{searchName},'%') or a.abstract like
+		CONCAT('%',#{searchName},'%')
+		UNION all
+		SELECT distinct a.note_id as id ,5 as classfy
+		FROM note a
+		left outer join sys_user s on a.user_id=s.user_id
+		where a.note_content like CONCAT('%',#{searchName},'%')
+		) as result) as aa
+	</select>
+
+	<select id="getUserJourKnowList" resultType="java.util.Map">
+		select count(*) as
+		number,b.realname from journal_article a left outer join sys_user b on
+		a.user_id=b.user_id
+		where a.source !=0
+		group by a.user_id
+		limit 10
+	</select>
+
+	<select id="getUserSelfList" resultType="java.util.Map">
+		select count(*) as
+		number,b.realname from self_paper a left outer join sys_user b on
+		a.user_id=b.user_id group by a.user_id
+		limit 10
+	</select>
+
+
+	<select id="getUserPatentList" resultType="java.util.Map">
+		select count(*) as
+		number,b.realname from patent a left outer join sys_user b on
+		a.user_id=b.user_id 
+		where a.source !=0
+		group by a.user_id
+		limit 10
+	</select>
+
+	<select id="getUserNoteList" resultType="java.util.Map">
+		select count(*) as
+		number,b.realname from note a left outer join sys_user b on
+		a.user_id=b.user_id group by a.user_id
+		limit 10
+	</select>
+	<select id="getByHotSearch" resultType="java.util.Map">
+		select distinct result.* from
+		(SELECT a.journal_article_id as id,1 as classfy,a.title as title,a.abstract
+		as content,b.realname as creater,a.create_date as createDate,a.user_id
+		as userId,a.source
+		FROM journal_article a
+		left outer join sys_user b on a.user_id=b.user_id
+		where a.secure_rank_id=1 and a.title like CONCAT('%',#{keyword},'%') or
+		a.key_words like CONCAT('%',#{keyword},'%') or a.abstract like
+		CONCAT('%',#{keyword},'%')
+		UNION all
+		SELECT
+		a.journal_article_id as id,1 as classfy,a.title as title,a.abstract as content,b.realname
+		as creater,a.create_date as createDate,a.user_id as userId,a.source
+		FROM journal_article a
+		left outer join sys_user b on a.user_id=b.user_id
+		left outer join journal_user j on
+		a.journal_article_id=j.journal_article_id and knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.title like CONCAT('%',#{keyword},'%') or a.key_words like
+		CONCAT('%',#{keyword},'%') or a.abstract like
+		CONCAT('%',#{keyword},'%')
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{userId} or j.user_id=#{userId})
+		</if>
+		UNION all
+		SELECT a.self_paper_id as id ,2 as classfy,a.title as title,a.abstract as
+		content,b.realname as creater,a.create_date as createDate,a.user_id as
+		userId,0 as source
+		FROM self_paper a
+		left outer join sys_user b on a.user_id=b.user_id
+		where a.secure_rank_id=1 and a.title like CONCAT('%',#{keyword},'%') or
+		a.key_words like CONCAT('%',#{keyword},'%') or a.abstract like
+		CONCAT('%',#{keyword},'%')
+		UNION all
+		SELECT a.self_paper_id as id ,2 as classfy,a.title as title,a.abstract as
+		content,b.realname as creater,a.create_date as createDate,a.user_id as
+		userId,0 as source
+		FROM self_paper a
+		left outer join sys_user b on a.user_id=b.user_id
+		left outer join journal_user j on a.self_paper_id=j.journal_article_id and
+		knowledge_classify_id=2
+		where a.secure_rank_id=2
+		and a.title like CONCAT('%',#{keyword},'%') or a.key_words like
+		CONCAT('%',#{keyword},'%') or a.abstract like
+		CONCAT('%',#{keyword},'%')
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{userId} or j.user_id=#{userId})
+		</if>
+		UNION all
+		SELECT distinct a.patent_id as id ,4 as classfy,a.patent_name as
+		title,a.abstract as content,s.realname as creater,a.create_date as
+		createDate,a.user_id as userId,0 as source
+		FROM patent a
+		left outer join sys_user s on a.user_id=s.user_id
+		where a.patent_name like CONCAT('%',#{keyword},'%') or a.abstract like
+		CONCAT('%',#{keyword},'%')
+		UNION all
+		SELECT distinct a.note_id as id ,5 as classfy,a.note_name as
+		title,a.note_content as content,s.realname as creater,a.create_date as
+		createDate,a.user_id as userId,0 as source
+		FROM note a
+		left outer join sys_user s on a.user_id=s.user_id
+		where a.note_name like CONCAT('%',#{keyword},'%')
+		) as result
+	</select>
+	<select id="getAllForPerson" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select result.* from
+		(
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,a.source,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,f.knowledge_acc_id,e.secure_rank_id,e.secure_rank,f.upload_files,f.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.source=0
+		 and find_in_set(#{expertName},author)
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+	<select id="getExpertById" resultType="java.util.Map">
+		select * from expert where
+		expert_id=#{id}
+	</select>
+
+
+	<select id="getAllForPersonByName" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select result.* from
+		(
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,a.source,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,f.knowledge_acc_id,e.secure_rank_id,e.secure_rank,f.upload_files,f.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.source=0
+		and upper(a.title) LIKE upper(CONCAT('%',#{keyword},'%'))
+		 and find_in_set(#{expertName},author)
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAllByTitleAndExpert" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select result.* from
+		(select
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,e.knowledge_acc_id,d.secure_rank_id,d.secure_rank,e.upload_files,e.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join
+		secure_rank d on d.secure_rank_id=a.secure_rank_id
+		left outer join
+		knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id and
+		e.knowledge_classify_id=1
+		where a.secure_rank_id=1
+		and a.source in (0,#{angency})
+		and( find_in_set(#{keyword},author) or upper(a.title) LIKE
+		upper(CONCAT('%',#{keyword},'%')))
+		UNION ALL
+		select distinct
+		a.journal_article_id,c.user_id,c.realname,a.author,a.write_date,a.key_words,a.abstract,a.author_unit,a.source,
+		b.ch_name,b.en_name,b.issn,a.page_num,a.call_number,a.database_sources,a.upload_time,a.issue,a.volume,
+		a.pdf_code,a.creater,a.create_date,a.modifier,a.modify_date,b.magazine_id,a.title,f.knowledge_acc_id,e.secure_rank_id,e.secure_rank,f.upload_files,f.pdf_count
+		from journal_article a
+		left outer join magazine b on
+		a.magazine_id=b.magazine_id
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id
+		and f.knowledge_classify_id=1
+		where a.secure_rank_id=2
+		and a.source in (0,#{angency})
+		and( find_in_set(#{keyword},author) or upper(a.title) LIKE
+		upper(CONCAT('%',#{keyword},'%')))
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		)as result
+		order by result.journal_article_id desc
+	</select>
+
+
+	<!-- 分享No1 -->
+	<select id="findPort" resultType="java.util.Map">
+		select * from labwinner_base.agency_port where web_port=#{webPort}
+	</select>
+
+	<select id="getAgencyContents" resultType="java.util.Map">
+		select * from labwinner_base.agency_contents where agency_id=#{angencyId} or agency_id=0
+	</select>
+	
+	
+		<select id="getAgencyContentsById" resultType="java.util.Map">
+		select * from labwinner_base.agency_contents where agency_id=#{angencyId} or agency_id=0
+	</select>
+
+<select id="getByKnowledgeFieldId" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select * from journal_article where find_in_set(#{id},knowledge_field)
+	</select>
+	
+	<!-- 添加产品的人员 -->
+	<select id="getProductUserList" resultType="java.util.Map">
+		select a.user_id as userId,a.realname as realname from sys_user a
+		left outer join sys_role_menu b on a.role_id=b.role_id
+		left outer join sys_menu c on b.menu_id=c.menu_id
+		where c.menu_id=604
+	</select>
+	
+	
+		<!-- 添加产品的人员 -->
+	<select id="getUserByKeywordList" resultType="java.util.Map">
+		select a.user_id as userId,a.realname as realname from sys_user a
+		left outer join sys_role_menu b on a.role_id=b.role_id
+		left outer join sys_menu c on b.menu_id=c.menu_id
+		where c.menu_id=604
+		and realname like CONCAT('%',#{keyword},'%')
+	</select>
+	
+	
+		<select id="getSelfKnowledgeForApp" resultType="java.util.Map">
+		select result.* from
+		(
+		select distinct
+		a.journal_article_id,a.title,a.author,a.key_words,a.write_date,a.abstract,a.knowledge_acc_id,a.user_id,a.source,e.upload_files,f.ch_name,f.en_name
+		from journal_article a
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		left outer join magazine f on a.magazine_id=f.magazine_id
+		where a.source!=0
+		and a.user_id=#{userId}
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		order by journal_article_id desc
+	</select>
+	
+	<select id="getAllJournals" resultType="java.util.Map">
+		select result.* from
+		(
+		select distinct
+		a.journal_article_id as id,a.title as title ,a.author as author,a.source,e.upload_files
+		from journal_article a
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.source!=0
+		and a.secure_rank_id=1
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		union all
+		select distinct
+		a.journal_article_id as id,a.title as title ,a.author as author,a.source,e.upload_files
+		from journal_article a
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		left outer join journal_user j on a.journal_article_id=j.journal_article_id and
+		j.knowledge_classify_id=1
+		where a.source!=0
+		and a.secure_rank_id=2
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		union all
+		select distinct
+		a.journal_article_id as id,a.title as title ,a.author as author,a.source,e.upload_files
+		from journal_article a
+		left outer join journal_user d on
+		a.journal_article_id=d.journal_article_id and
+		d.knowledge_classify_id=1
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where a.source=0
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		order by id desc
+	</select>
+	
+	
+	<select id="getAllSelf" resultType="java.util.Map">
+		select result.* from
+		(
+		select distinct
+		a.self_paper_id as id,a.title as title ,a.creater as author,e.upload_files
+		from self_paper a
+		left outer join journal_user d on
+		a.self_paper_id=d.journal_article_id and
+		d.knowledge_classify_id=2
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=2
+		where  (a.secure_rank_id!=2 or a.secure_rank_id is null)
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		union all
+		select distinct
+		a.self_paper_id as id,a.title as title ,a.creater as author,e.upload_files
+		from self_paper a
+		left outer join journal_user d on
+		a.self_paper_id=d.journal_article_id and
+		d.knowledge_classify_id=2
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=2
+		left outer join journal_user j on a.self_paper_id=j.journal_article_id and
+		j.knowledge_classify_id=2
+		where  a.secure_rank_id=2
+		<if test="roleName != 'ROLE_TEAM'  ">
+			and (a.user_id=#{userId} or d.user_id=#{userId})
+		</if>
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>		
+		)as result
+		order by id desc
+	</select>
+	
+	
+	<select id="getAllPatent" resultType="java.util.Map">
+		select result.* from
+		(
+		select distinct
+		a.patent_id as id,a.patent_name as title ,a.inventor as author,a.source,e.upload_files
+		from patent a
+		left outer join journal_user d on
+		a.patent_id=d.journal_article_id and
+		d.knowledge_classify_id=4
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=4
+		<if test="keyword != 'undefined' ">
+			where a.patent_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		order by id desc
+	</select>
+	
+	<select id="getStaticFile" resultType="java.util.Map">
+		select * from labwinner_base.agency_contents where contents_name='testfile'
+	</select>
+	
+	<select id="getAgencyPic" resultType="java.util.Map">
+		select * from labwinner_base.agency_picture where agency_name=#{pageUrl}
+	</select>
+	
+	
+		<select id="getByAccId" resultType="com.labwinner.domain.JournalArticle"
+		resultMap="journalArticleResultMap">
+		select * from journal_article where knowledge_acc_id=#{knowledgeAccId}
+		</select>
+		
+		
+		<select id="getPersonKnoledgeNum" resultType="java.lang.Integer">
+		select count(*) from journal_article where user_id=#{userId} and source!=0
+	</select>
+	
+
+</mapper> 

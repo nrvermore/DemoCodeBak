@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.DeviceVideoDao">
+   
+   <resultMap id="deviceVideoMap" type="com.labwinner.domain.DeviceVideo">
+        <id column="device_video_id" property="deviceVideoId" />        
+        <result column="video" property="video" />
+        <result column="upload_time" property="uploadTime" />
+        <result column="video_remark" property="videoRemark" />
+        <result column="video_pic" property="videoPic" />
+      
+        <association property="device" javaType="com.labwinner.domain.Device">
+            <id property="deviceId" column="device_id"/>
+            <result column="device_name" property="deviceName" />
+	        <result column="vendor" property="vendor" />
+	        <result column="model" property="model" />
+	        <result column="number_peoplet" property="numberPeoplet" />
+	        <result column="key_equipment" property="keyEquipment" />     
+       </association>
+       
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.DeviceVideo" resultMap="deviceVideoMap">
+		   select device.device_id,device_name,vendor,model,number_peoplet,
+		     key_equipment,device_video_id,video,upload_time,video_pic,video_remark 
+		     from device_video
+			 left outer join device on
+			 device.device_id=device_video.device_id
+	         order by device.device_id desc
+		 
+	</select>
+	<!-- 更具设备ID获取所有对象列表 -->
+	<select id="getAllByDeviceId" resultType="com.labwinner.domain.DeviceVideo" resultMap="deviceVideoMap">
+		  select device.device_id,device_name,vendor,model,number_peoplet,   
+                key_equipment,device_video_id,video,upload_time,video_pic,video_remark  
+		        from device_video
+		        left outer join device on    
+				device.device_id=device_video.device_id  
+                where device_video.device_id=#{id}
+                order by device_video.upload_time desc 
+		 
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.DeviceVideo" resultMap="deviceVideoMap">
+		
+		select device.device_id,device_name,vendor,model,number_peoplet,
+		     key_equipment,device_video_id,video,upload_time,video_pic,video_remark 
+		     from device_video
+			 left outer join device on
+			 device.device_id=device_video.device_id
+		 where device.device_name LIKE concat('%',#{keyword},'%')
+		 order by device.device_id desc
+		 
+	</select>
+	
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageableAppByKeyword" resultType="com.labwinner.domain.DeviceVideo" resultMap="deviceVideoMap">
+			select device.device_id,device_name,vendor,model,number_peoplet,
+		     key_equipment,device_video_id,video,upload_time,video_pic,video_remark 
+		     from device_video
+			 left outer join device on
+			 device.device_id=device_video.device_id
+		 where device.device_name LIKE concat('%',#{keyword},'%')
+		 order by device.device_id desc
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageableApp" resultType="com.labwinner.domain.DeviceVideo" resultMap="deviceVideoMap">
+		
+		 	select device.device_id,device_name,vendor,model,number_peoplet,
+		     key_equipment,device_video_id,video,upload_time,video_pic,video_remark 
+		     from device_video
+			 left outer join device on
+			 device.device_id=device_video.device_id
+		 order by device.device_id desc
+		 
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.DeviceVideo" resultMap="deviceVideoMap">
+		select device.device_id,device_name,vendor,model,number_peoplet,
+		     key_equipment,device_video_id,video,upload_time,video_pic,video_remark 
+		     from device_video
+			 left outer join device on
+			 device.device_id=device_video.device_id
+			 where device_video.device_video_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.DeviceVideo"
+		useGeneratedKeys="true" keyProperty="deviceVideoId">
+		insert into
+		device_video(
+		    video,
+		    video_remark,
+		    video_pic,
+		    upload_time,                    
+			device_id)
+		value(
+		#{video},
+		#{videoRemark},
+		#{videoPic},
+		#{uploadTime},
+		#{device.deviceId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.DeviceVideo">
+		update device_video
+		<trim prefix="set" suffixOverrides=",">
+		<if test="video!=null">video=#{video},</if>
+		<if test="videoRemark!=null">video_remark=#{videoRemark},</if>
+		<if test="videoPic!=null">video_pic=#{videoPic},</if>
+		<if test="uploadTime!=null">upload_time=#{uploadTime},</if>
+		<if test="device.deviceId!=null">device_id=#{device.deviceId},</if>
+		</trim>
+		where
+		device_video_id=#{deviceVideoId}
+	</update>
+
+		<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from device_video
+		where
+		device_video_id=#{id}
+	</delete>
+
+</mapper> 

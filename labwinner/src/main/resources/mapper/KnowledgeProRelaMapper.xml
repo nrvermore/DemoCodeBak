@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 知识附件 -->
+<mapper namespace="com.labwinner.dao.KnowledgeProRelaDao">
+
+	<resultMap id="knowledgeProRelaResultMap" type="com.labwinner.domain.KnowledgeProRela">
+		<id property="knowledgeProRelaId" column="knowledge_pro_rela_id" />
+		<id property="mappingKnowledgeIdl" column="mapping_knowledge_idl" />
+	<!-- 	<result property="creater" column="creater" /> -->
+		<result property="createDate" column="create_date" />
+		<result property="modifier" column="modifier" />
+		<result property="modifyDate" column="modify_date" />
+		<association property="projectBasicInfo" javaType="com.labwinner.domain.ProjectBasicInfo">
+            <id property="proId" column="pro_id"/>
+            <result property="proName" column="pro_name"/>
+       </association>
+       	<association property="knowledgeClassify" javaType="com.labwinner.domain.KnowledgeClassify">
+            <id property="knowledgeClassifyId" column="knowledge_classify_id"/>
+            <result property="knowledgeClassifyName" column="knowledge_classify_name"/>
+       </association>
+       
+       <association property="creater" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id" />
+				<result property="realname" column="realname" />
+	   </association>
+       
+	</resultMap>
+
+	<sql id="columns">mapping_knowledge_idl,creater,create_date,modifier,modify_date,pro_id,knowledge_classify_id
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="knowledgeProRelaResultMap">
+		select
+		<include refid="columns" />
+		from knowledge_pro_rela
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="knowledgeProRelaResultMap">
+		select
+		<include refid="columns" />
+		from
+		knowledge_pro_rela
+		where knowledge_pro_rela_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.KnowledgeProRela"
+		useGeneratedKeys="true" keyProperty="knowledgeProRelaId">
+		insert into
+		knowledge_pro_rela(
+		<include refid="columns" />
+		)
+		value(#{mappingKnowledgeIdl},
+		#{creater.userId},#{createDate},
+		#{modifier}, #{modifyDate},
+		#{projectBasicInfo.proId},#{knowledgeClassify.knowledgeClassifyId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.KnowledgeProRela">
+		update
+		knowledge_pro_rela set
+		atta_name=#{knowledgeClassifyName},
+		atta_content=#{image},
+		uploadFiles=#{uploadFiles},
+		knowledgeId=#{knowledgeId}
+		where knowledge_pro_rela_id=#{KnowledgeProRelaId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from knowledge_pro_rela
+		where
+		knowledge_pro_rela_id=#{id}
+	</delete>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getAllByKnowladge" parameterType="Map" resultMap="knowledgeProRelaResultMap">
+		select
+		a.knowledge_pro_rela_id,mapping_knowledge_idl,a.creater as user_id,a.create_date,a.modifier,a.modify_date,a.knowledge_classify_id,
+		b.knowledge_classify_name,c.pro_id,c.pro_name
+		from knowledge_pro_rela a
+		left outer join knowledge_classify b on b.knowledge_classify_id=a.knowledge_classify_id
+		left outer join project_basic_info c on c.pro_id=a.pro_id
+		where a.mapping_knowledge_idl=#{journalActicleId}
+		and a.knowledge_classify_id=#{knowledgeClassifyId}
+		 <if test="roleName!='ROLE_TEAM'">
+		  and c.pro_id in (select pro_id from project_number where user_id =#{userId})
+		</if>
+	</select>
+		<!-- 根据主键获取对象 -->
+	<select id="getKnowledgeProRela" parameterType="Integer" resultMap="knowledgeProRelaResultMap">
+		select
+		*
+		from
+		knowledge_pro_rela
+		where mapping_knowledge_idl=#{knowledgeId}
+		and pro_id=#{proId}
+		and knowledge_classify_id=#{classId}
+	</select>
+	
+	
+		<select id="getKnowledgeProRelaByProId" parameterType="Integer" resultMap="knowledgeProRelaResultMap">
+		select
+		*
+		from
+		knowledge_pro_rela
+		where  pro_id=#{proId}
+		and knowledge_classify_id=#{classfyId}
+	</select>
+	
+	
+</mapper> 

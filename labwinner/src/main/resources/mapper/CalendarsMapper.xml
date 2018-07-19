@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 日程管理 -->
+<mapper namespace="com.labwinner.dao.CalendarsDao">
+
+	<resultMap id="calendarsResultMap" type="com.labwinner.domain.Calendars">
+		<id property="calendarId" column="calendar_id" />
+		<result property="title" column="calendar_title" />
+		<result property="start" column="calendar_start" />
+		<result property="end" column="calendar_end" />
+		<result property="assistPeople" column="assist_people" />
+		<result property="calendarContent" column="calendar_content" />
+		<result property="creater" column="creater" />
+		<result property="createDate" column="create_date" />
+		<result property="modifier" column="modifier" />
+		<result property="modifyDate" column="modify_date" />
+		<result property="_id" column="_id" />
+		<result property="allDay" column="all_day" />
+		<result property="class_" column="class_" />
+		<result property="calendarType" column="calendar_type" />
+		 <association property="assistStatus" javaType="com.labwinner.domain.AssistStatus">
+            <id property="assistStatusId" column="assist_status_id"/>
+            <result property="assistStatus" column="assist_status"/>
+       </association>
+		 <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+       </association>
+          <collection property="calendarAssists" ofType="com.labwinner.domain.CalendarAssist">
+			<id column="calendar_assist_id" property="calendarAssistId" />
+			 <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id1"/>
+            <result property="realname" column="realname1"/>
+      		 </association>
+			<association property="assistStatus" javaType="com.labwinner.domain.AssistStatus">
+            <id property="assistStatusId" column="assist_status_id1"/>
+            <result property="assistStatus" column="assist_status1"/>
+       </association>
+		</collection> 
+	</resultMap>
+
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="calendarsResultMap">
+		       select a.calendar_id,a.calendar_title,a.calendar_start,a.calendar_end,a.assist_people,
+		calendar_content,a.creater,a.create_date,a.modifier,a.modify_date,_id,class_,all_day,b.user_id,b.realname
+		from calendars a
+		left outer join sys_user b on a.user_id=b.user_id
+		where a.user_id=#{userId}
+		and PERIOD_DIFF(date_format( calendar_start, '%Y%m' ) , date_format( now( ) , '%Y%m' )) =#{number}
+		union all
+		select a.calendar_id,a.calendar_title,a.calendar_start,a.calendar_end,a.assist_people,
+		calendar_content,a.creater,a.create_date,a.modifier,a.modify_date,_id,class_,all_day,b.user_id,b.realname
+		from calendars a
+		left outer join sys_user b on a.user_id=b.user_id
+		where a.assist_people like CONCAT('%',#{userId},'%')
+		and PERIOD_DIFF(date_format( calendar_start, '%Y%m' ) , date_format( now( ) , '%Y%m' )) =#{number}
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getOneDay" resultMap="calendarsResultMap">
+		 select a.calendar_id,a.calendar_title,a.calendar_start,a.calendar_end,a.assist_people,
+		calendar_content,a.creater,a.create_date,a.modifier,a.modify_date,_id,class_,all_day,b.user_id,b.realname
+		from calendars a
+		left outer join sys_user b on a.user_id=b.user_id
+		where a.user_id=#{userId} and to_days(calendar_start) = to_days(now())
+		union all
+		select a.calendar_id,a.calendar_title,a.calendar_start,a.calendar_end,a.assist_people,
+		calendar_content,a.creater,a.create_date,a.modifier,a.modify_date,_id,class_,all_day,b.user_id,b.realname
+		from calendars a
+		left outer join sys_user b on a.user_id=b.user_id
+		where a.assist_people like CONCAT('%',#{userId},'%')
+		 and to_days(calendar_start) = to_days(now())
+		order by calendar_start desc
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="calendarsResultMap">
+		select a.calendar_id,calendar_title,calendar_start,calendar_end,assist_people,
+		calendar_content,a.creater,a.create_date,a.modifier,a.modify_date,_id,class_,all_day,b.user_id,b.realname,c.assist_status_id,c.assist_status,calendar_type
+		from calendars a
+		left outer join sys_user b on a.user_id=b.user_id
+		left outer join assist_status c on a.assist_status_id=c.assist_status_id
+		where calendar_id=#{id} 
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Calendars"
+		useGeneratedKeys="true" keyProperty="calendarId">
+		insert into
+		calendars(
+		calendar_title,calendar_start,calendar_end,assist_people,
+		calendar_content,creater,create_date,modifier,modify_date,user_id,_id,class_,all_day,assist_status_id,calendar_type
+		)
+		value(#{title},
+		#{start},
+		#{end},
+		#{assistPeople},
+		#{calendarContent},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate},
+		#{sysUser.userId},
+		#{_id},
+		#{class_},
+		#{allDay},
+		#{assistStatus.assistStatusId},
+		#{calendarType}
+		)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.Calendars">
+		update
+		calendars set
+		calendar_title=#{title},
+		calendar_start=#{start},
+		calendar_end=#{end},
+		assist_people=#{assistPeople},
+		calendar_content=#{calendarContent},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate},
+		user_id=#{sysUser.userId},
+		class_=#{class_},
+		all_day=#{allDay},
+		calendar_type=#{calendarType},
+		assist_status_id=#{assistStatus.assistStatusId}
+		where calendar_id=#{calendarId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from calendars
+		where
+		calendar_id=#{calendarId}
+	</delete>
+
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAllForApp" resultMap="calendarsResultMap">
+		       select a.calendar_id,a.calendar_title,a.calendar_start,a.calendar_end,a.assist_people,
+		calendar_content,a.creater,a.create_date,a.modifier,a.modify_date,_id,class_,all_day,calendar_type,b.user_id,b.realname
+		from calendars a
+		left outer join sys_user b on a.user_id=b.user_id
+		where a.user_id=#{userId}
+		union all
+		select a.calendar_id,a.calendar_title,a.calendar_start,a.calendar_end,a.assist_people,
+		calendar_content,a.creater,a.create_date,a.modifier,a.modify_date,_id,class_,all_day,calendar_type,b.user_id,b.realname
+		from calendars a
+		left outer join sys_user b on a.user_id=b.user_id
+		where a.assist_people like CONCAT('%',#{userId},'%')
+		order by calendar_start desc
+	</select>
+	
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getAllUnStartCalendars" resultMap="calendarsResultMap">
+	select distinct calendars.calendar_id,calendars.calendar_title,calendars.calendar_start ,calendars.calendar_end,calendars.class_,sys_user.user_id,sys_user.realname ,assist_status.assist_status_id,assist_status.assist_status
+	from  calendars
+		left outer join sys_user on calendars.user_id=sys_user.user_id
+		left outer join calendar_assist on calendars.calendar_id=calendar_assist.calendar_id
+		left outer join assist_status on  calendars.assist_status_id=assist_status.assist_status_id
+    	left outer join sys_user as user1 on calendar_assist.user_id=user1.user_id
+    	left outer join assist_status as assist_status1 on calendar_assist.assist_status_id=assist_status.assist_status_id
+		where str_to_date(#{calendarTime},'%Y-%m-%d %H:%i:%s') between DATE_FORMAT(calendar_start,'%Y-%m-%d 00:00:00') and DATE_FORMAT(calendar_end,'%Y-%m-%d 23:59:59')
+		and calendar_type=1
+		and (calendars.user_id=#{userId} and calendars.assist_status_id =1
+		or(calendar_assist.user_id=#{userId} and calendar_assist.assist_status_id =1)	)
+		order by calendars.calendar_end
+	</select>
+	
+	
+	<select id="getUnStartCalendars" resultMap="calendarsResultMap">
+	select distinct calendars.calendar_id,calendars.calendar_title,calendars.calendar_start ,calendars.calendar_end,calendars.class_,sys_user.user_id,sys_user.realname ,assist_status.assist_status_id,assist_status.assist_status
+	from  calendars
+		left outer join sys_user on calendars.user_id=sys_user.user_id
+		left outer join calendar_assist on calendars.calendar_id=calendar_assist.calendar_id
+		left outer join assist_status on  calendars.assist_status_id=assist_status.assist_status_id
+    	left outer join sys_user as user1 on calendar_assist.user_id=user1.user_id
+    	left outer join assist_status as assist_status1 on calendar_assist.assist_status_id=assist_status.assist_status_id
+		where calendar_type=1
+		and (calendars.user_id=#{userId} and calendars.assist_status_id =1
+		or(calendar_assist.user_id=#{userId} and calendar_assist.assist_status_id =1)	)
+		order by calendars.calendar_end
+	</select>
+	
+	<select id="getScreenCalendars" resultMap="calendarsResultMap">
+	select distinct calendars.calendar_id,calendars.calendar_title,calendars.calendar_start ,calendars.calendar_end,calendars.class_,sys_user.user_id,sys_user.realname ,assist_status.assist_status_id,assist_status.assist_status
+	from  calendars
+		left outer join sys_user on calendars.user_id=sys_user.user_id
+		left outer join calendar_assist on calendars.calendar_id=calendar_assist.calendar_id
+		left outer join assist_status on  calendars.assist_status_id=assist_status.assist_status_id
+    	left outer join sys_user as user1 on calendar_assist.user_id=user1.user_id
+    	left outer join assist_status as assist_status1 on calendar_assist.assist_status_id=assist_status.assist_status_id
+		where calendar_type=1
+		order by calendars.calendar_end
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getAllStartCalendars" resultMap="calendarsResultMap">
+	select distinct calendars.calendar_id,calendars.calendar_title,calendars.calendar_start,calendars.calendar_end ,calendars.class_,sys_user.user_id,sys_user.realname ,assist_status.assist_status_id,assist_status.assist_status
+	from  calendars
+		left outer join sys_user on calendars.user_id=sys_user.user_id
+		left outer join calendar_assist on calendars.calendar_id=calendar_assist.calendar_id
+		left outer join assist_status on  calendars.assist_status_id=assist_status.assist_status_id
+    	left outer join sys_user as user1 on calendar_assist.user_id=user1.user_id
+    	left outer join assist_status as assist_status1 on calendar_assist.assist_status_id=assist_status.assist_status_id
+		where str_to_date(#{calendarTime},'%Y-%m-%d %H:%i:%s') between DATE_FORMAT(calendar_start,'%Y-%m-%d 00:00:00') and DATE_FORMAT(calendar_end,'%Y-%m-%d 23:59:59')
+		and calendar_type=1
+		and (calendars.user_id=#{userId} and calendars.assist_status_id =2
+		or(calendar_assist.user_id=#{userId} and calendar_assist.assist_status_id =2)	)
+	</select>
+	
+	
+	
+	
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getAllMySendCalendars" resultMap="calendarsResultMap">
+	select  calendars.calendar_id,calendars.calendar_title,calendars.calendar_start ,calendars.calendar_end ,calendars.class_,sys_user.user_id,sys_user.realname ,assist_status.assist_status_id,assist_status.assist_status
+	from  calendars
+		left outer join sys_user on calendars.user_id=sys_user.user_id
+		left outer join calendar_assist on calendars.calendar_id=calendar_assist.calendar_id
+		left outer join assist_status on  calendars.assist_status_id=assist_status.assist_status_id
+    	left outer join sys_user as user1 on calendar_assist.user_id=user1.user_id
+    	left outer join assist_status as assist_status1 on calendar_assist.assist_status_id=assist_status.assist_status_id
+		where str_to_date(#{calendarTime},'%Y-%m-%d %H:%i:%s') between DATE_FORMAT(calendar_start,'%Y-%m-%d 00:00:00') and DATE_FORMAT(calendar_end,'%Y-%m-%d 23:59:59')
+		and calendar_type=1
+		and calendars.user_id=#{userId} 
+		and calendars.assist_status_id in (1,2)
+	</select>
+	
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getAllMyDoCalendars" resultMap="calendarsResultMap">
+	select   calendars.calendar_id,calendars.calendar_title,calendars.calendar_start,calendars.calendar_end,calendars.class_,sys_user.user_id,sys_user.realname ,assist_status.assist_status_id,assist_status.assist_status
+	from  calendars
+		left outer join sys_user on calendars.user_id=sys_user.user_id
+		left outer join calendar_assist on calendars.calendar_id=calendar_assist.calendar_id
+		left outer join assist_status on  calendars.assist_status_id=assist_status.assist_status_id
+    	left outer join sys_user as user1 on calendar_assist.user_id=user1.user_id
+    	left outer join assist_status as assist_status1 on calendar_assist.assist_status_id=assist_status.assist_status_id
+		where str_to_date(#{calendarTime},'%Y-%m-%d %H:%i:%s') between DATE_FORMAT(calendar_start,'%Y-%m-%d 00:00:00') and DATE_FORMAT(calendar_end,'%Y-%m-%d 23:59:59')
+		and calendar_type=1
+		and calendar_assist.user_id=#{userId} 
+		and calendar_assist.assist_status_id in (1,2)
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getAllMyCalendars" resultMap="calendarsResultMap">
+	select  calendars.calendar_id,calendars.calendar_title,calendars.calendar_start ,calendars.calendar_end,calendars.class_,sys_user.user_id,sys_user.realname ,assist_status.assist_status_id,assist_status.assist_status
+	from  calendars, sys_user,assist_status 
+  		where str_to_date(#{calendarTime},'%Y-%m-%d %H:%i:%s') between DATE_FORMAT(calendar_start,'%Y-%m-%d 00:00:00') and DATE_FORMAT(calendar_end,'%Y-%m-%d 23:59:59')
+  		and calendars.user_id=sys_user.user_id
+ 		 and calendars.assist_status_id=assist_status.assist_status_id
+		and calendar_type=0
+		and calendars.user_id=#{userId}
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getCalendarsForTime" resultMap="calendarsResultMap">
+	select  calendars.calendar_id,calendars.calendar_title,calendars.calendar_start ,calendars.calendar_end ,calendars.class_,sys_user.user_id,sys_user.realname ,assist_status.assist_status_id,assist_status.assist_status,
+	calendars.calendar_start,calendars.calendar_end,
+	calendar_assist.calendar_assist_id,user1.user_id as user_id1,user1.realname as realname1,
+	assist_status1.assist_status_id as assist_status_id1,assist_status1.assist_status as assist_status1
+	from  calendars
+		left outer join sys_user on calendars.user_id=sys_user.user_id
+		left outer join calendar_assist on calendars.calendar_id=calendar_assist.calendar_id
+		left outer join assist_status on  calendars.assist_status_id=assist_status.assist_status_id
+    	left outer join sys_user as user1 on calendar_assist.user_id=user1.user_id
+    	left outer join assist_status as assist_status1 on calendar_assist.assist_status_id=assist_status.assist_status_id
+		where 1=1
+		<if test="type ==1 ">
+		and calendar_type=1
+		and (sys_user.user_id=#{userId} and calendars.assist_status_id =1
+		or(user1.user_id=#{userId} and calendar_assist.assist_status_id =1)	)
+		</if>
+		<if test="type ==2 ">
+		and calendar_type=1
+		and (sys_user.user_id=#{userId} and calendars.assist_status_id =2
+		or(user1.user_id=#{userId} and calendar_assist.assist_status_id =2)	)
+		</if>
+		<if test="type ==3 ">
+		and calendar_type=1
+		and sys_user.user_id=#{userId} 
+		and  calendars.assist_status_id in(1,2)
+		</if>
+		<if test="type ==4 ">
+		and calendar_type=1
+		and user1.user_id=#{userId} 
+		and  calendars.assist_status_id in(1,2)
+		</if>
+		<if test="type ==5 ">
+		and calendar_type=1
+		and sys_user.user_id=#{userId}
+		and calendars.assist_status_id=3
+		</if>
+		<if test="type ==6 ">
+		and calendar_type=0
+		and sys_user.user_id=#{userId}
+		</if>
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getAllEndCalendars" resultMap="calendarsResultMap">
+	select  calendars.calendar_id,calendars.calendar_title,calendars.calendar_start,calendars.calendar_end ,calendars.class_,sys_user.user_id,sys_user.realname ,assist_status.assist_status_id,assist_status.assist_status,
+	calendar_assist.calendar_assist_id,user1.user_id as user_id1,user1.realname as realname1,
+	assist_status1.assist_status_id as assist_status_id1,assist_status1.assist_status as assist_status1
+	from  calendars
+		left outer join sys_user on calendars.user_id=sys_user.user_id
+		left outer join calendar_assist on calendars.calendar_id=calendar_assist.calendar_id
+		left outer join assist_status on  calendars.assist_status_id=assist_status.assist_status_id
+    	left outer join sys_user as user1 on calendar_assist.user_id=user1.user_id
+    	left outer join assist_status as assist_status1 on calendar_assist.assist_status_id=assist_status.assist_status_id
+		where str_to_date(#{calendarTime},'%Y-%m-%d %H:%i:%s') between DATE_FORMAT(calendar_start,'%Y-%m-%d 00:00:00') and DATE_FORMAT(calendar_end,'%Y-%m-%d 23:59:59')
+		and calendar_type=1
+		and calendars.user_id=#{userId} and calendars.assist_status_id =3
+	</select>
+	
+		<!-- 更新对象方法 -->
+	<update id="updateStatus" parameterType="Integer">
+		update calendars set calendar_type=1 where calendar_id=#{id}
+		
+	</update>
+	
+	
+		
+</mapper> 

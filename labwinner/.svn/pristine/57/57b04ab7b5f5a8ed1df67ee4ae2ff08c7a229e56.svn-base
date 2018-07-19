@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProjectPictureDao">
+   
+   <resultMap id="projectPictureMap" type="com.labwinner.domain.ProjectPicture">
+        <id column="project_picture_id" property="projectPictureId" />        
+        <result column="project_picture_name" property="projectPictureName" />
+        <result column="pro_picture" property="proPicture" />
+      
+        <association property="projectBasicInfo"
+			javaType="com.labwinner.domain.ProjectBasicInfo">
+			<id property="proId" column="pro_id" />
+		    <result property="proName" column="pro_name" />
+		</association>
+ 
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ProjectPicture" resultMap="projectPictureMap">
+		select * from project_picture
+        left outer join project_basic_info on
+        project_picture.pro_id=project_basic_info.pro_id 
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ProjectPicture" resultMap="projectPictureMap">
+		select * from project_picture
+        left outer join project_basic_info on
+        project_picture.pro_id=project_basic_info.pro_id 
+		where project_picture.project_picture_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ProjectPicture"
+		useGeneratedKeys="true" keyProperty="projectPictureId">
+		insert into
+		project_picture(
+		    project_picture_name,
+		    pro_picture,                    
+			pro_id)
+		value(
+		#{projectPictureName},
+		#{proPicture},
+		#{projectBasicInfo.proId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ProjectPicture">
+		update
+		project_picture set
+		project_picture_name=#{projectPictureName},
+		pro_picture=#{proPicture},
+		pro_id=#{projectBasicInfo.proId}
+		where
+		pro_id=#{proId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete">
+		delete from project_picture where
+		pro_id=#{arg0}
+		and project_picture_name = #{arg1}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByPro">
+		delete from project_picture where
+		pro_id=#{id}
+	</delete>
+
+
+<!-- 根据主键获取对象 -->
+	<select id="getByProId" resultType="java.lang.String" >
+		select project_picture_name from project_picture
+		where pro_id=#{id}
+	</select>
+
+</mapper> 

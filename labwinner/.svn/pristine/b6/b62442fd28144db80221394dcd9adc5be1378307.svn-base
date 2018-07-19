@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.CommentDao">
+
+<resultMap id="commentMap" type="com.labwinner.domain.CommentEntity">
+        <id column="comment_id" property="commentId" />
+        <result column="comment_content" property="commentContent" />
+        <result column="comment_date" property="commentDate" />
+         <result column="module_id" property="moduleId" />
+          <result column="modify_date" property="modifyDate" />
+           <result column="modifier" property="modifier" />
+         
+        <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+			<result property="userImage" column="user_image" />
+		</association>
+        
+        <association property="commentType" javaType="com.labwinner.domain.CommentType">
+	        <id column="type_id" property="typeId" />
+	        <result column="module_name" property="moduleName" />
+       </association>
+        
+ </resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getByModuleId" resultType="com.labwinner.domain.CommentEntity" resultMap="commentMap">
+		select comment.*,sys_user.user_id,sys_user.realname,sys_user.username,sys_user.user_image,comment_type.* 
+		from comment,sys_user,comment_type 
+		where comment.type_id = comment_type.type_id
+		and comment.comment_user_id = sys_user.user_id
+		and module_id = #{moduleId} and comment.type_id = #{typeId}
+	</select>
+
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.CommentEntity"
+		useGeneratedKeys="true" keyProperty="commentId">
+		insert into
+		comment(comment_content,comment_date,comment_user_id,module_id,type_id,modify_date,modifier)
+		value(#{commentContent},
+		#{commentDate},
+		#{sysUser.userId},
+		#{moduleId},
+		#{commentType.typeId},
+		#{modifyDate},
+		#{modifier})
+	</insert>
+	
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.CommentEntity">
+		update
+		comment
+		<trim prefix="set" suffixOverrides=",">
+		<if test="commentContent!=null">comment_content=#{commentContent},</if>
+		<if test="commentDate!=null">comment_date=#{commentDate},</if>
+		<if test="sysUser!=null">comment_user_id=#{sysUser.userId},</if>
+		<if test="moduleId!=null">module_id=#{moduleId},</if>
+		<if test="commentType!=null">type_id=#{commentType.typeId},</if>
+		<if test="modifyDate!=null">modify_date=#{modifyDate},</if>
+		<if test="modifier!=null">modifier=#{modifier},</if>
+		</trim>
+		where
+		comment_id=#{commentId}
+	</update>
+	
+	<delete id="delete" parameterType="Integer">
+	    delete from comment where
+		comment_id=#{id}
+	</delete>
+	
+	<delete id="deleteByModuleId" parameterType="Integer">
+	    delete from comment where
+		module_id = #{moduleId} and comment.type_id = #{typeId}
+	</delete>
+	
+</mapper> 

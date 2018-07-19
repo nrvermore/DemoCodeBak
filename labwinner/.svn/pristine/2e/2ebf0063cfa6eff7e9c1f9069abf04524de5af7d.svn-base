@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 专利 -->
+<mapper namespace="com.labwinner.dao.MagazineDao">
+
+	<resultMap id="magazineResultMap" type="com.labwinner.domain.Magazine">
+		<id property="magazineId" column="magazine_id" />
+		<result property="chName" column="ch_name" />
+		<result property="enName" column="en_name" />
+		<result property="issn" column="issn" />
+		<result property="language" column="language" />
+		<result property="sponsor" column="sponsor" />
+		<result property="eissn" column="eissn" />
+		<result property="nameAbbr" column="name_abbr" />
+		
+		 <collection property="journalArticles" ofType="com.labwinner.domain.JournalArticle">
+	       <id column="journal_article_id" property="journalArticleId" />
+         </collection> 
+		
+	</resultMap>
+	<sql id="columns"> ch_name, en_name,issn,language,sponsor,eissn,name_abbr
+	</sql> 
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Magazine" resultMap="magazineResultMap">
+		select * from magazine
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllName" resultType="com.labwinner.domain.Magazine" resultMap="magazineResultMap">
+		select magazine_id,ch_name,en_name from magazine
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.Magazine" resultMap="magazineResultMap">
+		select * from magazine
+		where en_name LIKE concat('%',#{keyword},'%')
+		 or ch_name LIKE concat('%',#{keyword},'%')
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.Magazine" resultMap="magazineResultMap">
+		select magazine.*,journal_article_id
+		from magazine
+		left outer join journal_article on
+		journal_article.magazine_id=magazine.magazine_id 
+		where magazine.magazine_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Magazine"
+		useGeneratedKeys="true" keyProperty="magazineId">
+		insert into
+		magazine(
+		<include refid="columns" />
+		)
+		value(
+		#{chName},
+		#{enName},
+		#{issn}, #{language},
+		#{sponsor},
+		#{eissn},
+		#{nameAbbr})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.Magazine">
+		update
+		magazine set
+		ch_name=#{chName},
+		en_name=#{enName},
+		issn=#{issn},
+		language=#{language},
+		sponsor=#{sponsor},
+		eissn=#{eissn},
+		name_abbr=#{nameAbbr}
+		where magazine_id=#{magazineId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from magazine
+		where
+		magazine_id=#{id}
+	</delete>
+	
+	
+	<!-- 根据名字获取对象方法 -->
+	<select id="getByName" parameterType="java.util.Map" resultMap="magazineResultMap">
+		select
+		*
+		from magazine 
+		where 1=1
+		<if test="issn != '' ">
+		and issn=#{issn}
+		</if>
+		<if test="issn == '' ">
+		and (en_name=#{enName} or ch_name=#{chName})
+		</if>
+	</select>
+	
+	<!-- 获取最大杂志编号 -->
+	<select id="getMaxMagazineId" resultType="Integer">
+		select
+		IFNULL(max(magazine_id),0)
+		from magazine 
+	</select>
+</mapper> 
+
+

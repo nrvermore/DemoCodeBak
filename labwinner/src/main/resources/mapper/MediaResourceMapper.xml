@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 媒体资源 -->
+<mapper namespace="com.labwinner.dao.MediaResourceDao">
+
+	<resultMap id="mediaResourceResultMap" type="com.labwinner.domain.MediaResource">
+		<id property="mediaResourceId" column="media_resource_id" />
+		<result property="url" column="url" />
+		<result property="title" column="title" />
+		<result property="author" column="author" />
+		<result property="category" column="category" />
+		<result property="uploadTime" column="upload_time" />
+		<result property="content" column="content" />
+		<result property="creater" column="creater" />
+		<result property="createDate" column="create_date" />
+		<result property="modifier" column="modifier" />
+		<result property="modifyDate" column="modify_date" />
+		<result property="sourceImage" column="source_image" />
+		<result property="sourceTitle" column="source_title" />
+		<result property="imageUrl" column="image_url" />
+		<result property="urlType" column="url_type" />
+		<result property="source" column="source" />
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+             <result property="userImage" column="user_image"/>
+       </association>
+	</resultMap>
+
+	<sql id="columns">media_resource_id, user_id, url, title,author,category,upload_time,content,creater,create_date,modifier,modify_date,source_image,source_title,url_type,image_url
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="mediaResourceResultMap">
+		select
+		media_resource_id, sys_user.user_id,sys_user.realname,sys_user.username, url, title,
+		author,category,upload_time,content,source_image,source_title,image_url,url_type,source
+		from media_resource ,sys_user 
+		where media_resource.user_id = sys_user.user_id or source=0
+		order by upload_time desc
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getFirst" resultMap="mediaResourceResultMap">
+	    select url,title, media_resource_id  from media_resource  
+   		 order by upload_time desc
+   		 limit 5
+	</select>
+	
+	
+	<select id="getAllUsers" resultMap="mediaResourceResultMap">
+		select
+		media_resource_id, sys_user.user_id,sys_user.realname,sys_user.username, url, title,
+		author,category,upload_time,content,source_image,source_title,image_url,url_type,source
+		from media_resource ,sys_user 
+		where media_resource.user_id = sys_user.user_id and source=1
+		order by upload_time desc
+	</select>
+	
+	<select id="getPageList" resultMap="mediaResourceResultMap">
+		select
+		media_resource_id, sys_user.user_id,sys_user.realname,sys_user.username, url, title,source,
+		author,category,upload_time,content,source_image,source_title,image_url,url_type
+		from media_resource 
+    	left outer join sys_user
+		on media_resource.user_id = sys_user.user_id
+		order by upload_time desc limit 0,#{pageCount}
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="mediaResourceResultMap">
+		select
+		<include refid="columns" />
+		from
+		media_resource
+		where media_resource_id=#{id}
+	</select>
+	<select id="getAllByDay" resultMap="mediaResourceResultMap">
+   select
+		media_resource_id, b.user_id,b.realname,b.username, url, title,
+		author,category,upload_time,content,source_image,source_title,image_url,url_type,source
+		from media_resource a
+		left outer join sys_user b on a.user_id=b.user_id
+		order by upload_time desc limit 15
+	</select>
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.MediaResource"
+		useGeneratedKeys="true" keyProperty="mediaResourceId">
+		insert into
+		media_resource(
+		user_id,
+		url,
+		title,
+		author,
+		category,
+		upload_time,
+		content,
+		creater,
+		create_date,
+		modifier,
+		modify_date,
+		source_image,
+		source_title,
+		url_type,
+		source,
+		image_url
+		)
+		value(
+		#{sysUser.userId},
+		#{url}, #{title},
+		#{author}, #{category},
+		#{uploadTime}, #{content},
+		#{creater}, #{createDate},
+		#{modifier}, #{modifyDate},
+		#{sourceImage},#{sourceTitle},#{urlType},#{source},#{imageUrl})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.MediaResource">
+		update
+		media_resource set
+		user_id=#{sysUser.userId},
+		url=#{url},
+		 title=#{title},
+		author=#{author},
+		 category=#{category},
+		upload_time=#{uploadTime}, 
+		content=#{content},
+		creater=#{creater}, 
+		create_date=#{createDate},
+		modifier=#{modifier}, 
+		modify_date=#{modifyDate},
+		source_image=#{sourceImage},
+		source_title=#{sourceTitle},
+		image_url=#{imageUrl}
+		where media_resource_id=#{mediaResourceId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from media_resource
+		where
+		media_resource_id=#{id}
+	</delete>
+	
+	
+	<!-- 根据名字获取对象方法 -->
+	<select id="getByName" parameterType="String">
+		select
+		<include refid="columns" />
+		from
+		media_resource
+		where title=#{name}
+	</select>
+</mapper> 

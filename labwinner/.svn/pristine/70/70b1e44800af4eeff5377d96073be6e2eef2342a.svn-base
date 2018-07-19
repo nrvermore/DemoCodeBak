@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProjectMomentsDao">
+
+	<resultMap id="projectMomentsMap" type="com.labwinner.domain.ProjectMoments">
+		<id column="project_moments_id" property="projectMomentsId" />
+		<result column="publish_time" property="publishTime" />
+		<result column="publish_content" property="publishContent" />
+		<result column="url" property="url" />
+		<result column="url_icon" property="urlIcon" />
+		<result column="url_title" property="urlTitle" />
+		<result column="share_type" property="shareType" />
+		<result column="knowledge_mes" property="knowledgeMes" />
+		<result column="url_type" property="urlType" />
+		<result column="creater" property="creater" />
+		<result column="create_date" property="createDate" />
+		<result column="modifier" property="modifier" />
+		<result column="modify_date" property="modifyDate" />
+
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id1" />
+			<result property="realname" column="realname1" />
+			<result property="username" column="username1" />
+			<result property="userImage" column="user_image1" />
+			
+		</association>
+
+		<collection property="projectMomentsRelations"
+			ofType="com.labwinner.domain.ProjectMomentsRelation">
+			<id property="relationId" column="relation_id" />
+			<association property="projectBasicInfo"
+				javaType="com.labwinner.domain.ProjectBasicInfo">
+				<id property="proId" column="pro_id" />
+				<result property="proName" column="pro_name" />
+				<result property="proNumber" column="pro_number" />
+				<result property="proStartTime" column="pro_start_time" />
+				<result property="proDeadline" column="pro_deadline" />
+				<result property="proIntroduce" column="pro_introduce" />
+				<result property="proLogo" column="pro_logo" />
+
+				<collection property="projectNumbers" ofType="com.labwinner.domain.ProjectNumber">
+					<id column="pro_number_id" property="proNumberId" />
+					<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+						<id property="userId" column="user_id2" />
+						<result property="realname" column="realname2" />
+						<result property="username" column="username2" />
+						<result property="userImage" column="user_image2" />
+					</association>
+				</collection>
+			</association>
+		</collection>
+		
+		<collection property="teamMomentsImages"
+			ofType="com.labwinner.domain.TeamMomentsImage">
+			<id property="teamProjCircleImageId" column="team_proj_circle_image_id" />
+			<result property="image" column="image" />
+			<result property="momentsType" column="moments_type1" />
+			<result property="momentsInfoId" column="moments_info_id1" />
+		</collection>
+		
+		<collection property="teamMomentsLikes"
+			ofType="com.labwinner.domain.TeamMomentsLike">
+			<id property="teamMomentsLikeId" column="team_moments_like_id" />
+			<result property="momentsType" column="moments_type2" />
+			<result property="momentsInfoId" column="moments_info_id2" />
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id3" />
+				<result property="realname" column="realname3" />
+				<result property="username" column="username3" />
+				<result property="userImage" column="user_image3" />
+			</association>
+		</collection>
+		
+		<collection property="teamProjMomentsComments"
+			ofType="com.labwinner.domain.TeamProjMomentsComment">
+			<id property="teamProjMomentsCommentId" column="team_proj_moments_comment_id" />
+			<result property="commentContent" column="comment_content" />
+			<result property="replyContent" column="reply_content" />
+			<result property="momentsType" column="moments_type3" />
+			<result property="momentsInfoId" column="moments_info_id3" />
+			<association property="commentUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id4" />
+				<result property="realname" column="realname4" />
+				<result property="username" column="username4" />
+				<result property="userImage" column="user_image4" />
+			</association>
+			<association property="replyUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id5" />
+				<result property="realname" column="realname5" />
+				<result property="username" column="username5" />
+				<result property="userImage" column="user_image5" />
+			</association>
+		</collection>
+		
+		
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ProjectMoments"
+		resultMap="projectMomentsMap">
+		 select x.*,
+		b.user_id as user_id1,b.username as username1,b.realname as realname1,b.user_image as user_image1,
+		g.team_proj_circle_image_id,g.image,g.moments_type as moments_type1,g.moments_info_id as moments_info_id1,
+		h.team_moments_like_id,h.moments_type as moments_type2,h.moments_info_id as moments_info_id2,
+		j.team_proj_moments_comment_id,j.comment_content,j.reply_content,
+		j.moments_type as moments_type3,j.moments_info_id as moments_info_id3,
+		i.user_id as user_id3,i.username as username3,i.realname as realname3,i.user_image as user_image3,
+		k.user_id as user_id4,k.username as username4,k.realname as realname4,k.user_image as user_image4,
+		l.user_id as user_id5,l.username as username5,l.realname as realname5,l.user_image as user_image5
+		from 
+		(select m.* from 
+	       ( select a.* from project_moments a ,project_moments_relation c, project_basic_info d,project_number e,sys_user f
+	        where c.project_moments_id = a.project_moments_id 
+	        and  c.pro_id = d.pro_id
+	        and e.pro_id = d.pro_id
+	        and f.user_id = e.user_id
+	        <if test="roleName!='ROLE_TEAM'">
+	        and  e.user_id =#{userId} 
+	        </if> 
+	        and share_type = 2
+	        union all
+	        select a.* from project_moments a 
+	        where share_type = 1
+	        ) as m
+        order by create_date desc limit 0,#{endCount}) as x
+	    left outer join sys_user b on x.user_id = b.user_id
+	    left outer join team_moments_image g on g.moments_info_id = x.project_moments_id and g.moments_type = 1 
+	    left outer join team_moments_like h on h.moments_info_id = x.project_moments_id and h.moments_type = 1 
+	    left outer join sys_user i on i.user_id = h.user_id
+	    left outer join team_proj_moments_comment j on j.moments_info_id = x.project_moments_id and j.moments_type = 1 
+	    left outer join sys_user k on k.user_id = j.commentator_id
+	    left outer join sys_user l on l.user_id = j.reply_record_id
+	    order by publish_time desc,team_proj_moments_comment_id
+	</select>
+	
+	
+	<select id="getById" resultType="com.labwinner.domain.ProjectMoments"
+		resultMap="projectMomentsMap">
+		 select a.*,a.user_id as user_id1 from project_moments a where project_moments_id=#{id}
+	</select>
+	
+	<select id="getTotalCount" resultType="Integer">
+	 select count(*) from 
+	       ( select a.* from project_moments a ,project_moments_relation c, project_basic_info d,project_number e,sys_user f
+	        where c.project_moments_id = a.project_moments_id 
+	        and  c.pro_id = d.pro_id
+	        and e.pro_id = d.pro_id
+	        and f.user_id = e.user_id
+	        and  e.user_id =#{userId} and share_type = 2
+	        union all
+	        select a.* from project_moments a 
+	        where share_type = 1
+	        ) as m
+        order by create_date desc
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.ProjectMoments"
+		useGeneratedKeys="true" keyProperty="projectMomentsId">
+		insert into
+		project_moments
+		(publish_time,publish_content,
+		url,share_type,url_icon,url_title,user_id,creater,create_date,modifier,modify_date,knowledge_mes,url_type)
+		value(
+		#{publishTime},
+		#{publishContent},
+		#{url},
+		#{shareType},
+		#{urlIcon},
+		#{urlTitle},
+		#{sysUser.userId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate},
+		#{knowledgeMes},
+		#{urlType}
+		)
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from project_moments where project_moments_id = #{id}
+	</delete>
+	
+	<select id="getAllByDay" resultType="com.labwinner.domain.ProjectMoments"
+		resultMap="projectMomentsMap">
+		select x.*,
+		b.user_id as user_id1,b.username as username1,b.realname as realname1,b.user_image as user_image1,
+		g.team_proj_circle_image_id,g.image,g.moments_type as moments_type1,g.moments_info_id as moments_info_id1,
+		h.team_moments_like_id,h.moments_type as moments_type2,h.moments_info_id as moments_info_id2,
+		j.team_proj_moments_comment_id,j.comment_content,j.reply_content,
+		j.moments_type as moments_type3,j.moments_info_id as moments_info_id3,
+		i.user_id as user_id3,i.username as username3,i.realname as realname3,
+		k.user_id as user_id4,k.username as username4,k.realname as realname4,
+		l.user_id as user_id5,l.username as username5,l.realname as realname5
+		from 
+		(select m.* from 
+	       ( select a.* from project_moments a ,project_moments_relation c, project_basic_info d,project_number e,sys_user f
+	        where c.project_moments_id = a.project_moments_id 
+	        and  c.pro_id = d.pro_id
+	        and e.pro_id = d.pro_id
+	        and f.user_id = e.user_id
+	        and   share_type = 2
+	        union all
+	        select a.* from project_moments a 
+	        where share_type = 1
+	        ) as m
+        order by create_date desc ) as x
+	    left outer join sys_user b on x.user_id = b.user_id
+	    left outer join team_moments_image g on g.moments_info_id = x.project_moments_id and g.moments_type = 1 
+	    left outer join team_moments_like h on h.moments_info_id = x.project_moments_id and h.moments_type = 1 
+	    left outer join sys_user i on i.user_id = h.user_id
+	    left outer join team_proj_moments_comment j on j.moments_info_id = x.project_moments_id and j.moments_type = 1 
+	    left outer join sys_user k on k.user_id = j.commentator_id
+	    left outer join sys_user l on l.user_id = j.reply_record_id
+     where x.create_date>= DATE_ADD((select max(create_date) from project_moments) ,INTERVAL -10 day)
+	    order by publish_time desc,team_proj_moments_comment_id
+	</select>
+</mapper>

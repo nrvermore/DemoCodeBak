@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 行业 -->
+<mapper namespace="com.labwinner.dao.IndustryDao">
+
+	<resultMap id="industryResultMap" type="com.labwinner.domain.Industry">
+		<id property="industryId" column="industry_id" />
+		<result property="industryName" column="industry_name" />
+		<result property="industryCode" column="industry_code" />
+	</resultMap>
+
+	<sql id="columns">industry_id, industry_name, industry_code</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="industryResultMap">
+		select
+		<include refid="columns" />
+		from industry
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="java.lang.Long" resultMap="industryResultMap">
+		select
+		<include refid="columns" />
+		from
+		industry
+		where industry_id=#{id}
+	</select>
+
+	<!-- 保存对象 -->
+	<insert id="save" parameterType="com.labwinner.domain.Industry"
+		useGeneratedKeys="true" keyProperty="roleId">
+		insert into
+		industry(industry_name, industry_code)
+		value(#{industryName},
+		#{industryCode})
+	</insert>
+
+	<!-- 更新对象 -->
+	<update id="update" parameterType="com.labwinner.domain.Industry">
+		update
+		industry set
+		industry_id=#{industryId},
+		industry_name=#{industryName},
+		industry_code=#{industryCode}
+		where
+		industry_id=#{industryId}
+	</update>
+
+	<!-- 删除对象 -->
+	<delete id="delete" parameterType="Long">
+		delete from industry where
+		industry_id=#{industryId}
+	</delete>
+
+</mapper> 

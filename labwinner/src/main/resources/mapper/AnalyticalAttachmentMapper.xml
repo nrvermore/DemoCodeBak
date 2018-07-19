@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.AnalyticalAttachmentDao">
+
+<resultMap id="anaAttachmentMap" type="com.labwinner.domain.AnalyticalAttachment">
+        <id column="ana_attachment_id" property="anaAttachmentId" />
+        <result column="ana_attachment_name" property="anaAttachmentName" />
+        <result column="ana_attachment_content" property="anaAttachmentContent" />
+        <result column="attachment" property="attachment" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+        <result column="attachment_name" property="attachmentName" />
+		<result column="attachment_content" property="attachmentContent" />
+		<result property="conversionCount" column="conversion_count" />
+		<result property="pdfCount" column="pdf_count" />
+		<result property="pdfUrl" column="pdf_url" />
+        <association property="analytics"
+			resultMap="com.labwinner.dao.AnalyticsDao.analyticsMap"></association>
+ </resultMap>
+ 	<select id="getById" resultType="com.labwinner.domain.AnalyticalAttachment" parameterType="Integer" resultMap="anaAttachmentMap" >
+		select ana_attachment_id ,ana_attachment_name,ana_attachment_content,attachment,conversion_count,pdf_count,pdf_url
+		analytics.analytics_id,analytics.analytics_name
+		from analytical_attachment ,analytics where analytical_attachment.analytics_id = #{id}
+	</select>
+	
+	<select id="getByAttachmentId" resultType="com.labwinner.domain.AnalyticalAttachment" parameterType="Integer" resultMap="anaAttachmentMap" >
+		select * from analytical_attachment where ana_attachment_id=#{anaAttachmentId}
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.AnalyticalAttachment"
+		useGeneratedKeys="true" keyProperty="anaAttachmentId">
+		insert into
+		analytical_attachment
+		(ana_attachment_name,
+		ana_attachment_content,attachment,analytics_id,
+		creater,create_date, modifier,modify_date,conversion_count,pdf_count,pdf_url)
+		value(
+		#{anaAttachmentName},
+		#{anaAttachmentContent},
+		#{attachment},
+		#{analytics.analyticsId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate},
+		#{conversionCount},
+		#{pdfCount},
+		#{pdfUrl})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from analytical_attachment where
+		analytics_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByUrl" parameterType="string">
+		delete from analytical_attachment where
+		ana_attachment_name=#{filename}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from analytical_attachment where analytics_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.AnalyticalAttachment">
+		update analytical_attachment 
+		set
+		ana_attachment_name=#{anaAttachmentName},
+		ana_attachment_content=#{anaAttachmentContent},
+		attachment=#{attachment},
+		analytics_id=#{analytics.analyticsId},
+		creater=#{creater}, 
+		create_date=#{createDate}, 
+		modifier=#{modifier},
+		modify_date=#{modifyDate},
+		conversion_count=#{conversionCount},
+		pdf_count=#{pdfCount},
+		pdf_url=#{pdfUrl}
+		where 
+		ana_attachment_id=#{anaAttachmentId}
+		
+	</update>
+	
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllConversion" resultType="com.labwinner.domain.AnalyticalAttachment" resultMap="anaAttachmentMap">
+		select  * from analytical_attachment where pdf_count=0 and conversion_count<![CDATA[<   ]]>5
+		order by ana_attachment_id
+	</select>
+	
+	<update id="updatePdfCount" parameterType="Integer">
+	update analytical_attachment set pdf_count=1 where ana_attachment_id=#{anaAttachmentId}
+	</update>
+	
+	
+ 
+</mapper>

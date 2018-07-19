@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ReactionDesignSolutionDao">
+   
+   <resultMap id="reactionDesignSolutionMap" type="com.labwinner.domain.ReactionDesignSolution">
+        <id column="solution_design_id" property="solutionDesignId" />        
+        <result column="changeable" property="changeable" />
+      
+        <association property="reactionDesign"
+			resultMap="com.labwinner.dao.ReactionDesignDao.reactionDesignMap">
+		</association>
+		       
+        <association property="solutionEntity"
+			resultMap="com.labwinner.dao.SolutionDao.solutionMap">
+		</association>
+
+            <collection property="solutionDesignDosages" ofType="com.labwinner.domain.SolutionDesignDosage">
+	        <id column="solution_design_dosage_id" property="solutionDesignDosageId" />        
+	        <result column="reaction_num" property="reactionNum" />
+	        <result column="solution_dosage" property="solutionDosage" />
+	        <result column="percentage" property="percentage" />
+	         <association property="measurement"
+			resultMap="com.labwinner.dao.MeasurementDao.measurementMap">
+		     </association>
+            </collection>  
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ReactionDesignSolution" resultMap="reactionDesignSolutionMap">
+		select reaction_design_solution.solution_design_id,
+		reaction_design_solution.reaction_design_id,changeable,
+		reaction_design_solution.solution_id,solution_design_dosage.*,measurement.*
+		from reaction_design_solution
+		left outer join reaction_design on 
+		reaction_design.reaction_design_id=reaction_design_solution.reaction_design_id
+		left outer join solution_entity on
+		reaction_design_solution.solution_id=solution_entity.solution_id
+		left outer join solution_design_dosage on
+		reaction_design_solution.solution_design_id=solution_design_dosage.solution_design_id
+		left outer join measurement on
+		solution_design_dosage.measure_unit_id=measurement.measure_unit_id
+	</select>
+	
+	
+	<select id="getSolutions" resultType="Integer" parameterType="map">
+		select solution_id from reaction_design_solution
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesignSolution" resultMap="reactionDesignSolutionMap">
+		select reaction_design_solution.solution_design_id,
+		reaction_design_solution.reaction_design_id,changeable,
+		reaction_design_solution.solution_id,solution_design_dosage.*,measurement.*
+		from reaction_design_solution
+		left outer join reaction_design on 
+		reaction_design.reaction_design_id=reaction_design_solution.reaction_design_id
+		left outer join solution_entity on
+		reaction_design_solution.solution_id=solution_entity.solution_id
+		left outer join solution_design_dosage on
+		reaction_design_solution.solution_design_dosage_id=solution_design_dosage.solution_design_dosage_id
+		left outer join measurement on
+		solution_design_dosage.measure_unit_id=measurement.measure_unit_id
+		where reaction_design_solution.reaction_design_id=#{id}	
+	</select>
+
+    <!-- 根据主键获取对象 -->
+	<select id="getSolutionDesignId" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesignSolution" resultMap="reactionDesignSolutionMap">
+		select reaction_design_solution.solution_design_id,
+		reaction_design_solution.solution_id,solution_design_dosage.*,measurement.*
+		from reaction_design_solution
+		left outer join solution_entity on
+		reaction_design_solution.solution_id=solution_entity.solution_id
+		left outer join solution_design_dosage on
+		reaction_design_solution.solution_design_dosage_id=solution_design_dosage.solution_design_dosage_id
+		left outer join measurement on
+		solution_design_dosage.measure_unit_id=measurement.measure_unit_id
+		where reaction_design_solution.solution_design_id=#{id}	
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ReactionDesignSolution"
+		useGeneratedKeys="true" keyProperty="solutionDesignId">
+		insert into
+		reaction_design_solution(
+		    reaction_design_id,
+		    changeable,               
+			solution_id               
+			)
+		value(
+		#{reactionDesign.reactionDesignId},
+		#{changeable},
+		#{solutionEntity.solutionId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ReactionDesignSolution">
+		update
+		reaction_design_solution set
+		reaction_design_id=#{reactionDesign.reactionDesignId},
+		changeable=#{changeable},
+		solution_id=#{solutionEntity.solutionId}
+		where
+		reaction_design_id=#{reactionDesignId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_design_solution where
+		reaction_design_id=#{reactionDesignId}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteSolutionDesignId" parameterType="Integer">
+		delete from reaction_design_solution where
+		solution_design_id=#{solutionDesignId}
+	</delete>
+
+</mapper> 

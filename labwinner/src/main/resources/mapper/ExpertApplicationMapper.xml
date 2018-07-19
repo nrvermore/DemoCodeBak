@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ExpertApplicationDao">
+   
+   <resultMap id="expertApplicationMap" type="com.labwinner.domain.ExpertApplication">
+        <id column="expert_application_id" property="expertApplicationId" />        
+        <result column="expert_name_ch" property="expertNameCh" />
+        <result column="expert_name_en" property="expertNameEn" />
+        <result column="achievement" property="achievement" />
+        <result column="native_place" property="nativePlace" />
+        <result column="record" property="record" />
+        <result column="company" property="company" />
+        <result column="research_area" property="researchArea" />
+        <result column="professional_title" property="professionalTitle" />
+        <result column="img_url" property="imgUrl" />
+        <result column="agency" property="agency" />
+        <result column="type" property="type" />
+          <result column="user_id" property="userId" />
+      
+    </resultMap>
+    
+	
+	
+ 
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ExpertApplication"
+		useGeneratedKeys="true" keyProperty="expertApplicationId">
+		insert into
+		labwinner_base.expert_application(
+		    expert_name_ch,               
+			expert_name_en,                
+			achievement,                 
+			record,            
+			company,            
+			research_area,            
+			professional_title,            
+			agency,
+			type,user_id)
+		value(
+		#{expertNameCh},
+		#{expertNameEn},
+		#{achievement},
+		#{record},
+		#{company},
+		#{researchArea},
+		#{professionalTitle},
+		#{agency},
+		#{type},
+		#{userId})
+	</insert>
+	
+	
+	
+	<!-- 获取所有消息联系人列表 -->
+	<select id="getByUser" resultMap="expertApplicationMap">
+		select * from labwinner_base.expert_application where user_id=#{userId} and agency=#{agencyId}
+		
+	</select>
+	
+	
+
+
+	
+</mapper> 

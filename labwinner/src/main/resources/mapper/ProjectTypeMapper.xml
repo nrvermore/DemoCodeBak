@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProjectTypeDao">
+      
+      <resultMap id="proTypeMap" type="com.labwinner.domain.ProjectType">
+            <id property="projectTypeId" column="project_type_id"/>
+            <result property="projectType" column="project_type"/>
+      </resultMap>
+      
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ProjectType" resultMap="proTypeMap">
+		select * from project_type
+	</select>
+	
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ProjectType" resultMap="proTypeMap">
+		 select * from
+		 project_type
+		 where project_type_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ProjectType"
+		useGeneratedKeys="true" keyProperty="projectTypeId">
+		insert into
+		project_type(
+		    project_type)
+		value(
+		#{projectType})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ProjectType">
+		update
+		project_type set
+		project_type=#{projectType}
+		where
+		project_type_id=#{projectTypeId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from project_type where
+	    project_type_id=#{projectTypeId}
+	</delete>
+	
+</mapper> 

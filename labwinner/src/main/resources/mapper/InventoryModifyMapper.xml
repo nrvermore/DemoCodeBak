@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.InventoryModifyDao">
+
+<resultMap id="inventoryModifyMap" type="com.labwinner.domain.InventoryModify">
+        <id column="inventory_modify_id" property="inventoryModifyId" />
+        <result column="change_reason" property="changeReason" />
+        <result column="change_date" property="changeDate" />
+        <result column="modify_after" property="modifyAfter" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+     <!--    <result column="modifier" property="modifier" /> -->
+        <result column="modify_date" property="modifyDate" />
+        
+         <association property="modifyProcess" javaType="com.labwinner.domain.ReactionProcess">
+			<id column="reaction_process_id" property="reactionProcessId" />
+         	<result column="process_name" property="processName"/>
+         	<association property="reaction" javaType="com.labwinner.domain.Reaction">
+			 <id column="reaction_id" property="reactionId" />
+	         <result column="reaction_name" property="reactionName" />
+		</association>
+		</association>
+        
+         <association property="measurement" javaType="com.labwinner.domain.Measurement">
+            <id property="measureUnitId" column="measure_unit_id"/>
+            <result property="basicUnit" column="basic_unit"/>
+            <result property="conversionRelation" column="conversion_relation"/>
+            <result property="measureUnit" column="measure_unit"/>
+       </association>
+       
+       <association property="modifyType" javaType="com.labwinner.domain.ModifyType">
+       		<id property="modifyTypeId" column="modify_type_id"/>
+            <result property="modifyType" column="modify_type"/>
+       </association>
+       
+       <association property="modifyCode" javaType="com.labwinner.domain.ModifyCode">
+       		<id property="modifyCodeId" column="modify_code_id"/>
+            <result property="modifyCode" column="modify_code"/>
+       </association>
+       
+       <association property="modifier" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+		</association>
+       
+       
+        <association property="inventories" javaType="com.labwinner.domain.Inventories">
+	        <id column="inventory_id" property="inventoryId" />
+	        <result column="inventory_name" property="inventoryName" />
+       </association>
+   </resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.InventoryModify" resultMap="inventoryModifyMap">
+		select * from inventory_modify
+	</select>
+
+ <!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.InventoryModify" resultMap="inventoryModifyMap">
+		select 
+		a.*,b.*,c.*,reaction.reaction_id,reaction.reaction_name,d.*,e.*,f.*,g.*
+		from
+		inventory_modify a
+		left outer join measurement b on a.measure_unit_id = b.measure_unit_id
+		left outer join reaction_process c on a.modify_process = c.reaction_process_id
+		left outer join reaction on reaction.reaction_id = c.reaction_id
+		left outer join modify_type d on a.modify_type_id = d.modify_type_id
+		left outer join modify_code e on a.modify_code_id = e.modify_code_id
+		left outer join sys_user g on g.user_id = a.modifier
+		left outer join inventories f on a.inventory_id = f.inventory_id
+		where a.inventory_id=#{id} order by a.change_date 
+	</select>
+	
+	<select id="getReactions" parameterType="Integer"
+		resultType="com.labwinner.domain.InventoryModify" resultMap="inventoryModifyMap">
+		select distinct process_name,reaction_process_id,inventory_id 
+		from inventory_modify,reaction_process 
+		where inventory_modify.modify_reaction= reaction_process.reaction_process_id 
+ 	  	and inventory_modify.inventory_id =#{id}
+      	
+	</select>
+	
+	<select id="getProcessCount" resultType="Integer">
+		select count(inventory_modify_id)
+		from inventory_modify 
+		where modify_process = #{processId}
+		and inventory_id = #{inventoryId} 
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.InventoryModify"
+		useGeneratedKeys="true" keyProperty="inventoryModifyId">
+		insert into
+		inventory_modify (change_reason,change_date,inventory_id,
+		modify_type_id,modify_after,modify_process,modify_code_id,
+		measure_unit_id,creater,create_date,modifier,modify_date)
+		value(
+		#{changeReason},
+		#{changeDate}, #{inventories.inventoryId},
+		#{modifyType.modifyTypeId},
+	    #{modifyAfter},
+		#{modifyProcess.reactionProcessId},
+		#{modifyCode.modifyCodeId},
+	    #{measurement.measureUnitId},
+		#{creater},
+		#{createDate},
+		#{modifier.userId},
+		#{modifyDate}
+		)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.InventoryModify">
+		update
+		inventory_modify 
+		set
+		change_reason=#{changeReason},
+		change_date=#{changeDate},
+		inventory_info_id=#{inventories.inventoryId},
+		modify_type_id=#{modifyType.modifyTypeId},
+		modify_after=#{modifyAfter},
+		modify_process=#{modifyProcess.reactionProcessId},
+		modify_code=#{modifyCode.modifyCodeId},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier.userId},
+		modify_date=#{modifyDate}
+		where inventory_modify_id = #{inventoryModifyId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from inventory_modify where
+		inventory_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from inventory_modify where inventory_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper> 

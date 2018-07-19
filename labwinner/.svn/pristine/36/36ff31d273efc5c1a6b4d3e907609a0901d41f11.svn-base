@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.TestDeviceDao">
+
+	<resultMap id="tDeviceMap" type="com.labwinner.domain.TestDevice">
+		<id column="test_device_id" property="testDeviceId" />
+		<association property="reactionTest"
+			resultMap="com.labwinner.dao.ReactionTestDao.reactionTestMap"></association>
+		<association property="device"
+			resultMap="com.labwinner.dao.DeviceDao.deviceMap"></association>
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getByTestId" resultType="com.labwinner.domain.TestDevice"
+		parameterType="Integer" resultMap="tDeviceMap">
+		select
+		test_device.*,device.device_id,device.device_name,
+		reaction_test.test_id,reaction_test.test_name
+		from test_device,device,reaction_test where test_device.test_id = #{id}
+	</select>
+
+	<insert id="save" parameterType="com.labwinner.domain.TestDevice"
+		useGeneratedKeys="true" keyProperty="testDeviceId">
+		insert into
+		test_device
+		(test_id,device_id)
+		value(
+		#{reactionTest.testId},
+		#{device.deviceId})
+	</insert>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from test_device where
+		test_id=#{id}
+	</delete>
+
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from test_device where test_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.TestDevice">
+		update test_device
+		set
+		test_id=#{reactionTest.testId},
+		device_id=#{device.deviceId}
+		where
+		test_device_id=#{testDeviceId}
+	</update>
+</mapper>

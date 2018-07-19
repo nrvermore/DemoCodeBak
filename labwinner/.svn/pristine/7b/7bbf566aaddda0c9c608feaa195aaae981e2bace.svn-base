@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.InventoryLocationDao">
+
+	<resultMap id="inventoryLocationMap" type="com.labwinner.domain.InventoryLocation">
+		<id column="inventory_location_id" property="cid" />
+		<result column="location_name" property="label" />
+		<result column="location_path" property="pid" />
+		<result column="name" property="parentName" />
+		<result column="barcode" property="barcode" />
+		<result column="qr_path" property="qrPath" />
+		
+		<collection property="inventories" ofType="com.labwinner.domain.Inventories">
+			<id column="inventory_id" property="inventoryId" />
+		</collection>
+		
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.InventoryLocation" resultMap="inventoryLocationMap">
+		select
+		a.inventory_location_id,a.location_name,a.location_path,a.barcode,a.qr_path,
+		b.location_name as name from inventory_location a
+		left outer join
+		inventory_location b on
+		a.location_path=b.inventory_location_id
+		order by a.inventory_location_id 
+	</select>
+	
+	
+	<!-- 获取所有对象分页列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.InventoryLocation" resultMap="inventoryLocationMap">
+		select
+		a.inventory_location_id,a.location_name,a.location_path,a.barcode,
+		b.location_name as name from inventory_location a
+		left outer join
+		inventory_location b on
+		a.location_path=b.inventory_location_id
+		where a.location_name LIKE concat('%',#{keyword},'%')
+		
+	</select>
+
+	<select id="getLocation" resultType="com.labwinner.domain.InventoryLocation"
+		resultMap="inventoryLocationMap">
+		select
+		a.inventory_location_id,a.location_name,a.location_path,a.barcode,
+		b.location_name as name from inventory_location a
+		left outer join
+		inventory_location b on
+		a.location_path=b.inventory_location_id
+		where
+		a.inventory_location_id=#{cid}
+		order by a.inventory_location_id
+	</select>
+
+	<select id="getLocations" resultType="com.labwinner.domain.InventoryLocation"
+		resultMap="inventoryLocationMap">
+		select
+		a.inventory_location_id,a.location_name,a.location_path,a.barcode,
+		b.location_name as name from inventory_location a
+		left outer join
+		inventory_location b on
+		a.location_path=b.inventory_location_id
+		where
+		a.location_path=#{pid}
+		order by a.inventory_location_id
+	</select>
+       <!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.InventoryLocation" resultMap="inventoryLocationMap">
+		 select
+		a.inventory_location_id,a.location_name,a.location_path,a.barcode,a.qr_path,
+		b.location_name as name
+    	from inventory_location a
+		left outer join inventory_location b on	a.location_path=b.inventory_location_id
+		where a.inventory_location_id=#{id}
+	</select>
+	
+	<select id="getByBarcode" parameterType="string"
+		resultType="com.labwinner.domain.InventoryLocation" resultMap="inventoryLocationMap">
+		 select
+		a.inventory_location_id,a.location_name,a.location_path,a.barcode,a.qr_path,
+		b.location_name as name
+    	from inventory_location a
+		left outer join inventory_location b on	a.location_path=b.inventory_location_id
+		where a.barcode=#{barcode}
+	</select>
+	
+	<select id="getBarCodes" resultType="string" parameterType="map">
+		select barcode from inventory_location
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.InventoryLocation"
+		useGeneratedKeys="true" keyProperty="cid">
+		insert into
+		inventory_location(
+		    location_name,
+		    barcode,
+		    qr_path,
+		    location_path)
+		value(
+		#{label},
+		#{barcode},
+		#{qrPath},
+		#{pid})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="updateQrName" parameterType="com.labwinner.domain.InventoryLocation">
+		update
+		inventory_location set
+		barcode=#{barcode},
+		qr_path=#{qrPath}
+		where
+		inventory_location_id=#{cid}
+		
+	</update>
+	
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.InventoryLocation">
+		update
+		inventory_location set
+		location_name=#{label},
+		location_path=#{pid}
+		where
+		inventory_location_id=#{cid}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from inventory_location where
+		inventory_location_id=#{id}
+	</delete>
+       
+       	<!-- 删除对象方法 -->
+	<delete id="deleteByLocationId" parameterType="Integer">
+		delete  from inventory_location where inventory_location_id in(select a.inventory_location_id from inventory_location where location_path in
+		(select inventory_location_id from inventory_location where location_path in 
+    	(select inventory_location_id from inventory_location where inventory_location_id=#{id} or location_path=#{id}) or inventory_location_id=#{id})
+     or inventory_location_id=#{id} as a)
+	</delete>
+	
+	
+	     <!-- 根据主键获取对象 -->
+	<select id="getAllLocation" parameterType="Integer"
+		resultType="com.labwinner.domain.InventoryLocation" resultMap="inventoryLocationMap">
+		 select inventory_location_id  from inventory_location where inventory_location_id in(
+     select inventory_location_id from inventory_location where location_path in(
+     select inventory_location_id from inventory_location where location_path in(
+     select inventory_location_id from inventory_location where (inventory_location_id=#{id} or location_path=#{id}) or inventory_location_id=#{id}) or inventory_location_id=#{id}) or inventory_location_id=#{id})
+	</select>
+       
+       	<select id="getAllFirst" resultType="com.labwinner.domain.InventoryLocation" resultMap="inventoryLocationMap">
+		select
+		a.inventory_location_id,a.location_name,a.location_path
+		 from inventory_location a
+		where a.location_path=0
+		order by a.inventory_location_id 
+	</select>
+       
+</mapper>

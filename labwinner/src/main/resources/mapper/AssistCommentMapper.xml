@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.AssistCommentDao">
+
+<resultMap id="assistCommentMap" type="com.labwinner.domain.AssistComment">
+        <id column="assist_comment_id" property="assistCommentId" />
+        <result property="commentContent" column="comment_content" />
+        <result property="replyCommentId" column="reply_comment_id" />
+        <result property="commentDate" column="comment_date" />
+          <result property="firstCommentId" column="first_comment_id" />
+        
+   
+        <association property="marketAssist" javaType="com.labwinner.domain.MarketAssist">
+        	<id column="market_assist_id" property="marketAssistId" />
+       	</association> 
+       
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+			<result property="userImage" column="user_image" />
+		</association>
+		
+		<association property="assistComment" javaType="com.labwinner.domain.AssistComment">
+			<id column="assist_comment_id1" property="assistCommentId" />
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id1" />
+			<result property="realname" column="realname1" />
+			<result property="username" column="username1" />
+			<result property="userImage" column="user_image1" />
+			</association>
+		</association>
+		
+		<association property="sysSigningAgency" javaType="com.labwinner.domain.SysSigningAgency">
+			<id property="agencyId" column="agency_id" />
+			<result property="userName" column="user_name" />
+		</association>
+        
+ </resultMap>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.AssistComment"
+		useGeneratedKeys="true" keyProperty="assistCommentId">
+		insert into
+		labwinner_base.assist_comment(comment_content,reply_comment_id,first_comment_id,comment_user_id,agency_id,comment_date,market_assist_id)
+		value(
+		#{commentContent},
+		#{replyCommentId},
+		#{firstCommentId},
+		#{sysUser.userId},
+		#{sysSigningAgency.agencyId},
+		#{commentDate},
+		#{assistMarketId}
+		)
+	</insert>
+	
+	<delete id="deleteById" parameterType="Integer">
+	    delete from labwinner_base.assist_comment where
+		market_assist_id=#{id}
+	</delete>
+	
+	<delete id="delete" parameterType="Integer">
+	    delete from labwinner_base.assist_comment where
+		assist_comment_id=#{id}
+	</delete>
+	
+	<delete id="deleteByFirstId" parameterType="Integer">
+	    delete from labwinner_base.assist_comment where
+		first_comment_id=#{id}
+	</delete>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getNumById" parameterType="Integer"
+		resultType="Integer">
+		select count(*) from labwinner_base.assist_comment where market_assist_id=#{id}
+	</select>
+	
+	<select id="getById" resultType="com.labwinner.domain.AssistComment"
+		resultMap="assistCommentMap">
+		select
+		a.assist_comment_id,a.comment_content,a.reply_comment_id,a.comment_date,a.first_comment_id,
+		c.user_id,c.username,c.realname,c.user_image,
+		d.agency_id,d.user_name
+	   	from labwinner_base.assist_comment a
+		left outer join labwinner_base.assist_comment b on a.reply_comment_id=b.assist_comment_id
+		left outer join labwinner_base.base_user c on a.comment_user_id = c.user_id and a.agency_id = c.agency_id
+		left outer join labwinner_base.sys_signing_agency d on d.agency_id = a.agency_id
+		where
+		a.assist_comment_id=#{id}
+	</select>
+
+	<select id="getByPid" resultType="com.labwinner.domain.AssistComment"
+		resultMap="assistCommentMap">
+		select
+		a.assist_comment_id,a.comment_content,a.reply_comment_id,a.comment_date,
+		c.user_id,c.username,c.realname,c.user_image,
+		d.agency_id,d.user_name
+	   	from labwinner_base.assist_comment a
+		left outer join labwinner_base.assist_comment b on a.reply_comment_id=b.assist_comment_id
+		left outer join labwinner_base.base_user c on a.comment_user_id = c.user_id and a.agency_id = c.agency_id
+		left outer join labwinner_base.sys_signing_agency d on d.agency_id =a.agency_id
+		where
+		a.reply_comment_id=#{id} order by a.comment_date
+	</select>
+	
+	<select id="getFirstComments" resultType="com.labwinner.domain.AssistComment"
+		resultMap="assistCommentMap">
+		select
+		a.assist_comment_id,a.comment_content,a.reply_comment_id,a.comment_date,
+		c.user_id,c.username,c.realname,c.user_image,
+		d.agency_id,d.user_name
+	   	from labwinner_base.assist_comment a
+		left outer join labwinner_base.assist_comment b on a.reply_comment_id=b.assist_comment_id
+		left outer join labwinner_base.base_user c on a.comment_user_id = c.user_id and a.agency_id = c.agency_id
+		left outer join labwinner_base.sys_signing_agency d on d.agency_id = a.agency_id
+		where
+		a.market_assist_id=#{asistId} and a.reply_comment_id = 0 order by a.comment_date 
+	</select>
+	
+	<select id="getComments" resultType="com.labwinner.domain.AssistComment"
+		resultMap="assistCommentMap">
+		select
+		a.assist_comment_id,a.comment_content,a.reply_comment_id,a.comment_date,
+		b.assist_comment_id as assist_comment_id1,
+		c.user_id as user_id1,c.username as username1,c.realname as realname1,c.user_image as user_image1,
+		e.user_id,e.username,e.realname,e.user_image,
+		d.agency_id,d.user_name
+	   	from labwinner_base.assist_comment a
+		left outer join labwinner_base.assist_comment b on a.reply_comment_id=b.assist_comment_id
+		left outer join labwinner_base.base_user c on b.comment_user_id = c.user_id and b.agency_id = c.agency_id
+		left outer join labwinner_base.base_user e on a.comment_user_id = e.user_id and a.agency_id = e.agency_id
+		left outer join labwinner_base.sys_signing_agency d on d.agency_id = a.agency_id
+		where
+		a.first_comment_id=#{id} order by a.comment_date 
+	</select>
+	
+	<select id="getLastAssistComment" resultType="com.labwinner.domain.AssistComment"
+		resultMap="assistCommentMap">
+	select a.*,c.user_id,c.realname,c.user_image from labwinner_base.assist_comment a
+    left outer join  labwinner_base.market_assist b on a.market_assist_id=b.market_assist_id
+    left outer join labwinner_base.base_user c on a.comment_user_id=c.user_id and a.agency_id=c.agency_id
+    where b.user_id=#{userId} and b.agency_id=#{agencyId}
+    order by a.comment_date desc limit 1
+	</select>
+	
+</mapper> 

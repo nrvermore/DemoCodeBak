@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 附件 -->
+<mapper namespace="com.labwinner.dao.KnowledgeThumbsUpDao">
+
+	<resultMap id="knowledgeThumbsUpResultMap" type="com.labwinner.domain.KnowledgeThumbsUp">
+		<id property="knowledgeThumbsUpId" column="knowledge_thumbs_up_id" />
+		<result property="count" column="count" />
+			 <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+       </association>
+        <association property="knowledgeAcc" javaType="com.labwinner.domain.KnowledgeAcc">
+        <id property="knowledgeAccId" column="knowledge_acc_id"/>
+       </association>
+       
+	</resultMap>
+
+	<sql id="columns">user_id, knowledge_acc_id, count
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="knowledgeThumbsUpResultMap">
+		select
+		*
+		from
+		knowledge_thumbs_up
+		where knowledge_acc_id=#{id}
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" >
+		select
+		count(*) 
+		from
+		knowledge_thumbs_up
+		where knowledge_acc_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.KnowledgeThumbsUp"
+		useGeneratedKeys="true" keyProperty="knowledgeThumbsUpId">
+		insert into
+		knowledge_thumbs_up(
+		user_id, knowledge_acc_id
+		)
+		value(#{sysUser.userId},
+		#{knowledgeAcc.knowledgeAccId}
+		)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.KnowledgeThumbsUp">
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+
+	</delete>
+	
+		<!-- 删除对象方法 -->
+	<delete id="deleteByAccId" parameterType="Integer">
+	delete from knowledge_thumbs_up where knowledge_acc_id=#{knowledgeAccId}
+	</delete>
+	
+	
+
+</mapper> 

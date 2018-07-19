@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.labwinner.dao.MaterialFieldDao">
+
+	<resultMap id="materialFieldMap" type="com.labwinner.domain.MaterialField">
+		<id column="material_field_id" property="cid" />
+		<result column="material_field" property="label" />
+		<result column="material_field_pid" property="pid" />
+		<result column="name" property="parentName" />
+
+
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<!-- <select id="getAll" resultType="com.labwinner.domain.InventoryLocation" 
+		resultMap="inventoryLocationMap"> -->
+	<select id="getAll" resultType="com.labwinner.domain.MaterialField"
+		resultMap="materialFieldMap">
+		select
+		a.material_field_id,a.material_field,a.material_field_pid,
+		b.material_field as name from labwinner_base.material_field a
+		left
+		outer join
+		labwinner_base.material_field b on
+		a.material_field_pid=b.material_field_id
+		order by a.material_field_id
+	</select>
+	
+	
+
+
+
+
+
+	<select id="getLocation" resultType="com.labwinner.domain.MaterialField"
+		resultMap="materialFieldMap">
+		select
+		a.material_field_id,a.material_field,a.material_field_pid,
+		b.material_field as name from labwinner_base.material_field a
+		left
+		outer join
+		labwinner_base.material_field b on
+		a.material_field_pid=b.material_field_id
+		where
+		a.material_field_id=#{cid}
+		order by a.material_field_id
+	</select>
+
+
+	<select id="getLocations" resultType="com.labwinner.domain.MaterialField"
+		resultMap="materialFieldMap">
+		select
+		a.material_field_id,a.material_field,a.material_field_pid,
+		b.material_field as name from labwinner_base.material_field a
+		left
+		outer join
+		labwinner_base.material_field b on
+		a.material_field_pid=b.material_field_id
+		where
+		a.material_field_pid=#{cid}
+		order by a.material_field_id
+	</select>
+
+
+	<select id="getAllFirst" resultType="com.labwinner.domain.MaterialField"
+		resultMap="materialFieldMap">
+		select
+		a.material_field_id,a.material_field,a.material_field_pid
+		from labwinner_base.material_field a
+		where a.material_field_pid ='0'
+		order
+		by a.material_field_id
+	</select>
+
+	<select id="getByCid" resultType="com.labwinner.domain.MaterialField"
+		resultMap="materialFieldMap">
+		select
+		a.material_field_id,a.material_field,a.material_field_pid,
+		b.material_field as name
+		from labwinner_base.material_field a
+		left outer join
+		labwinner_base.material_field b on
+		a.material_field_pid=b.material_field_id
+		where
+		a.material_field_id=#{id}
+		order by a.material_field_id
+	</select>
+
+
+
+	<select id="getAllSamePid" resultType="com.labwinner.domain.MaterialField"
+		resultMap="materialFieldMap">
+		select
+		material_field_id,material_field,material_field_pid
+		from labwinner_base.material_field where material_field_pid in(
+		select
+		material_field_pid from labwinner_base.material_field
+		where
+		material_field_id=#{filedId})
+		order by material_field_id
+	</select>
+
+
+
+</mapper>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.MsgTypeDao">
+
+<resultMap id="msgTypeMap" type="com.labwinner.domain.MsgType">
+        <id column="msg_type_id" property="msgTypeId" />
+        <result column="msg_Type" property="msgType" />
+       
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.MsgType" resultMap="msgTypeMap">
+		select * from msg_type
+	</select>
+</mapper>

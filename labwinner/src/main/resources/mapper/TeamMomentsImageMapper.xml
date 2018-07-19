@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.TeamMomentsImageDao">
+
+	<resultMap id="teamMomentsMap" type="com.labwinner.domain.TeamMomentsImage">
+		<id column="team_proj_circle_image_id" property="teamProjCircleImageId" />
+		<result column="image" property="image" />
+		<result column="moments_type" property="momentsType" />
+		<result column="moments_info_id" property="momentsInfoId" />
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.TeamMomentsImage" resultMap="teamMomentsMap">
+		select * from team_moments_image
+	</select>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByMomentsId" parameterType="Integer">
+		delete from team_moments_image where moments_info_id = #{momentsInfoId} and moments_type= #{momentsType}
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.TeamMomentsImage"
+		useGeneratedKeys="true" keyProperty="teamProjCircleImageId">
+		insert into
+		team_moments_image
+		(image,moments_type,
+		moments_info_id)
+		value(
+		#{image},
+		#{momentsType},
+		#{momentsInfoId})
+	</insert>
+	
+</mapper>

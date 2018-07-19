@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.labwinner.dao.KnowledgeFieldDao">
+
+	<resultMap id="knowledgeFieldMap" type="com.labwinner.domain.KnowledgeField">
+		<id column="knowledge_field_id" property="knowledgeFieldId" />
+		<result column="knowledge_field" property="knowledgeField" />
+			<association property="defaultImage" javaType="com.labwinner.domain.DefaultImage">
+			<id property="id" column="id" />
+			<result property="url" column="url" />
+		</association>
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<!-- <select id="getAll" resultType="com.labwinner.domain.InventoryLocation" 
+		resultMap="inventoryLocationMap"> -->
+	<select id="getAll" resultType="com.labwinner.domain.KnowledgeField"
+		resultMap="knowledgeFieldMap">
+			select knowledge_field.knowledge_field_id,knowledge_field.knowledge_field,default_image.id as id,default_image.url as url from knowledge_field
+		left outer join default_image on knowledge_field.image_id=default_image.id
+	</select>
+	
+	<select id="getAllPageable" resultType="com.labwinner.domain.KnowledgeField"
+		resultMap="knowledgeFieldMap">
+			select knowledge_field.knowledge_field_id,knowledge_field.knowledge_field,default_image.id as id,default_image.url as url from knowledge_field
+		left outer join default_image on knowledge_field.image_id=default_image.id where knowledge_field LIKE concat('%',#{keyword},'%')
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.KnowledgeField"
+		useGeneratedKeys="true" keyProperty="knowledgeFieldId">
+		insert into
+		knowledge_field(
+		knowledge_field,image_id
+		)
+		value(
+		#{knowledgeField},#{defaultImage.id})
+	</insert>
+	
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.KnowledgeField">
+		update
+		knowledge_field set
+		knowledge_field=#{knowledgeField},
+		image_id=#{defaultImage.id}
+		where knowledge_field_id=#{knowledgeFieldId}
+	</update>
+	
+	<delete id="delete" parameterType="Integer">
+		delete from knowledge_field
+		where
+		knowledge_field_id=#{id}
+	</delete>
+		<select id="getById" resultType="com.labwinner.domain.KnowledgeField"
+		resultMap="knowledgeFieldMap">
+		select knowledge_field.knowledge_field_id,knowledge_field.knowledge_field,default_image.id as id,
+		default_image.url as url from knowledge_field
+		left outer join default_image on knowledge_field.image_id=default_image.id
+		where knowledge_field_id=#{id}
+	</select>
+	
+	
+		<select id="getDefaultImageList" resultType="java.util.Map">
+		select id,concat(#{fieldImage},url) as url from default_image
+	</select>
+	
+		<select id="getCountByKnowledgeField" resultType="java.lang.Integer" >
+				select count(*) from journal_article where source=0 and material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{knowledgeFieldId} or material_field_pid=#{knowledgeFieldId})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{knowledgeFieldId} or
+		material_field_pid=#{knowledgeFieldId}))
+	</select>
+	
+	
+	<select id="getCountByKnowledgeFieldForPatent" resultType="java.lang.Integer" >
+			select count(*) 
+			from patent
+			where find_in_set(#{knowledgeFieldId},knowledge_field)
+	</select>
+	
+	
+
+</mapper>

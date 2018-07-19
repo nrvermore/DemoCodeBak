@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ChemicalParameterDao">
+
+	<resultMap id="chemicalParameterMap" type="com.labwinner.domain.ChemicalParameter">
+        <id column="ch_par_id" property="chParId" />
+        <result column="win_id" property="winId" />
+        <result column="chinese_name" property="chineseName" />
+        <result column="english_name" property="englishName" />
+        <result column="other_name" property="otherName" />
+        <result column="more_name" property="moreName" />
+        <result column="molecular_formula" property="molecularFormula" />
+        <result column="molecular_weight" property="molecularWeight" />
+        <result column="CAS" property="cas" />
+        <result column="MDL" property="mdl" />
+        <result column="EINECS" property="einecs" />
+        <result column="RTECS" property="rtecs" />
+        <result column="BTECS" property="btecs" />
+        <result column="pubchem" property="pubchem" />
+        <result column="physical_data" property="physicalData" />
+        <result column="toxicological_data" property="toxicologicalData" />
+        <result column="ecological_data" property="ecologicalData" />
+        <result column="mol_str_data" property="molStrData" />
+        <result column="cal_ch_data" property="calChData" />
+        <result column="pro_and_sta" property="proAndSta" />
+        <result column="storage_method" property="storageMethod" />
+        <result column="synthesis_method" property="synthesisMethod" />
+        <result column="application" property="application" />
+        <result column="sec_info" property="secInfo" />
+        <result column="brn" property="brn" />
+        <result column="chemical_iamge" property="chemicalIamge" />
+        <result column="representation_map" property="representationMap" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+        <result column="is_lock" property="isLock" />
+        <result column="flag" property="flag" />
+        
+         <collection property="molecularImages" ofType="com.labwinner.domain.MolecularImage">
+              <id column="molecular_image_id" property="molecularImageId" />
+        	<result column="image_name" property="imageName" />
+        	<result column="image" property="image" />
+        </collection>
+        
+         <collection property="representationMaps" ofType="com.labwinner.domain.RepresentationMap">
+             <id column="rep_map_id" property="repMapId" />
+        <result column="rep_name" property="repName" />
+        <result column="rep_image" property="repImage" />
+        </collection>
+ </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ChemicalParameter"  resultMap="chemicalParameterMap">
+		select ch_par_id,chinese_name,english_name,other_name,more_name,molecular_formula,
+		molecular_weight,win_id,CAS,MDL,EINECS,RTECS,BTECS,pubchem,physical_data,toxicological_data,
+		ecological_data,mol_str_data,cal_ch_data,pro_and_sta,storage_method,synthesis_method,
+		application,sec_info,brn,is_lock,flag,reserve_field3,reserve_field4,
+		reserve_field5,creater,create_date,modifier,modify_date,
+		chemical_iamge,representation_map
+		from chemical_parameter where flag = 1
+		
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ChemicalParameter" resultMap="chemicalParameterMap">
+		select chemical_parameter.ch_par_id,chinese_name,english_name,other_name,more_name,molecular_formula,
+		molecular_weight,win_id,CAS,MDL,EINECS,RTECS,BTECS,pubchem,physical_data,toxicological_data,
+		ecological_data,mol_str_data,cal_ch_data,pro_and_sta,storage_method,synthesis_method,
+		application,sec_info,brn,is_lock,flag,reserve_field3,reserve_field4,
+		reserve_field5,creater,create_date,modifier,modify_date,molecular_image.*,representation_map.*,
+		chemical_iamge,representation_map
+		from chemical_parameter
+		left outer join molecular_image on chemical_parameter.ch_par_id = molecular_image.ch_par_id
+		left outer join representation_map on chemical_parameter.ch_par_id = representation_map.ch_par_id
+		where chemical_parameter.ch_par_id=#{id}
+	</select>
+	
+	<select id="getByKeyword" parameterType="string"
+		resultType="com.labwinner.domain.ChemicalParameter" resultMap="chemicalParameterMap">
+		select ch_par_id,chinese_name,english_name,other_name,more_name,molecular_formula,CAS
+		from chemical_parameter 
+	    where chinese_name LIKE CONCAT(#{keyword},'%')
+	    and flag =1
+	</select>
+	
+	<delete id="delete" parameterType="Integer">
+	delete from chemical_parameter where ch_par_id = #{id}
+	</delete>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ChemicalParameter"
+		useGeneratedKeys="true" keyProperty="chParId">
+		insert into chemical_parameter
+		(chinese_name,english_name,other_name,more_name,molecular_formula,
+		molecular_weight,win_id,CAS,MDL,EINECS,RTECS,BTECS,pubchem,physical_data,toxicological_data,
+		ecological_data,mol_str_data,cal_ch_data,pro_and_sta,storage_method,synthesis_method,
+		application,sec_info,brn,is_lock,flag,reserve_field3,reserve_field4,
+		reserve_field5,creater,create_date,modifier,modify_date)
+		value(
+		#{chineseName},#{englishName},#{otherName},
+		#{moreName},#{molecularFormula},#{molecularWeight},
+		#{winId},#{cas},#{mdl},#{einecs},#{rtecs},#{btecs},
+		#{pubchem},#{physicalData},#{toxicologicalData},
+		#{ecologicalData},#{molStrData},#{calChData},
+		#{proAndSta},#{storageMethod},#{synthesisMethod},
+		#{application},
+		#{secInfo},#{brn},#{isLock},#{flag},
+		#{reserveField3},#{reserveField4},#{reserveField5},
+		#{creater},#{createDate},#{modifier},#{modifyDate}
+		
+		)
+	</insert>
+	
+	<update id="update" parameterType="com.labwinner.domain.ChemicalParameter">
+		update chemical_parameter 
+		<!-- set -->
+		<trim prefix="set" suffixOverrides=",">
+		<if test="chineseName!=null">chinese_name = #{chineseName},</if>
+		<if test="englishName!=null">english_name = #{englishName},</if>
+		<if test="otherName!=null">other_name = #{otherName},</if>
+		<if test="moreName!=null">more_name = #{moreName},</if>
+		<if test="molecularFormula!=null">molecular_formula = #{molecularFormula},</if>
+		<if test="molecularWeight!=null">molecular_weight = #{molecularWeight},</if>
+		<if test="winId!=null">win_id = #{winId},</if>
+		<if test="cas!=null">CAS = #{cas},</if>
+		<if test="mdl!=null">MDL = #{mdl},</if>
+		<if test="einecs!=null">EINECS = #{einecs},</if>
+		<if test="rtecs!=null">RTECS = #{rtecs},</if>
+		<if test="btecs!=null">BTECS = #{btecs},</if>
+		<if test="pubchem!=null">pubchem = #{pubchem},</if>
+		<if test="physicalData!=null">physical_data = #{physicalData},</if>
+		<if test="toxicologicalData!=null">toxicological_data = #{toxicologicalData},</if>
+		<if test="ecologicalData!=null">ecological_data = #{ecologicalData},</if>
+		<if test="molStrData!=null">mol_str_data = #{molStrData},</if>
+		<if test="calChData!=null">cal_ch_data = #{calChData},</if>
+		<if test="proAndSta!=null">pro_and_sta = #{proAndSta},</if>
+		<if test="storageMethod!=null">storage_method = #{storageMethod},</if>
+		<if test="synthesisMethod!=null">synthesis_method = #{synthesisMethod},</if>
+		<if test="application!=null">application = #{application},</if>
+		<if test="secInfo!=null">sec_info = #{secInfo},</if>
+		<if test="brn!=null">brn = #{brn},</if>
+		<if test="isLock!=null">is_lock = #{isLock},</if>
+		<if test="flag!=null">flag = #{flag},</if>
+		<if test="reserveField3!=null">reserve_field3 = #{reserveField3},</if>
+		<if test="reserveField4!=null">reserve_field4 = #{reserveField4},</if>
+		<if test="reserveField5!=null">reserve_field5 = #{reserveField5},</if>
+		<if test="creater!=null">creater = #{creater},</if>
+		<if test="createDate!=null">create_date = #{createDate},</if>
+		<if test="modifier!=null">modifier = #{modifier},</if>
+		<if test="modifyDate!=null">modify_date = #{modifyDate},</if>
+		</trim>
+		where 
+		ch_par_id = #{chParId}
+	</update>
+	
+	<update id="lockChemical" parameterType="com.labwinner.domain.ChemicalParameter">
+	update chemical_parameter 
+	set
+	is_lock = #{isLock}
+	where
+	ch_par_id = #{id}
+	</update>
+	
+	<!-- 保存对象方法 -->
+	<insert id="saveByInventory" parameterType="com.labwinner.domain.ChemicalParameter"
+		useGeneratedKeys="true" keyProperty="chParId">
+		insert into chemical_parameter
+		(chinese_name,creater,create_date)
+		value(
+		#{chineseName},
+		#{creater},
+		#{createDate}
+		)
+	</insert>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getNameCount" 
+		resultType="Integer">
+		select count(*) from chemical_parameter where chinese_name = #{name}
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getCasCount" 
+		resultType="Integer">
+		select count(*) from chemical_parameter where CAS = #{cas}
+	</select>
+
+</mapper> 

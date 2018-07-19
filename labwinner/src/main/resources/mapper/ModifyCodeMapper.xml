@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.ModifyCodeDao">
+
+<resultMap id="modifyCodeMap" type="com.labwinner.domain.ModifyCode">
+        <id column="modify_code_id" property="modifyCodeId" />
+        <result column="modify_code" property="modifyCode" />
+        <result property="flag" column="flag" />
+        
+         <collection property="inventoryModifies" ofType="com.labwinner.domain.InventoryModify">
+	     <id column="inventory_modify_id" property="inventoryModifyId" />
+         </collection>  
+        
+ </resultMap>
+
+     <!-- 获取所有对象列表 -->
+	 <select id="getAll" resultType="com.labwinner.domain.ModifyCode" resultMap="modifyCodeMap">
+		select * from modify_code order by locate(4,modify_code_id)
+	 </select>
+	 
+     <!-- 获取所有对象名称 -->
+	 <select id="getAllName" resultType="com.labwinner.domain.ModifyCode" resultMap="modifyCodeMap">
+		select modify_code_id,modify_code from modify_code 
+	 </select>
+	
+     <!-- 获取所有对象列表 -->
+	 <select id="getFlagAll" resultType="com.labwinner.domain.ModifyCode" resultMap="modifyCodeMap">
+		select modify_code_id,modify_code from modify_code where flag=0
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.ModifyCode" resultMap="modifyCodeMap">
+		select modify_code_id,modify_code from modify_code
+		where flag=0 and modify_code.modify_code LIKE concat('%',#{keyword},'%') 
+	</select>
+	
+	
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.ModifyCode" resultMap="modifyCodeMap">
+		select * from modify_code 
+		left outer join inventory_modify on
+		inventory_modify.modify_code_id=modify_code.modify_code_id
+		where modify_code.modify_code_id = #{id}
+	</select>
+	
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ModifyCode"
+		useGeneratedKeys="true" keyProperty="modifyCodeId">
+		insert into
+		modify_code(
+		    modify_code,
+		    flag)
+		value(
+		#{modifyCode},
+		#{flag})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ModifyCode">
+		update
+		modify_code set
+		modify_code=#{modifyCode}
+		where
+		modify_code_id=#{modifyCodeId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from modify_code where
+		modify_code_id=#{modifyCodeId}
+	</delete>
+	
+	
+</mapper>

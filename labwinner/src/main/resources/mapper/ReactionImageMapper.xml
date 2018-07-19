@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.ReactionImageDao">
+
+<resultMap id="reactionImageMap" type="com.labwinner.domain.ReactionImage">
+        <id column="reaction_image_id" property="reactionImageId" />
+         <result column="reaction_image" property="reactionImage" />
+         
+		<association property="note"
+			resultMap="com.labwinner.dao.NoteDao.noteMap"></association>
+			
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="string" parameterType="Integer" >
+		select reaction_image.reaction_image from reaction_image where note_id = #{id}
+	</select>
+	
+	<select id="getByImageId" resultType="string" parameterType="Integer" >
+		select reaction_image.reaction_image from reaction_image where reaction_image_id = #{id}
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.ReactionImage"
+		useGeneratedKeys="true" keyProperty="reactionImageId">
+		insert into
+		reaction_image
+		(reaction_image,note_id)
+		value(
+		#{reactionImage},
+		#{note.noteId})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_image where
+		note_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByImg" parameterType="string">
+		delete from reaction_image where
+		reaction_image=#{img}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteById" parameterType="Integer">
+		delete from reaction_image where
+		reaction_image_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from reaction_image where note_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.ReactionImage">
+		update reaction_image 
+		set
+		note_id=#{note.noteId},
+		reaction_image=#{reactionImage}
+		where 
+		reaction_image_id=#{reactionImageId}
+	</update>
+</mapper>

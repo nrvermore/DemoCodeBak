@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ExpertDao">
+   
+   <resultMap id="expertMap" type="com.labwinner.domain.Expert">
+        <id column="expert_id" property="expertId" />        
+        <result column="expert_name_ch" property="expertNameCh" />
+        <result column="expert_name_en" property="expertNameEn" />
+        <result column="country" property="country" />
+        <result column="nation" property="nation" />
+        <result column="birthday" property="birthday" />
+        <result column="homeplace" property="homeplace" />
+        <result column="achievement" property="achievement" />
+        <result column="native_place" property="nativePlace" />
+        <result column="record" property="record" />
+        <result column="company" property="company" />
+        <result column="research_area" property="researchArea" />
+        <result column="professional_title" property="professionalTitle" />
+        <result column="img_url" property="imgUrl" />
+      
+    </resultMap>
+    
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+		
+		  select * from expert
+		 
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllBase" resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+		
+		  select * from expert 
+		 
+	</select>
+	<!-- 获取所有对象列表 -->
+	<select id="getExpertUser" resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+		   select * from expert where expert_id not in (select distinct expert_id from labwinner_base.base_user where expert_id is not null) 
+	</select>
+	
+	
+	
+		<!-- 根据机构获取所有对象列表 -->
+	<select id="getAllByAngency" resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+		  select * from expert where source=#{agencyId}
+		 
+	</select>
+	
+	
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+		
+		 select * from expert 
+		 where expert_name_ch LIKE concat('%',#{keyword},'%')
+		 or expert_name_en LIKE concat('%',#{keyword},'%') 
+  
+	</select>
+	
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllExpertBase" resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+		
+		 select * from expert 
+		 whereexpert_name_ch LIKE concat('%',#{keyword},'%')
+		 or expert_name_en LIKE concat('%',#{keyword},'%') 
+  		
+	</select>
+	
+	
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllPageableKnow" resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+		(select a.*,count(b.journal_article_id) as count from expert a,journal_article b
+		where (expert_name_ch LIKE concat('%',#{keyword},'%')
+		 or expert_name_en LIKE concat('%',#{keyword},'%') )
+  		and (
+		find_in_set(a.expert_name_ch,author) or find_in_set(a.expert_name_en,author))
+		group by expert_id,expert_name_ch,expert_name_en,country,nation,birthday,record,homeplace,
+		record,research_area,achievement,company,native_place,professional_title,img_url,user_id
+  		order by count desc)
+  		union all
+  		(
+  		select c.*, 0 as count  from expert c 
+    where  (expert_name_ch LIKE concat('%',#{keyword},'%')
+		 or expert_name_en LIKE concat('%',#{keyword},'%') )
+		 and
+    expert_id not in (select distinct a.expert_id from expert a,journal_article b
+		where 
+		find_in_set(a.expert_name_ch,author) or find_in_set(a.expert_name_en,author))
+		order by count desc
+  		)
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllKnow" resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+	(select a.*,count(b.journal_article_id) as count from expert a,journal_article b
+		where 
+		find_in_set(a.expert_name_ch,author) or find_in_set(a.expert_name_en,author)
+		group by expert_id,expert_name_ch,expert_name_en,country,nation,birthday,record,homeplace,
+		record,research_area,achievement,company,native_place,professional_title,img_url,user_id
+		order by count desc)
+    UNION all
+    (select c.*, 0 as count  from expert c 
+    where expert_id not in (select distinct a.expert_id from expert a,journal_article b
+		where 
+		find_in_set(a.expert_name_ch,author) or find_in_set(a.expert_name_en,author))
+		order by count desc)
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getKnowledgeNum"  resultType="java.lang.Integer">
+		select count(*) from journal_article where author like concat('%',#{name},'%') 
+	</select>
+	
+	
+		<!-- 获取所有对象名称 -->
+	<select id="getAllName" resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+		select expert_name_ch,expert_name_en from expert
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.Expert" resultMap="expertMap">
+		 select * from expert where expert_id=#{id}
+	</select>
+ 
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Expert"
+		useGeneratedKeys="true" keyProperty="expertId">
+		insert into
+		expert(
+		    expert_name_ch,               
+			expert_name_en,                
+			country,       
+			nation,        
+			birthday,                  
+			homeplace,
+			achievement,              
+			native_place,         
+			record,            
+			company,            
+			research_area,            
+			professional_title,            
+			img_url,
+			source)
+		value(
+		#{expertNameCh},
+		#{expertNameEn},
+		#{country},
+		#{nation},
+		#{birthday},
+		#{homeplace},
+		#{achievement},
+		#{nativePlace},
+		#{record},
+		#{company},
+		#{researchArea},
+		#{professionalTitle},
+		#{imgUrl},
+		#{source})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.Expert">
+		update
+		labwinner_base.expert 
+		<trim prefix="set" suffixOverrides=",">
+		<if test="expertNameCh!=null">expert_name_ch=#{expertNameCh},</if>
+		<if test="expertNameEn!=null">expert_name_en=#{expertNameEn},</if>
+		<if test="country!=null">country=#{country},</if>
+		<if test="achievement!=null">achievement=#{achievement},</if>
+		<if test="nativePlace!=null">native_place=#{nativePlace},</if>
+		<if test="record!=null">record=#{record},</if>
+		<if test="company!=null">company=#{company},</if>
+		<if test="professionalTitle!=null">professional_title=#{professionalTitle},</if>
+		<if test="researchArea!=null">research_area=#{researchArea},</if>
+		<if test="imgUrl!=null">img_url=#{imgUrl},</if>
+		</trim>
+		where
+		expert_id=#{expertId}
+		
+	</update>
+
+		<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from expert
+		where
+		expert_id=#{id}
+	</delete>
+	
+</mapper> 

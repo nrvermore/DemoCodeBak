@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.CommentLikeDao">
+
+<resultMap id="commentLikeMap" type="com.labwinner.domain.CommentLike">
+        <id column="like_id" property="likeId" />
+        
+        <association property="assistComment" javaType="com.labwinner.domain.AssistComment">
+        	<id column="comment_id" property="assistCommentId" />
+       	</association>
+       
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+		</association>
+		
+		<association property="sysSigningAgency" javaType="com.labwinner.domain.SysSigningAgency">
+			<id property="agencyId" column="agency_id" />
+			<result property="userName" column="user_name" />
+		</association>
+        
+ </resultMap>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.CommentLike"
+		useGeneratedKeys="true" keyProperty="likeId">
+		insert into
+		labwinner_base.comment_like(comment_id,user_id,agency_id)
+		value(
+		#{assistComment.assistCommentId},
+		#{sysUser.userId},
+		#{sysSigningAgency.agencyId}
+		)
+	</insert>
+	
+	<delete id="delete" parameterType="Integer">
+	    delete from labwinner_base.comment_like where
+		like_id=#{id}
+	</delete>
+	
+	<delete id="deleteById" parameterType="Integer">
+	    delete from labwinner_base.comment_like where
+		comment_id=#{id}
+	</delete>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getNum" parameterType="Integer"
+		resultType="Integer">
+		select count(*) from labwinner_base.comment_like where comment_id=#{id}
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getByUser" resultType="com.labwinner.domain.CommentLike" resultMap="commentLikeMap">
+		select * from labwinner_base.comment_like 
+		where comment_id=#{commentId} and user_id = #{userId}
+		and agency_id = #{agencyId}
+	</select>
+</mapper> 

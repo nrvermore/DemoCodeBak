@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.IndustryReactionTemplateParameterDao">
+   
+   <resultMap id="industryReactionTemplateParameterMap" type="com.labwinner.domain.IndustryReactionTemplateParameter">
+        <id column="industry_template_parameter_id" property="industryTemplateParameterId" />        
+        <result column="reference_value" property="referenceValue" />
+        <result property="reactionParameter" column="reaction_parameter"/>
+        <association property="measurement"
+        resultMap="com.labwinner.dao.MeasurementDao.measurementMap">      
+       </association>
+       
+      <!--  <association property="reactionParameter" javaType="com.labwinner.domain.ReactionParameter">
+            <id property="reactionParameterId" column="reaction_parameter_id"/>
+            <result property="reactionParameterName" column="reaction_parameter_name"/>
+          
+       </association>  -->
+              <association property="professionProcess"
+              resultMap="com.labwinner.dao.ProfessionProcessDao.professionProcessMap">      
+       </association>
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.IndustryReactionTemplateParameter" resultMap="industryReactionTemplateParameterMap">
+		select * from industry_reaction_template_parameter,reaction_parameter,profession_process,measurement where
+		 industry_reaction_template_parameter.process_id=profession_process.process_id
+		 and industry_reaction_template_parameter.measure_unit_id=measurement.measure_unit_id
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.IndustryReactionTemplateParameter" resultMap="industryReactionTemplateParameterMap">
+		select  
+		 industry_template_parameter_id,reference_value,reaction_parameter,profession_process.*,measurement.*
+		 from
+		 industry_reaction_template_parameter,reaction_parameter,profession_process,measurement
+		 where 
+		 industry_reaction_template_parameter.process_id=profession_process.process_id
+		 and industry_reaction_template_parameter.measure_unit_id=measurement.measure_unit_id
+		 and industry_reaction_template_parameter.industry_template_parameter_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.IndustryReactionTemplateParameter"
+		useGeneratedKeys="true" keyProperty="industryTemplateParameterId">
+		insert into
+		industry_reaction_template_parameter(
+		reference_value,
+	    reaction_parameter,               
+		process_id,                
+		measure_unit_id)
+		value(
+		#{referenceValue},
+		#{reactionParameter},
+		#{professionProcess.processId},
+		#{measurement.measureUnitId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.IndustryReactionTemplateParameter">
+		update
+		industry_reaction_template_parameter set
+		reference_value=#{referenceValue},
+		reaction_parameter=#{reactionParameter},
+		process_id=#{professionProcess.processId},
+		measure_unit_id=#{measurement.measureUnitId}
+		where
+		industry_template_parameter_id=#{industryTemplateParameterId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from industry_reaction_template_parameter where
+		industry_template_parameter_id=#{industryTemplateParameterId}
+	</delete>
+
+</mapper> 

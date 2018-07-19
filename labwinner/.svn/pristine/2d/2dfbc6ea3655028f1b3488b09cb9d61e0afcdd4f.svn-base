@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.QrInfoDao">
+
+<resultMap id="QrInfoMap" type="com.labwinner.domain.QrInfo">
+        <id column="qr_id" property="qrId" />
+        <result column="qr_name" property="qrName" />
+        <result column="qr_path" property="qrPath" />
+        <result column="qr" property="qr" />
+       <association property="inventories"
+			resultMap="com.labwinner.dao.InventoriesDao.inventoriesMap">
+		</association>
+			
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.QrInfo" resultMap="QrInfoMap">
+		select qr_id,qr_info.qr_name,qr_info.qr_path,
+		inventories.inventory_name as inventoryName,product_summary.catalogue_code as batch_number,com_date,maturity_date,
+		inventories.inventory_id,inventory_location.*,supplier.sup_id,supplier.supr_name as suprName
+		from qr_info
+		left outer join inventories on inventories.inventory_id = qr_info.inventory_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join inventory_location on inventories.inventory_location_id= inventory_location.inventory_location_id
+		where qr_info.inventory_id = #{id}
+	</select>
+	
+	<delete id="delete" parameterType="Integer">
+	delete from qr_info where inventory_id = #{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from qr_info where inventory_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.QrInfo" useGeneratedKeys="true" keyProperty="qrId">
+	insert into qr_info (qr_name,qr_path,inventory_id) value
+	(#{qrName},#{qrPath},#{inventories.inventoryId})
+	</insert>
+</mapper>

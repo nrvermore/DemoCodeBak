@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProfessionProcessDao">
+   
+   <resultMap id="professionProcessMap" type="com.labwinner.domain.ProfessionProcess">
+        <id column="process_id" property="processId" />        
+        <result column="process_name" property="processName" />
+        <result column="step_number" property="stepNumber" />
+ 
+         <association property="industryReactionTemplate"
+        resultMap="com.labwinner.dao.IndustryReactionTemplateDao.industryReactionTemplateMap">      
+       </association>
+       
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ProfessionProcess" resultMap="professionProcessMap">
+		select * from profession_process,industry_reaction_template where
+		 profession_process.industry_template_id=industry_reaction_template.industry_template_id
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ProfessionProcess" resultMap="professionProcessMap">
+		select  
+		 process_name,step_number,industry_reaction_template.*
+		 from
+		 profession_process,industry_reaction_template where
+		 profession_process.industry_template_id=industry_reaction_template.industry_template_id
+		 and process_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ProfessionProcess"
+		useGeneratedKeys="true" keyProperty="processId">
+		insert into
+		profession_process(
+		    process_name,
+		    step_number,               
+			industry_template_id)
+		value(
+		#{processName},
+		#{stepNumber},
+		#{industryReactionTemplate.industryTemplateId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ProfessionProcess">
+		update
+		profession_process set
+		process_name=#{processName},
+		step_number=#{stepNumber},
+		industry_template_id=#{industryReactionTemplate.industryTemplateId}
+		where
+		industry_template_id=#{industryTemplateId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from profession_process where
+		process_id=#{processId}
+	</delete>
+
+</mapper> 

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.MomentsCommentDao">
+
+	<resultMap id="momentsCommentMap" type="com.labwinner.domain.TeamProjMomentsComment">
+		<id column="team_proj_moments_comment_id" property="teamProjMomentsCommentId" />
+		<result column="comment_content" property="commentContent" />
+		<result column="commentator_id" property="commentatorId" />
+		<result column="reply_content" property="replyContent" />
+		<result column="reply_record_id" property="replyRecordId" />
+		<result column="moments_type" property="momentsType" />
+		<result column="moments_info_id" property="momentsInfoId" />
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.TeamProjMomentsComment" resultMap="momentsCommentMap">
+		select * from team_proj_moments_comment
+	</select>
+	
+	<select id="getById" resultType="com.labwinner.domain.TeamProjMomentsComment" resultMap="momentsCommentMap">
+		select * from team_proj_moments_comment where team_proj_moments_comment_id = #{id}
+	</select>
+	
+	<select id="getByMomentsId" resultType="com.labwinner.domain.TeamProjMomentsComment" resultMap="momentsCommentMap">
+		select * from team_proj_moments_comment where moments_info_id = #{momentsInfoId} and moments_type = #{momentsType}
+	</select>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from team_proj_moments_comment where team_proj_moments_comment_id = #{id}
+	</delete>
+	
+	<delete id="deleteByMomentsId" parameterType="Integer">
+		delete from team_proj_moments_comment where moments_info_id = #{momentsInfoId} and moments_type= #{momentsType}
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.TeamProjMomentsComment"
+		useGeneratedKeys="true" keyProperty="teamProjMomentsCommentId">
+		insert into
+		team_proj_moments_comment
+		(comment_content,commentator_id,reply_content,
+		reply_record_id,moments_type,moments_info_id)
+		value(
+		#{commentContent},
+		#{commentUser.userId},
+		#{replyContent},
+		#{replyUser.userId},
+		#{momentsType},
+		#{momentsInfoId})
+	</insert>
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.ExecuteParameterDao">
+
+<resultMap id="executeParameterMap" type="com.labwinner.domain.ReactionExecuteParameter">
+        <id column="parameter_id" property="parameterId" />
+         <result column="execute_parameter_dosage" property="executeParameterDosage" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+         <result column="reaction_parameter_id" property="reactionParameter" />
+        <association property="measurement"
+			resultMap="com.labwinner.dao.MeasurementDao.measurementMap"></association>
+			
+		<association property="reactionProcess"
+			resultMap="com.labwinner.dao.ReactionProcessDao.reactionProcessMap"></association>
+			
+		<!-- <association property="reactionParameter"
+			resultMap="com.labwinner.dao.ReactionParameterDao.reactionParameterMap"></association> -->
+        
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="com.labwinner.domain.ReactionExecuteParameter" parameterType="Integer" resultMap="executeParameterMap" >
+		select * from reaction_execute_parameter where reaction_process_id = #{id}
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.ReactionExecuteParameter"
+		useGeneratedKeys="true" keyProperty="parameterId">
+		insert into
+		reaction_execute_parameter
+		(execute_parameter_dosage,reaction_parameter_id,
+		reaction_process_id,measure_unit_id,
+		creater,create_date, modifier,modify_date)
+		value(
+		#{executeParameterDosage},
+		#{reactionParameter},
+		#{reactionProcess.reactionProcessId},
+		#{measurement.measureUnitId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_execute_parameter where
+		parameter_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByProcessId" parameterType="Integer">
+		delete from reaction_execute_parameter where
+		reaction_process_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from reaction_execute_parameter where reaction_process_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.Note">
+		update reaction_execute_parameter 
+		set
+		execute_parameter_dosage=#{executeParameterDosage},
+		reaction_parameter_id=#{reactionParameter},
+		reaction_process_id=#{reactionProcess.reactionProcessId},
+		measure_unit_id=#{measurement.measureUnitId},
+		creater=#{creater}, 
+		create_date=#{createDate}, 
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where 
+		parameter_id=#{parameterId}
+	</update>
+	
+</mapper>

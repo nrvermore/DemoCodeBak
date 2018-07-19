@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProjectScheduleDao">
+      
+      <resultMap id="proScheduleMap" type="com.labwinner.domain.ProjectSchedule">
+            <id property="proScheduleId" column="pro_schedule_id"/>
+            <result property="proScheduleName" column="pro_schedule_name"/>
+	        <result property="proScheduleDes" column="pro_schedule_des"/>
+      </resultMap>
+      
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ProjectSchedule" resultMap="proScheduleMap">
+		select * from project_schedule
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ProjectSchedule" resultMap="proScheduleMap">
+		 select * from
+		 project_schedule
+		 where pro_schedule_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ProjectSchedule"
+		useGeneratedKeys="true" keyProperty="proScheduleId">
+		insert into
+		project_schedule(
+		    pro_schedule_name,
+		    pro_schedule_des)
+		value(
+		#{proScheduleName},
+		#{proScheduleDes})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ProjectSchedule">
+		update
+		project_schedule set
+		pro_schedule_name=#{proScheduleName},
+		pro_schedule_des=#{proScheduleDes}
+		where
+		pro_schedule_id=#{proScheduleId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from project_schedule where
+	    pro_schedule_id=#{proScheduleId}
+	</delete>
+	
+</mapper> 

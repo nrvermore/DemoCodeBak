@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ChemicalImageDao">
+
+<resultMap id="chemicalImageMap" type="com.labwinner.domain.ChemicalImage">
+        <id column="chemical_image_id" property="chemicalImageId" />
+        <result column="dissolvant_describe" property="dissolvantDescribe" />
+        <result column="dissolvant_image" property="dissolvantImage" />
+        
+        <association property="inventoryGroups" javaType="com.labwinner.domain.InventoryGroups">
+        <id column="group_id" property="groupId" />
+        <result column="inventory_name" property="inventoryName" />
+       </association>
+        
+ </resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ChemicalImage" resultMap="chemicalImageMap">
+		select chemical_image_id,dissolvant_image,dissolvant_describe,group_id from chemical_image
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getByInventoryId" parameterType="Integer"
+		resultType="string">
+		select dissolvant_describe from
+		chemical_image where group_id=#{id}
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getByGroupId" resultType="com.labwinner.domain.ChemicalImage" resultMap="chemicalImageMap">
+		select * from chemical_image where group_id =#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ChemicalImage"
+		useGeneratedKeys="true" keyProperty="chemicalImageId">
+		insert into
+		chemical_image(dissolvant_image,dissolvant_describe,group_id)
+		value(#{dissolvantImage},
+		#{dissolvantDescribe},
+		#{inventoryGroups.groupId})
+	</insert>
+	
+	<delete id="deleteById" parameterType="Integer">
+	    delete from chemical_image where
+		group_id=#{id}
+	</delete>
+	
+	<delete id="deleteByUrl">
+	    delete from chemical_image where
+		dissolvant_describe=#{imageName} and group_id = #{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from chemical_image where group_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper> 

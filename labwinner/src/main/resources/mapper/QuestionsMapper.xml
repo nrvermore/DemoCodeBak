@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.QuestionsDao">
+     
+      <resultMap id="questionsMap" type="com.labwinner.domain.Questions">
+            <id property="questionId" column="question_id"/>
+            <result property="questionTitle" column="question_title"/>
+            <result property="details" column="details"/>
+            <result property="time" column="time"/>
+            
+            <association property="moduleType" javaType="com.labwinner.domain.ModuleType">
+            <id property="moduleTypeId" column="module_type_id"/>
+            <result property="moduleTypeName" column="module_type_name"/>
+            </association> 
+                     
+      </resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Questions" resultMap="questionsMap">
+		 select question_id,question_title,details,time,
+		 questions.module_type_id,module_type_name
+		 from questions
+		 left outer join module_type on
+		 questions.module_type_id=module_type.module_type_id
+	</select>
+	
+	<!-- 获取所有排序对象列表 -->
+	<select id="getAllDesc" resultType="com.labwinner.domain.Questions" resultMap="questionsMap">
+		 select question_id,question_title,details,time,
+		 questions.module_type_id,module_type_name
+		 from questions
+		 left outer join module_type on
+		 questions.module_type_id=module_type.module_type_id
+		 order by time desc
+	</select>
+	
+	<!-- 获取所有排序对象列表 -->
+	<select id="getAllDescQuestions" resultType="com.labwinner.domain.Questions" resultMap="questionsMap">
+		 select question_id,question_title,details,time
+		 from questions
+		 order by time desc
+	</select>
+	
+	<!-- 获取所有对象名称 -->
+	<select id="getAllName" resultType="com.labwinner.domain.Questions" resultMap="questionsMap">
+		select question_id,question_title from questions
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.Questions" resultMap="questionsMap">
+		 select question_id,question_title,details,time,
+		 questions.module_type_id,module_type_name
+		 from questions
+		 left outer join module_type on
+		 questions.module_type_id=module_type.module_type_id
+		 where questions.question_title LIKE concat('%',#{keyword},'%')
+	</select>
+    
+	<!-- 获取所有排序对象加分页搜索列表 -->
+	<select id="getAllDescPageable" resultType="com.labwinner.domain.Questions" resultMap="questionsMap">
+		 select question_id,question_title,details,time,
+		 questions.module_type_id,module_type_name
+		 from questions
+		 left outer join module_type on
+		 questions.module_type_id=module_type.module_type_id
+		 where questions.question_title LIKE concat('%',#{keyword},'%')
+		 order by time desc
+	</select>
+    
+    <!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Questions"
+		useGeneratedKeys="true" keyProperty="questionId">
+		insert into
+		questions(         
+			question_title,
+			details,
+			module_type_id,
+			time)
+		value(
+		#{questionTitle},
+		#{details},
+		#{moduleType.moduleTypeId},
+		#{time})
+    </insert>
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.Questions" resultMap="questionsMap">
+		 select question_id,question_title,details,time,
+		 questions.module_type_id,module_type_name
+		 from questions
+		 left outer join module_type on
+		 questions.module_type_id=module_type.module_type_id
+		 where question_id=#{questionId}
+	 </select>
+
+    <!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.Questions">
+		update
+		questions set
+		question_title=#{questionTitle},
+		details=#{details},
+		module_type_id=#{moduleType.moduleTypeId}
+		where
+		question_id=#{questionId}
+	</update>
+	
+    <!-- 更新对象方法 -->
+	<update id="questions" parameterType="com.labwinner.domain.Questions">
+		update
+		questions set
+		time=#{time}
+		where
+		question_id=#{questionId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from questions where
+		question_id=#{questionId}
+	</delete>
+
+</mapper> 

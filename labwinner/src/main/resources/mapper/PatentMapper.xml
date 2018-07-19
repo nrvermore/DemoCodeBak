@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 专利 -->
+<mapper namespace="com.labwinner.dao.PatentDao">
+
+	<resultMap id="patentResultMap" type="com.labwinner.domain.Patent">
+		<id property="patentId" column="patent_id" />
+		<result property="patentName" column="patent_name" />
+		<result property="patentStatus" column="patent_status" />
+		<result property="applicationNumber" column="application_number" />
+		<result property="applicationDate" column="application_date" />
+		<result property="abstract_" column="abstract" />
+		<result property="publicationDate" column="publication_date" />
+		<result property="publicationNumber" column="publication_number" />
+		<result property="ipcIndex" column="ipc_index" />
+		<result property="applicant" column="applicant" />
+		<result property="inventor" column="inventor" />
+		<result property="priorityNum" column="priority_num" />
+		<result property="priorotyDate" column="prioroty_date" />
+		<result property="applicantAddr" column="applicant_addr" />
+		<result property="applicantPostcode" column="applicant_postcode" />
+		<result property="creater" column="creater" />
+		<result property="createDate" column="create_date" />
+		<result property="modifier" column="modifier" />
+		<result property="modifyDate" column="modify_date" />
+		<result property="linkUrl" column="link_url" />
+		<result property="source" column="source" />
+		<result property="knowledgeField" column="knowledge_field" />
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+             <result property="username" column="username"/>
+             	<result property="userImage" column="user_image" />
+       </association>
+       <association property="knowledgeAcc" javaType="com.labwinner.domain.KnowledgeAcc">
+        <id property="knowledgeAccId" column="knowledge_acc_id"/>
+         <result property="uploadFiles" column="upload_files"/>
+         <result property="pdfCount" column="pdf_count"/>
+         </association>
+         	<association property="materialField" javaType="com.labwinner.domain.MaterialField">
+			<id property="cid" column="material_field_id" />
+			<result property="label" column="material_field" />
+			<result property="pid" column="material_field_pid" />
+		</association>
+	</resultMap>
+
+	<sql id="columns">a.patent_id, user_id, patent_name,patent_status, application_number,application_date,abstract,publication_date,publication_number,
+	ipc_index,applicant,inventor,priority_num,prioroty_date,applicant_addr,applicant_postcode,creater,create_date,modifier,modify_date,link_url,a.source,
+	b.knowledge_acc_id,b.upload_files,b.pdf_count
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="patentResultMap">
+		select
+		a.patent_id, a.user_id, patent_name,patent_status, application_number,application_date,abstract,publication_date,publication_number,a.source,
+	ipc_index,applicant,inventor,priority_num,prioroty_date,applicant_addr,applicant_postcode,c.realname as creater,a.create_date,a.modifier,a.modify_date,link_url,
+	b.knowledge_acc_id,b.upload_files,b.pdf_count
+		from patent a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join sys_user c on a.user_id=c.user_id
+		order by a.patent_id desc
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="patentResultMap">
+				select
+		patent_id,  patent_name,patent_status, application_number,application_date,abstract,publication_date,publication_number,a.source,
+	ipc_index,applicant,inventor,priority_num,prioroty_date,applicant_addr,applicant_postcode,a.creater,a.create_date,a.modifier,b.user_id,b.realname
+	,a.modify_date,link_url,c.knowledge_acc_id ,c.upload_files,c.pdf_count,f.material_field_id ,f.material_field,f.material_field_pid,a.source,a.knowledge_field
+		from patent a
+		left outer join sys_user b on b.user_id= a.user_id
+		left outer join knowledge_acc c on c.knowledge_acc_id=a.knowledge_acc_id  and c.knowledge_classify_id=4
+		left outer join labwinner_base.material_field
+		f on a.material_field_id=f.material_field_id
+		where patent_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Patent"
+		useGeneratedKeys="true" keyProperty="patentId">
+		insert into
+		patent(user_id, patent_name,patent_status, application_number,application_date,abstract,publication_date,publication_number,
+		ipc_index,applicant,inventor,priority_num,prioroty_date,applicant_addr,applicant_postcode,creater,
+		create_date,modifier,modify_date,link_url,knowledge_acc_id,source,material_field_id,knowledge_field
+		)
+		value(
+		#{sysUser.userId},
+		#{patentName},#{patentStatus},
+		 #{applicationNumber},
+		#{applicationDate}, #{abstract_},
+		#{publicationDate}, #{publicationNumber},
+		#{ipcIndex}, #{applicant},
+		#{inventor}, #{priorityNum},
+		#{priorotyDate}, #{applicantAddr},
+		#{applicantPostcode},
+		#{creater}, #{createDate},
+		#{modifier}, #{modifyDate},
+		#{linkUrl},#{knowledgeAcc.knowledgeAccId},
+		#{source},
+		#{materialField.cid},
+		#{knowledgeField}
+		)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.Patent">
+		update
+		patent set
+		user_id=#{sysUser.userId},
+		patent_name=#{patentName},
+		patent_status=#{patentStatus},
+		application_number=#{applicationNumber},
+		application_date=#{applicationDate},
+		 abstract=#{abstract_},
+		publication_date=#{publicationDate}, 
+		publication_number=#{publicationNumber},
+		ipc_index=#{ipcIndex}, 
+		applicant=#{applicant},
+		inventor=#{inventor}, 
+		priority_num=#{priorityNum},
+		prioroty_date=#{priorotyDate}, 
+		applicant_addr=#{applicantAddr},
+		applicant_postcode=#{applicantPostcode},
+		creater=#{creater}, 
+		create_date=#{createDate},
+		modifier=#{modifier}, 
+		modify_date=#{modifyDate},
+		knowledge_acc_id=#{knowledgeAcc.knowledgeAccId},
+		link_url=#{linkUrl},
+		material_field_id=#{materialField.cid},
+		knowledge_field=#{knowledgeField}
+		where patent_id=#{patentId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from patent
+		where
+		patent_id=#{id}
+	</delete>
+	
+	
+	<!-- 根据名字获取对象方法 -->
+	<select id="getByName" parameterType="String" resultMap="patentResultMap">
+		select
+		a.patent_id, a.user_id, patent_name,patent_status, application_number,application_date,abstract,publication_date,publication_number,a.source,
+	ipc_index,applicant,inventor,priority_num,prioroty_date,applicant_addr,applicant_postcode,c.realname as creater,a.create_date,a.modifier,a.modify_date,link_url,
+	b.knowledge_acc_id,b.upload_files,b.pdf_count
+		from
+		patent a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join sys_user c on a.user_id=c.user_id
+		where patent_name like
+		CONCAT('%',#{name},'%')
+		order by patent_id desc
+	</select>
+	
+	
+		<!-- 根据名字获取对象方法 -->
+	<select id="getByNameForApp"  resultMap="patentResultMap">
+		select
+		<include refid="columns" />
+		from
+		patent a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		where patent_name like
+		CONCAT('%',#{keyword},'%')
+		order by a.patent_id desc
+		limit #{size}
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllForApp" resultMap="patentResultMap">
+		select
+		<include refid="columns" />
+		from patent a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		order by a.patent_id desc
+		limit #{size}
+	</select>
+	
+			<!-- 获取所有对象列表 -->
+	<select id="getPatentNum" resultType="java.lang.Integer">
+		select count(*) from patent
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getMediaNum" resultType="java.lang.Integer">
+		select count(*) from note where  user_id=#{userId}
+	</select>
+	
+		<select id="getAgencyPatent" resultType="com.labwinner.domain.Patent" resultMap="patentResultMap">
+		select result.* from 
+	(select
+		a.patent_id,a.patent_name,a.create_date,a.knowledge_field,b.user_id,b.realname,b.user_image
+		from patent a
+	  left outer join sys_user b on a.user_id=b.user_id
+		where  a.source =#{angency}
+		)as result
+		order by patent_id desc limit 4
+	</select>
+	
+	<select id="getBasePatent" resultType="com.labwinner.domain.Patent" resultMap="patentResultMap">
+	select
+		a.patent_id,a.patent_name,a.create_date,b.material_field_id,b.material_field
+		from patent a
+	  	left outer join labwinner_base.material_field b on a.material_field_id=b.material_field_id
+		where  a.source =0
+		order by patent_id desc limit 4
+	</select>
+	
+	<select id="getAllBase" resultType="java.util.Map">
+	select result.patent_id,result.patent_name,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.patent_id,a.patent_name,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from patent a
+		left outer join knowledge_pro_rela b on
+		a.patent_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=4
+		left outer join knowledge_classify_reac_rela c on
+		a.patent_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=4
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where  a.source =0
+		<if test="keyword != 'undefined' ">
+			and a.patent_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		group by patent_id,patent_name,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+	
+	
+	<select id="getAllBaseByFiledId" resultType="java.util.Map">
+		select result.patent_id,result.patent_name,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.patent_id,a.patent_name,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from patent a
+		left outer join knowledge_pro_rela b on
+		a.patent_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=4
+		left outer join knowledge_classify_reac_rela c on
+		a.patent_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=4
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=1
+		where  a.source =0
+		and a.material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{filedId} or material_field_pid=#{filedId})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{filedId} or
+		material_field_pid=#{filedId}))
+		<if test="keyword != 'undefined' ">
+			and a.patent_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+				group by patent_id,patent_name,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+	
+	<select id="getAllPerson" resultType="java.util.Map">
+	select result.patent_id,result.patent_name,result.user_id as
+		userId,result.creater as creater ,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.patent_id,a.patent_name,a.user_id,a.creater,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from patent a
+		left outer join knowledge_pro_rela b on
+		a.patent_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=4
+		left outer join knowledge_classify_reac_rela c on
+		a.patent_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=4
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=4
+		where a.source =#{agencyId}
+		<if test="keyword != 'undefined' ">
+			and a.patent_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+			group by patent_id,patent_name,user_id,creater,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+	
+	<select id="getAllPersonByFiledId" resultType="java.util.Map">
+		select result.patent_id,result.patent_name,result.user_id as
+		userId,result.creater as creater ,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.patent_id,a.patent_name,a.user_id,a.creater,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from patent a
+		left outer join knowledge_pro_rela b on
+		a.patent_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=4
+		left outer join knowledge_classify_reac_rela c on
+		a.patent_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=4
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=4
+		where a.source =#{agencyId}
+		and find_in_set(#{filedId},a.knowledge_field)
+		<if test="keyword != 'undefined' ">
+			and a.patent_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		group by patent_id,patent_name,user_id,creater,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+	
+	
+	<select id="getSelfKnowledge" resultType="java.util.Map">
+	select result.patent_id,result.patent_name,result.user_id as
+		userId,result.creater as creater ,result.create_date as createDate,result.abstract as abstract,result.upload_files as upload_files,count(distinct
+		result.knowledge_pro_rela_id) +count(distinct
+		result.knowledge_classify_id) as count1,count(distinct
+		result.knowledge_classify_postil_id ) as count2 from
+		(select
+		a.patent_id,a.patent_name,a.user_id,a.creater,a.create_date,a.abstract, b.knowledge_pro_rela_id ,c.knowledge_classify_id
+		,d.knowledge_classify_postil_id,e.upload_files
+		from patent a
+		left outer join knowledge_pro_rela b on
+		a.patent_id=b.mapping_knowledge_idl and
+		b.knowledge_classify_id=4
+		left outer join knowledge_classify_reac_rela c on
+		a.patent_id=c.mapping_knowledge_idl and
+		c.knowledge_classify_id=4
+		left outer join knowledge_classify_postil d on
+		a.knowledge_acc_id=d.knowledge_acc_id
+		left outer join knowledge_acc e
+		on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=4
+		where a.user_id=#{userId}
+		and a.source =#{agencyId}
+		<if test="keyword != 'undefined' ">
+			and a.patent_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+			group by patent_id,patent_name,user_id,creater,create_date,abstract,upload_files
+		order by count1 desc,count2 desc
+	</select>
+	
+	
+	<select id="getAllBaseKnowByFiledId" resultType="java.util.Map">
+		select result.* from
+		(
+		select
+		a.patent_id,a.patent_name,a.application_number,a.publication_date,a.inventor,a.knowledge_acc_id,a.user_id,a.source,e.upload_files
+		from patent a
+		left outer join journal_user d on
+		a.patent_id=d.journal_article_id and
+		d.knowledge_classify_id=4
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=4
+		where a.source=0
+		<if test="filedId != 0 ">
+		and a.material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{filedId} or material_field_pid=#{filedId})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{filedId} or
+		material_field_pid=#{filedId}))
+		</if>
+		<if test="keyword != 'undefined' ">
+			and a.patent_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		order by patent_id desc
+	</select>
+	
+	
+	<select id="getSelfKnowledgeForApp" resultType="java.util.Map">
+		select result.* from
+		(
+		select
+		a.patent_id,a.patent_name,a.application_number,a.publication_date,a.inventor,a.knowledge_acc_id,a.user_id,a.source,e.upload_files
+		from patent a
+		left outer join journal_user d on
+		a.patent_id=d.journal_article_id and
+		d.knowledge_classify_id=4
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=4
+		where a.source!=0
+		and a.user_id=#{userId}
+		<if test="keyword != 'undefined' ">
+			and a.patent_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		order by patent_id desc
+	</select>
+	
+	
+	<select id="getAllPersonKnowlist" resultType="java.util.Map">
+		select result.* from
+		(
+		select
+		a.patent_id,a.patent_name,a.application_number,a.publication_date,a.inventor,a.knowledge_acc_id,a.user_id,a.source,e.upload_files
+		from patent a
+		left outer join journal_user d on
+		a.patent_id=d.journal_article_id and
+		d.knowledge_classify_id=4
+		left outer join knowledge_acc e on
+		e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=4
+		where a.source!=0
+		<if test="filedId != 0 ">
+		and find_in_set(#{filedId},a.knowledge_field) 
+		</if>
+		<if test="keyword != 'undefined' ">
+			and a.title LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		)as result
+		order by patent_id desc
+	</select>
+	
+	
+	
+	<select id="getKnowledgeFirst" resultType="java.util.Map">
+		SELECT
+		a.patent_id as id,a.patent_name as title,4 as classify,a.source,a.create_date as
+		createTime,b.realname as creater,b.user_image as url,c.knowledge_acc_id,c.upload_files
+		FROM patent a
+		left outer join sys_user b on a.user_id=b.user_id
+    left outer join knowledge_acc c on a.patent_id=c.knowledge_id and knowledge_classify_id=4
+    where a.source!=0
+		order by createTime desc
+	</select>
+	
+	<select id="getKnowledgeFirstBase" resultType="java.util.Map">
+		SELECT
+		a.patent_id as id,a.patent_name as title,4 as classify,a.source,a.create_date as
+		createTime,c.knowledge_acc_id,c.upload_files
+		FROM patent a
+    left outer join knowledge_acc c on a.patent_id=c.knowledge_id and knowledge_classify_id=4
+    where a.source=0
+		order by createTime desc
+	</select>
+	
+	<select id="getByAccId" resultType="com.labwinner.domain.Patent" resultMap="patentResultMap">
+	select * from patent where knowledge_acc_id=#{knowledgeAccId}
+	</select>
+	
+	
+		
+		<select id="getPersonKnoledgeNum" resultType="java.lang.Integer">
+		select count(*) from patent where user_id=#{userId} and source!=0
+	</select>
+	
+		<select id="getMaterialNum" resultType="java.lang.Integer">
+		select count(*) from patent where source=0 and material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id in
+		(select material_field_id from labwinner_base.material_field where
+		material_field_id=#{cid} or material_field_pid=#{cid})
+		or material_field_pid in (select material_field_id from
+		labwinner_base.material_field where material_field_id=#{cid} or
+		material_field_pid=#{cid}))
+	</select>
+	
+	
+	
+</mapper> 

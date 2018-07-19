@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.SignGroupDao">
+   
+   <resultMap id="signGroupMap" type="com.labwinner.domain.SignGroup">
+        <id column="sign_group_id" property="signGroupId" />        
+        <result column="create_date" property="createDate" />
+      	<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+       	</association>
+      
+    </resultMap>
+    
+	
+ 
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SignGroup"
+		useGeneratedKeys="true" keyProperty="signGroupId">
+		insert into
+		sign_group(
+		    create_date,               
+			user_id)
+		value(
+		#{createDate},
+		#{sysUser.userId}
+		)
+	</insert>
+	<!-- 删除对象方法 -->
+	<delete id="deleteAll" >
+		delete  from sign_group 
+	</delete>
+	
+	
+		
+		<!-- 根据用户名获取用户对象列表 -->
+	<select id="getAll" resultMap="signGroupMap">
+		    select * from sign_group
+	</select>
+	
+	<!-- 根据用户名获取用户对象列表 -->
+	<select id="getByUserId" resultMap="signGroupMap">
+		    select * from sign_group where user_id=#{userId}
+	</select>
+	
+		<!-- 根据用户名获取用户对象列表 -->
+	<select id="getAllGroup" resultMap="signGroupMap">
+		    select * from sign_group
+	</select>
+	
+	
+	
+</mapper> 

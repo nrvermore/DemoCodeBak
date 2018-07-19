@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ExecuteChemicalDao">
+
+	<resultMap id="executeChemcialMap" type="com.labwinner.domain.ExecuteChemical">
+		<id column="execute_chemical_id" property="executeChemicalId" />
+		<result column="chemical_dosage" property="chemicalDosage" />
+		<result column="chemical_group_id" property="chemicalGroupId" />
+		<result column="creater" property="creater" />
+		<result column="create_date" property="createDate" />
+		<result column="modifier" property="modifier" />
+		<result column="modify_date" property="modifyDate" />
+
+		<association property="measurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id2" />
+			<result property="basicUnit" column="basic_unit" />
+			<result property="conversionRelation" column="conversion_relation2" />
+			<result property="measureUnit" column="u2" />
+		</association>
+		<association property="inventory" javaType="com.labwinner.domain.Inventories">
+			<id column="inventory_id" property="inventoryId" />
+			<result column="inventory_name" property="inventoryName" />
+			<association property="inventoryLocation"
+				javaType="com.labwinner.domain.InventoryLocation">
+				<id column="cid2" property="cid" />
+				<result column="label2" property="label" />
+				<result column="pid2" property="pid" />
+				<result column="name2" property="parentName" />
+			</association>
+			<association property="inventoryGroups"
+				javaType="com.labwinner.domain.InventoryGroups">
+				<id property="groupId" column="group_id" />
+				<result column="name" property="inventoryName" />
+				<result column="inventory_num" property="inventoryNumber" />
+				<result column="batch_number" property="batchNumber" />
+				<result column="total_wei" property="totalWei" />
+			</association>
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id1" />
+				<result property="realname" column="realname1" />
+				<result property="username" column="username1" />
+			</association>
+		</association>
+
+		<association property="reactionProcess"
+			javaType="com.labwinner.domain.ReactionProcess">
+			<id column="reaction_process_id" property="reactionProcessId" />
+			<result column="process_name" property="processName" />
+		</association>
+
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getByGroupId" resultType="com.labwinner.domain.ExecuteChemical" 
+		parameterType="Integer" resultMap="executeChemcialMap" >
+		select
+		execute_chemical.*,inventories.inventory_id,inventories.inventory_name,
+		g.measure_unit_id as id2,g.measure_unit as u2,g.conversion_relation as conversion_relation2,
+		x.inventory_location_id as cid2,x.location_name as label2,x.location_path as pid2,y.location_name as name2,
+		h.user_id as user_id1,h.username as username1,h.realname as realname1
+		from execute_chemical
+		left outer join measurement g on
+		execute_chemical.measure_unit_id = g.measure_unit_id
+		left outer join inventories on execute_chemical.inventory_id =inventories.inventory_id
+		left outer join inventory_location x on x.inventory_location_id =inventories.inventory_location_id
+		left outer join inventory_location y on x.location_path=y.inventory_location_id
+		left outer join sys_user h on h.user_id = inventories.user_id
+		where
+		execute_chemical.chemical_group_id = #{id}
+		order by execute_chemical.execute_chemical_id
+		</select> 
+		
+		
+		
+		<select id="getByChmicalId" resultType="com.labwinner.domain.ExecuteChemical" 
+		parameterType="Integer" resultMap="executeChemcialMap" >
+		select
+		execute_chemical.*,inventories.inventory_id,inventories.inventory_name,
+		g.measure_unit_id as id2,g.measure_unit as u2,g.conversion_relation as conversion_relation2,
+		x.inventory_location_id as cid2,x.location_name as label2,x.location_path as pid2,y.location_name as name2,
+		h.user_id as user_id1,h.username as username1,h.realname as realname1
+		from execute_chemical
+		left outer join measurement g on
+		execute_chemical.measure_unit_id = g.measure_unit_id
+		left outer join inventories on execute_chemical.inventory_id =inventories.inventory_id
+		left outer join inventory_location x on x.inventory_location_id =inventories.inventory_location_id
+		left outer join inventory_location y on x.location_path=y.inventory_location_id
+		left outer join sys_user h on h.user_id = inventories.user_id
+		where
+		execute_chemical.execute_chemical_id = #{id}
+		</select> 
+		
+		
+	<select id="getById" resultType="com.labwinner.domain.ExecuteChemical"
+		parameterType="Integer" resultMap="executeChemcialMap">
+		select
+		execute_chemical.*,inventories.inventory_id,inventories.inventory_name,
+		inventory_groups.group_id,inventory_groups.inventory_name as name,
+		reaction_process.reaction_process_id,reaction_process.process_name,
+		g.measure_unit_id as id2,g.measure_unit as u2,
+		x.inventory_location_id
+		as cid2,x.location_name as label2,x.location_path as
+		pid2,y.location_name as name2,
+		h.user_id as user_id1,h.username as
+		username1,h.realname as realname1
+		from execute_chemical
+
+		left outer join reaction_process on reaction_process.reaction_process_id =
+		execute_chemical.reaction_process_id
+		left outer join measurement g on
+		execute_chemical.measure_unit_id = g.measure_unit_id
+		left outer join inventories on execute_chemical.inventory_id =inventories.inventory_id
+		left outer join inventory_groups on inventories.group_id  = inventory_groups.group_id
+
+		left outer join inventory_location x on x.inventory_location_id =inventories.inventory_location_id
+		left outer join inventory_location y on x.location_path=y.inventory_location_id
+		left outer join sys_user h on h.user_id = inventories.user_id
+		where
+		execute_chemical.reaction_process_id = #{id}
+	</select>
+
+	<select id="getInventorys" resultType="Integer" parameterType="map">
+		select inventory_id from execute_chemical
+	</select>
+
+	<insert id="save" parameterType="com.labwinner.domain.ExecuteChemical"
+		useGeneratedKeys="true" keyProperty="executeChemicalId">
+		insert into
+		execute_chemical
+		(chemical_dosage,inventory_id,
+		<!-- reaction_process_id, -->
+		measure_unit_id,chemical_group_id,
+		creater,create_date, modifier,modify_date)
+		value(
+		#{chemicalDosage},
+		#{inventory.inventoryId},
+		<!-- #{reactionProcess.reactionProcessId}, -->
+		#{measurement.measureUnitId},
+		#{executeChemicalGroup.chemicalGroupId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from execute_chemical
+		where
+		execute_chemical_id=#{id}
+	</delete>
+	
+	<delete id="deleteByGroupId" parameterType="Integer">
+		delete from execute_chemical
+		where
+		chemical_group_id=#{id}
+	</delete>
+
+	<!-- 删除对象方法 -->
+	<delete id="deleteByProcessId" parameterType="Integer">
+		delete from
+		execute_chemical where
+		reaction_process_id=#{id}
+	</delete>
+
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from execute_chemical where reaction_process_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ExecuteChemical">
+		update execute_chemical
+		set
+		chemical_dosage=#{chemicalDosage},
+		inventory_id=#{inventory.inventoryId},
+		reaction_process_id=#{reactionProcess.reactionProcessId},
+		measure_unit_id=#{measurement.measureUnitId},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where
+		execute_chemical_id=#{executeChemicalId}
+	</update>
+</mapper>

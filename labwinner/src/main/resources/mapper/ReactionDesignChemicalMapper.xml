@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ReactionDesignChemicalDao">
+   
+   <resultMap id="reactionDesignChemicalMap" type="com.labwinner.domain.ReactionDesignChemical">
+        <id column="design_chemical_id" property="designChemicalId" />        
+        <result column="changeable" property="changeable" />
+      
+        <association property="reactionDesign"
+			resultMap="com.labwinner.dao.ReactionDesignDao.reactionDesignMap">
+		</association>
+		       
+        <association property="inventoryGroups"
+			resultMap="com.labwinner.dao.InventoryGroupsDao.inventoryGroupsMap">
+		</association>
+
+            <collection property="designDosages" ofType="com.labwinner.domain.DesignDosage">
+	        <id column="design_dosage_id" property="designDosageId" />        
+	        <result column="reaction_num" property="reactionNum" />
+	        <result column="chemical_dosage" property="chemicalDosage" />
+	        <result column="percentage" property="percentage" />
+	         <association property="measurement"
+			resultMap="com.labwinner.dao.MeasurementDao.measurementMap">
+		     </association>
+            </collection>  
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ReactionDesignChemical" resultMap="reactionDesignChemicalMap">
+		select * from reaction_design_chemical,reaction_design,design_dosage,percentage,measurement,inventory_groups where
+		 reaction_design_chemical.reaction_design_id=reaction_design.reaction_design_id
+		 and reaction_design_chemical.group_id=inventory_groups.group_id
+		 and design_dosage.design_chemical_id=reaction_design_chemical.design_chemical_id
+		 and design_dosage.measure_unit_id=measurement.measure_unit_id
+	</select>
+	
+	
+	<select id="getInventorys" resultType="Integer" parameterType="map">
+		select group_id from reaction_design_chemical
+	</select>
+	
+	 <!-- 获取修改日期 -->
+	  <select id="getByModifydate" parameterType="date" resultType="com.labwinner.domain.ReactionDesignChemical" >
+		select device_id from device where modify_date=#{date} 
+	</select> 
+
+	<!-- 根据试验设计主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesignChemical" resultMap="reactionDesignChemicalMap">
+		select reaction_design_chemical.design_chemical_id,
+		reaction_design_chemical.reaction_design_id,changeable,
+		reaction_design_chemical.group_id,design_dosage.design_chemical_id,
+		 design_dosage.design_dosage_id,design_dosage.chemical_dosage,
+		 design_dosage.measure_unit_id,design_dosage.percentage,basic_unit,measure_unit,
+		 conversion_relation,measure_resource,flag
+		from reaction_design_chemical
+		left outer join reaction_design on 
+		reaction_design.reaction_design_id=reaction_design_chemical.reaction_design_id
+		left outer join inventory_groups on
+		reaction_design_chemical.group_id=inventory_groups.group_id
+		left outer join design_dosage on
+		design_dosage.design_chemical_id=reaction_design_chemical.design_chemical_id
+		left outer join measurement on
+		design_dosage.measure_unit_id=measurement.measure_unit_id
+		where reaction_design_chemical.reaction_design_id=#{id}
+	</select>
+	<!-- 根据设计原料对象 -->
+	<select id="getByDesignChemicalId" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesignChemical" resultMap="reactionDesignChemicalMap">
+		select reaction_design_chemical.design_chemical_id,
+		reaction_design_chemical.group_id,design_dosage.design_chemical_id,
+		 design_dosage.design_dosage_id,design_dosage.chemical_dosage,
+		 design_dosage.percentage,design_dosage.measure_unit_id,basic_unit,measure_unit,
+		 conversion_relation,measure_resource,flag
+		from reaction_design_chemical
+		left outer join inventory_groups on
+		reaction_design_chemical.group_id=inventory_groups.group_id
+		left outer join design_dosage on
+		design_dosage.design_chemical_id=reaction_design_chemical.design_chemical_id
+		left outer join measurement on
+		design_dosage.measure_unit_id=measurement.measure_unit_id
+		where reaction_design_chemical.design_chemical_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ReactionDesignChemical"
+		useGeneratedKeys="true" keyProperty="designChemicalId">
+		insert into
+		reaction_design_chemical(
+		    reaction_design_id,
+		    changeable,               
+			group_id               
+			)
+		value(
+		#{reactionDesign.reactionDesignId},
+		#{changeable},
+		#{inventoryGroups.groupId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ReactionDesignChemical">
+		update
+		reaction_design_chemical set
+		reaction_design_id=#{reactionDesign.reactionDesignId},
+		changeable=#{changeable},
+		group_id=#{inventoryGroups.groupId}
+		where
+		design_chemical_id=#{designChemicalId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_design_chemical where
+		reaction_design_id=#{reactionDesignId}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByDesignChemicalId" parameterType="Integer">
+		delete from reaction_design_chemical where
+		design_chemical_id=#{designChemicalId}
+	</delete>
+
+</mapper> 

@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.InventoryGroupsDao">
+
+	<resultMap id="inventoryGroupsMap" type="com.labwinner.domain.InventoryGroups">
+		<id column="gid" property="groupId" />
+		<result column="name" property="inventoryName" />
+		<result column="inventory_num" property="inventoryNumber" />
+		<result column="batch_number" property="batchNumber" />
+		<result column="total_wei" property="totalWei" />
+		<result column="description" property="description" />
+		<result column="density_variation" property="densityVariation" />
+		<result column="con_pur" property="conPur" />
+		<result column="density" property="density" />
+
+		<association property="supplier" javaType="com.labwinner.domain.Supplier">
+			<id property="supId" column="sup_id" />
+			<result property="suprName" column="suprName" />
+		</association>
+		
+		<association property="measurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id1" />
+			<result property="basicUnit" column="basic_unit" />
+			<result property="conversionRelation" column="conversion_relation" />
+			<result property="measureUnit" column="u1" />
+			<association property="measurementType" javaType="com.labwinner.domain.MeasurementType">
+			  <id column="measure_type1" property="measureType" />
+        	  <result column="type_name1" property="typeName" />
+				</association>
+		</association>
+		<association property="conPurMeasurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id2" />
+			<result property="basicUnit" column="basic_unit" />
+			<result property="conversionRelation" column="conversion_relation" />
+			<result property="measureUnit" column="u2" />
+		</association>
+		
+		<association property="densityMeasurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id3" />
+			<result property="basicUnit" column="basic_unit" />
+			<result property="conversionRelation" column="conversion_relation" />
+			<result property="measureUnit" column="u3" />
+		</association>
+		
+		<association property="secureRank" javaType="com.labwinner.domain.SecureRank">
+			<id property="secureRankId" column="secure_rank_id" />
+			<result property="secureRank" column="secure_rank" />
+		</association>
+		
+		<association property="chemicalParameter"
+			javaType="com.labwinner.domain.ChemicalParameter">
+			<id property="chParId" column="ch_par_id" />
+			<result property="winId" column="win_d" />
+			<result property="chineseName" column="chName" />
+			<result property="englishName" column="english_name" />
+		</association>
+		
+		<association property="materialType" javaType="com.labwinner.domain.MaterialType">
+			<id column="material_type_id" property="materialTypeId" />
+			<result column="material_type" property="label" />
+			<result column="material_type_code" property="materialTypeCodeId" />
+			<result column="material_category" property="materialCategoryId" />
+			<result column="name2" property="parentName" />
+		</association>
+		
+		<collection property="chemicalImages" ofType="com.labwinner.domain.ChemicalImage">
+			<id property="chemicalImageId" column="chemical_image_id" />
+			<result property="dissolvantImage" column="dissolvant_image" />
+			<result property="dissolvantDescribe" column="dissolvant_describe" />
+		</collection>
+		
+		<collection property="inventoryUsers" ofType="com.labwinner.domain.InventoryUser">
+			<id property="inventoryUserId" column="inventory_user_id" />
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id2" />
+				<result property="realname" column="realname2" />
+				<result property="username" column="username" />
+			</association>
+
+		</collection>
+	</resultMap>
+
+	<!-- 普通用户关键字查询 -->
+	<select id="getByKeyword" resultMap="inventoryGroupsMap">
+		select inventoryGroup.* from
+		(
+			select
+			distinct inventory_groups.group_id as gid ,chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,
+			inventory_groups.inventory_name as name,inventory_groups.inventory_num,total_wei, 
+			e.inventory_location_id as locId,e.location_name,e.location_path,
+			b.measure_unit_id as id1, b.measure_unit as u1,
+			 measurement_type.measure_type as measure_type1,measurement_type.type_name as type_name1,
+			product_summary.catalogue_code as batch_number,
+			secure_rank.secure_rank_id,secure_rank.secure_rank,
+			supplier.sup_id,supplier.supr_name as suprName
+			from inventory_groups
+			left outer join inventories on inventories.group_id = inventory_groups.group_id
+			left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+	 	 	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+			left outer join supplier on product_summary.supplier_id = supplier.sup_id
+			left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+	 	 	left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+	 	 	left outer join measurement_type on b.measure_type =measurement_type.measure_type
+	 	  	left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+			where secure_rank.secure_rank_id = 1
+			UNION ALL
+			select
+			distinct inventory_groups.group_id as gid,chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,
+			inventory_groups.inventory_name as name,inventory_groups.inventory_num,total_wei,
+			e.inventory_location_id as locId,e.location_name,e.location_path,
+			b.measure_unit_id as id1, b.measure_unit as u1,
+			measurement_type.measure_type as measure_type1,measurement_type.type_name as type_name1,
+			product_summary.catalogue_code as batch_number,
+			secure_rank.secure_rank_id,secure_rank.secure_rank,
+			supplier.sup_id,supplier.supr_name as suprName
+			from inventory_groups
+			left outer join inventories on inventories.group_id = inventory_groups.group_id
+			left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+	    	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+			left outer join supplier on product_summary.supplier_id = supplier.sup_id
+			left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+	    	left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+	    	left outer join measurement_type on b.measure_type =measurement_type.measure_type
+			left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+			left outer join inventory_user on inventory_groups.group_id =inventory_user.group_id
+			left outer join sys_user d on d.user_id = inventory_user.user_id
+			where secure_rank.secure_rank_id = 2
+			and d.user_id = #{userId}
+		) as inventoryGroup
+		where 1=1
+		 <if test="type==1">
+		and chName LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		 <if test="type==2">
+		and suprName LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		<if test="type==3">
+		and locId =#{locId}
+		</if>
+		order by gid desc
+	</select>
+	
+	<select id="getAppByKeyword" resultMap="inventoryGroupsMap">
+		select inventoryGroup.* from
+		(
+			select
+			distinct inventory_groups.group_id as gid ,chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,
+			inventory_groups.inventory_name as name,inventory_groups.inventory_num,total_wei,density, 
+			e.inventory_location_id as locId,e.location_name,e.location_path,
+			b.measure_unit_id as id1, b.measure_unit as u1,secure_rank.secure_rank_id,secure_rank.secure_rank,
+			measurement_type.measure_type as measure_type1,measurement_type.type_name as type_name1,
+			g.measure_unit_id as id3, g.measure_unit as u3,
+			product_summary.catalogue_code as batch_number,
+			supplier.sup_id,supplier.supr_name as suprName
+			from inventory_groups
+			left outer join inventories on inventories.group_id = inventory_groups.group_id
+			left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+	 	 	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+			left outer join supplier on product_summary.supplier_id = supplier.sup_id
+			left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+	 	 	left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+	 	 	left outer join measurement_type on b.measure_type =measurement_type.measure_type
+	 	 	left outer join measurement g on inventory_groups.density_unit =g.measure_unit_id
+	 	  	left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+			where secure_rank.secure_rank_id = 1
+			UNION ALL
+			select
+			distinct inventory_groups.group_id as gid,chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,
+			inventory_groups.inventory_name as name,inventory_groups.inventory_num,total_wei,density,
+			e.inventory_location_id as locId,e.location_name,e.location_path,
+			b.measure_unit_id as id1, b.measure_unit as u1,secure_rank.secure_rank_id,secure_rank.secure_rank,
+			 measurement_type.measure_type as measure_type1,measurement_type.type_name as type_name1,
+			g.measure_unit_id as id3, g.measure_unit as u3,
+			product_summary.catalogue_code as batch_number,
+			supplier.sup_id,supplier.supr_name as suprName
+			from inventory_groups
+			left outer join inventories on inventories.group_id = inventory_groups.group_id
+			left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+	    	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+			left outer join supplier on product_summary.supplier_id = supplier.sup_id
+			left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+	    	left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+	    	left outer join measurement_type on b.measure_type =measurement_type.measure_type
+	    	left outer join measurement g on inventory_groups.density_unit =g.measure_unit_id
+			left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+			left outer join inventory_user on inventory_groups.group_id =inventory_user.group_id
+			left outer join sys_user d on d.user_id = inventory_user.user_id
+			where secure_rank.secure_rank_id = 2
+			and d.user_id = #{userId}
+		) as inventoryGroup
+		where 1=1
+		and chName LIKE CONCAT('%',#{keyword},'%')
+		or suprName LIKE CONCAT('%',#{keyword},'%')
+		
+		order by gid desc
+	</select>
+	
+	
+	<!-- 普通用户列表 -->
+	<select id="getUserInventorys" resultMap="inventoryGroupsMap">
+		select inventoryGroup.* from
+		(
+			select
+			distinct inventory_groups.group_id as gid ,chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,
+			inventory_groups.inventory_name as name,inventory_groups.inventory_num,total_wei,density,
+			b.measure_unit_id as id1, b.measure_unit as u1,secure_rank.secure_rank_id,secure_rank.secure_rank,
+			g.measure_unit_id as id3, g.measure_unit as u3,
+			measurement_type.measure_type as measure_type1,measurement_type.type_name as type_name1,
+			product_summary.catalogue_code as batch_number,
+			supplier.sup_id,supplier.supr_name as suprName
+			from inventory_groups
+	 	 	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+			left outer join supplier on product_summary.supplier_id = supplier.sup_id
+			left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+	 	 	left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+	 	 	left outer join measurement_type on b.measure_type =measurement_type.measure_type
+	 	 	left outer join measurement g on inventory_groups.density_unit =g.measure_unit_id
+	 	  	left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+			where secure_rank.secure_rank_id = 1
+			UNION ALL
+			select
+			distinct inventory_groups.group_id as gid,chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,
+			inventory_groups.inventory_name as name,inventory_groups.inventory_num,total_wei,density,
+			b.measure_unit_id as id1, b.measure_unit as u1,secure_rank.secure_rank_id,secure_rank.secure_rank,
+			g.measure_unit_id as id3, g.measure_unit as u3,
+			measurement_type.measure_type as measure_type1,measurement_type.type_name as type_name1,
+			product_summary.catalogue_code as batch_number,
+			supplier.sup_id,supplier.supr_name as suprName
+			from inventory_groups
+	    	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+			left outer join supplier on product_summary.supplier_id = supplier.sup_id
+			left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+	    	left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+	    	left outer join measurement_type on b.measure_type =measurement_type.measure_type
+	    	left outer join measurement g on inventory_groups.density_unit =g.measure_unit_id
+			left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+			left outer join inventory_user on inventory_groups.group_id =inventory_user.group_id
+			left outer join sys_user d on d.user_id = inventory_user.user_id
+			where secure_rank.secure_rank_id = 2
+			and d.user_id = #{userId}
+		) as inventoryGroup
+		order by gid desc
+	</select>
+	
+	<!-- 团队负责人列表 -->
+	<select id="getAllInventorys" resultMap="inventoryGroupsMap">
+		select
+		inventory_groups.group_id as gid,chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,
+		inventory_groups.inventory_name as name,inventory_groups.inventory_num,total_wei,density,
+		product_summary.catalogue_code as batch_number,secure_rank.secure_rank_id,secure_rank.secure_rank,
+		b.measure_unit_id as id1, b.measure_unit as u1,
+		measurement_type.measure_type as measure_type1,measurement_type.type_name as type_name1,
+		g.measure_unit_id as id3, g.measure_unit as u3,
+		supplier.sup_id,supplier.supr_name as suprName
+		from inventory_groups
+		 left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+		left outer join measurement_type on b.measure_type =measurement_type.measure_type
+		left outer join measurement g on inventory_groups.density_unit =g.measure_unit_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		order by inventory_groups.group_id desc
+	</select>
+	
+	<!-- 团队负责人列表 -->
+	<select id="getListByKeyword" resultMap="inventoryGroupsMap">
+		select
+		distinct inventory_groups.group_id as gid,chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,
+		inventory_groups.inventory_name as name,inventory_num,total_wei,
+		e.inventory_location_id,e.location_name,e.location_path,
+		product_summary.catalogue_code as batch_number,b.measure_unit_id as id1, b.measure_unit as u1,
+		measurement_type.measure_type as measure_type1,measurement_type.type_name as type_name1,
+		secure_rank.secure_rank_id,secure_rank.secure_rank,
+		supplier.sup_id,supplier.supr_name as suprName
+		from inventory_groups
+		left outer join inventories on inventories.group_id = inventory_groups.group_id
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+		left outer join measurement_type on b.measure_type =measurement_type.measure_type
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		where 1=1
+		 <if test="type==1">
+		and chemical_parameter.chinese_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		<if test="type==2">
+		and supr_name LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		<if test="type==3">
+		and e.inventory_location_id=#{locId}
+		</if>
+		order by inventory_groups.group_id desc
+	</select>
+	
+	<!-- 团队负责人列表 -->
+	<select id="getAppListByKeyword" resultMap="inventoryGroupsMap">
+		select
+		distinct inventory_groups.group_id as gid,chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,
+		inventory_groups.inventory_name as name,inventory_num,total_wei,density,
+		e.inventory_location_id,e.location_name,e.location_path,
+		product_summary.catalogue_code as batch_number,
+		b.measure_unit_id as id1, b.measure_unit as u1,secure_rank.secure_rank_id,secure_rank.secure_rank,
+		measurement_type.measure_type as measure_type1,measurement_type.type_name as type_name1,
+		g.measure_unit_id as id3, g.measure_unit as u3,
+		supplier.sup_id,supplier.supr_name as suprName
+		from inventory_groups
+		left outer join inventories on inventories.group_id = inventory_groups.group_id
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+		left outer join measurement_type on b.measure_type =measurement_type.measure_type
+		left outer join measurement g on inventory_groups.density_unit =g.measure_unit_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		where 1=1
+		and chemical_parameter.chinese_name LIKE CONCAT('%',#{keyword},'%')
+		or supr_name LIKE CONCAT('%',#{keyword},'%')
+		order by inventory_groups.group_id desc
+	</select>
+	
+	<!-- 团队负责人列表 -->
+	<select id="getById" resultMap="inventoryGroupsMap">
+		select inventory_groups.group_id as gid,density,
+		inventory_groups.inventory_name as name,inventory_groups.inventory_num,total_wei,
+		product_summary.catalogue_code as batch_number,description,density_variation,con_pur,
+		b.measure_unit_id as id1, b.measure_unit as u1,
+		c.measure_unit_id as id2, c.measure_unit as u2,
+		g.measure_unit_id as id3, g.measure_unit as u3,
+		chemical_image.*,inventory_user.*,
+		chemical_parameter.ch_par_id,chemical_parameter.chinese_name as chName,chemical_parameter.english_name,
+		secure_rank.*,d.user_id as user_id2,d.realname as realname2,
+		k.material_type_id,k.material_type,k.material_type_code,k.material_category,l.material_type as name2,
+		supplier.sup_id,supplier.supr_name as suprName 
+		from inventory_groups 
+		left outer join measurement b on inventory_groups.measure_unit_id =b.measure_unit_id
+		left outer join measurement c on inventory_groups.con_pur_unit =c.measure_unit_id
+		left outer join measurement g on inventory_groups.density_unit =g.measure_unit_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join chemical_image on chemical_image.group_id = inventory_groups.group_id
+		left outer join inventory_user on inventory_user.group_id = inventory_groups.group_id
+		left outer join sys_user d on inventory_user.user_id = d.user_id
+		left outer join material_type k on inventory_groups.material_type_id =k.material_type_id
+		left outer join material_type l on k.material_category=l.material_type_code
+		where inventory_groups.group_id = #{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.InventoryGroups"
+		useGeneratedKeys="true" keyProperty="groupId">
+		insert into
+		inventory_groups (inventory_name,inventory_num,batch_number,description,total_wei,
+		sup_id,con_pur,density_variation,secure_rank_id,measure_unit_id,product_summary_id,
+		ch_par_id,material_type_id,con_pur_unit,density,density_unit,creater,create_date,modifier,modify_date)
+		value(
+		#{inventoryName},
+		#{inventoryNumber},
+		#{batchNumber},
+		#{description},
+		#{totalWei},
+		#{supplier.supId},
+		#{conPur},
+		#{densityVariation},
+		#{secureRank.secureRankId},
+		#{measurement.measureUnitId},
+		#{productSummaryId},
+		#{chemicalParameter.chParId},
+		#{materialType.materialTypeId},
+		#{conPurMeasurement.measureUnitId},
+		#{density},
+		#{densityMeasurement.measureUnitId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+	
+	
+	<!-- 更新对象方法 -->
+		<update id="update" parameterType="com.labwinner.domain.InventoryGroups">
+			update inventory_groups
+			<trim prefix="set" suffixOverrides=",">
+			<if test="inventoryName!=null">inventory_name=#{inventoryName},</if>
+			<if test="inventoryNumber!=null">inventory_num=#{inventoryNumber},</if>
+			<if test="batchNumber!=null">batch_number=#{batchNumber},</if>
+			<if test="totalWei!=null">total_wei=#{totalWei},</if>
+			<if test="description!=null">description=#{description},</if>
+			<if test="supplier!=null">sup_id=#{supplier.supId},</if>
+			<if test="conPur!=null">con_pur=#{conPur},</if>
+			<if test="densityVariation!=null">density_variation=#{densityVariation},</if>
+			<if test="secureRank!=null">secure_rank_id=#{secureRank.secureRankId},</if>
+			<if test="measurement!=null">measure_unit_id=#{measurement.measureUnitId},</if>
+			<if test="chemicalParameter!=null">ch_par_id=#{chemicalParameter.chParId},</if>
+			<if test="materialType!=null">material_type_id=#{materialType.materialTypeId},</if>
+			<if test="conPurMeasurement!=null">con_pur_unit=#{conPurMeasurement.measureUnitId},</if>
+			<if test="creater!=null">creater=#{creater},</if>
+			<if test="createDate!=null">create_date=#{createDate},</if>
+			<if test="modifier!=null">modifier=#{modifier},</if>
+			<if test="modifyDate!=null">modify_date=#{modifyDate},</if>
+			</trim>
+			where
+			group_id=#{groupId}
+		</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from inventory_groups
+		where
+		group_id=#{id}
+	</delete>
+</mapper> 

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.FeedbackDao">
+   
+   <resultMap id="feedbackMap" type="com.labwinner.domain.Feedback">
+        <id column="feedback_id" property="feedbackId" />        
+        <result column="submit_feedback" property="submitFeedback" />
+        <result column="contacts" property="contacts" />
+        <result column="name" property="name" />
+        <result column="feedback_time" property="feedbackTime" />
+       
+        <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+       </association>
+       
+       <association property="sysSigningAgency" javaType="com.labwinner.domain.SysSigningAgency">
+            <id property="agencyId" column="agency_id"/>
+            <result property="userName" column="user_name"/>
+            <result property="postalAddress" column="postal_address"/>
+            <result property="phone" column="phone"/>
+       </association>
+    </resultMap>
+    
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Feedback" resultMap="feedbackMap">
+		select feedback_id,submit_feedback,contacts,name,feedback_time,
+		 sys_user.user_id,sys_user.realname,sys_signing_agency.agency_id,
+		 sys_signing_agency.user_name,sys_signing_agency.postal_address,sys_signing_agency.phone
+		 from labwinner_base.feedback
+		 left outer join sys_user on
+		 feedback.user_id=sys_user.user_id
+		 left outer join sys_signing_agency on
+		 sys_signing_agency.agency_id=labwinner_base.feedback.agency_id
+         order by feedback_time desc
+		 
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.Feedback" resultMap="feedbackMap">
+	     select feedback_id,submit_feedback,contacts,name,feedback_time,
+		 sys_user.user_id,sys_user.realname,sys_signing_agency.agency_id,
+		 sys_signing_agency.user_name,sys_signing_agency.postal_address,sys_signing_agency.phone
+		 from labwinner_base.feedback
+		 left outer join sys_user on
+		 feedback.user_id=sys_user.user_id
+		 left outer join sys_signing_agency on
+		 sys_signing_agency.agency_id=labwinner_base.feedback.agency_id
+         order by feedback_time desc
+	</select>
+	
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.Feedback" resultMap="feedbackMap">
+		 select feedback_id,submit_feedback,contacts,name,feedback_time,
+		 sys_user.user_id,sys_user.realname,sys_signing_agency.agency_id,
+		 sys_signing_agency.user_name,sys_signing_agency.postal_address,sys_signing_agency.phone
+		 from labwinner_base.feedback
+		 left outer join sys_user on
+		 feedback.user_id=sys_user.user_id
+	     left outer join sys_signing_agency on
+		 sys_signing_agency.agency_id=labwinner_base.feedback.agency_id
+		 where feedback_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Feedback"
+		useGeneratedKeys="true" keyProperty="feedbackId">
+		insert into
+		labwinner_base.feedback(
+		    submit_feedback,
+		    contacts,               
+			name,                
+			feedback_time,       
+			agency_id,       
+			user_id)
+		value(
+		#{submitFeedback},
+		#{contacts},
+		#{name},
+		#{feedbackTime},
+		#{sysSigningAgency.agencyId},
+		#{sysUser.userId})
+	</insert>
+
+	<update id="update" parameterType="com.labwinner.domain.Feedback">
+	  update
+	  labwinner_base.feedback 
+      <trim prefix="set" suffixOverrides=",">
+	  <if test="submitFeedback!=null">submit_feedback=#{submitFeedback},</if>
+	  <if test="contacts!=null">contacts=#{contacts},</if>
+	  <if test="name!=null">name=#{name},</if>
+	  </trim>
+      where
+	  feedback_id=#{feedbackId}		
+	</update>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from feedback
+		where
+		feedback_id=#{id}
+	</delete>
+	
+</mapper> 

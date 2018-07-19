@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.MarketAssistImageDao">
+
+<resultMap id="marketAssistImageMap" type="com.labwinner.domain.MarketAssistImage">
+        <id column="image_id" property="imageId" />
+        <result column="image_name" property="imageName" />
+        <association property="marketAssist" javaType="com.labwinner.domain.MarketAssist">
+        <id column="market_assist_id" property="marketAssistId" />
+       </association>
+        
+ </resultMap>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.MarketAssistImage"
+		useGeneratedKeys="true" keyProperty="imageId">
+		insert into
+		labwinner_base.market_assist_image(image_name,market_assist_id)
+		value(#{imageName},
+		#{marketAssist.marketAssistId})
+	</insert>
+	
+	<delete id="delete" parameterType="Integer">
+	    delete from labwinner_base.market_assist_image where
+		market_assist_id=#{id}
+	</delete>
+</mapper> 

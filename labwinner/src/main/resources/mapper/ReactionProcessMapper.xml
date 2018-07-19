@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ReactionProcessDao">
+
+	<resultMap id="reactionProcessMap" type="com.labwinner.domain.ReactionProcess">
+		<id column="reaction_process_id" property="reactionProcessId" />
+		<result column="reaction_process" property="reactionProcess" />
+		<result column="process_name" property="processName" />
+		<result column="process" property="process" />
+		<result column="start_time" property="startTime" />
+		<result column="end_time" property="endTime" />
+		<result column="remark" property="remark" />
+		<result column="creater" property="creater" />
+		<result column="create_date" property="createDate" />
+		<result column="modifier" property="modifier" />
+		<result column="modify_date" property="modifyDate" />
+
+		<association property="reaction" javaType="com.labwinner.domain.Reaction">
+			<id column="reaction_id" property="reactionId" />
+			<result column="reaction_name" property="reactionName" />
+			<result column="time1" property="startTime" />
+			<result column="time2" property="endTime" />
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+					<id property="userId" column="user_id1" />
+					<result property="realname" column="realname1" />
+					<result property="username" column="username1" />
+				</association>
+		</association>
+
+		<association property="reactionStatus"
+			javaType="com.labwinner.domain.ReactionStatus">
+			<id column="reaction_status_id" property="reactionStatusId" />
+			<result column="reaction_status" property="reactionStatus" />
+		</association>
+
+		<collection property="analyticses" ofType="com.labwinner.domain.Analytics">
+			<id column="analytics_id" property="analyticsId" />
+			<result column="analytics_name" property="analyticsName" />
+			<result column="analytics_content" property="analyticsContent" />
+
+			<association property="creatSysUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id5" />
+				<result property="realname" column="realname5" />
+				<result property="username" column="username5" />
+			</association>
+
+			<collection property="analyticsDevices"
+				ofType="com.labwinner.domain.AnalyticsDevice">
+				<id column="analytics_device_id" property="analyticsDeviceId" />
+				<association property="device" javaType="com.labwinner.domain.Device">
+					<id property="deviceId" column="device_id3" />
+					<result column="device_name3" property="deviceName" />
+				</association>
+			</collection>
+
+			<collection property="analyticalAttachments"
+				ofType="com.labwinner.domain.AnalyticalAttachment">
+				<id column="ana_attachment_id" property="anaAttachmentId" />
+				<result column="ana_attachment_name" property="anaAttachmentName" />
+			</collection>
+		</collection>
+
+		<collection property="reactionDevices" ofType="com.labwinner.domain.ReactionDevice">
+			<id column="reaction_device_id" property="reactionDeviceId" />
+			<association property="device" javaType="com.labwinner.domain.Device">
+				<id column="device_id" property="deviceId" />
+				<result column="device_name" property="deviceName" />
+				<association property="deviceLocation"
+					javaType="com.labwinner.domain.DeviceLocation">
+					<id property="deviceLocaId" column="device_loca_id" />
+					<result property="label" column="device_loca_name" />
+					<result property="deviceLocaPid" column="device_loca_pid" />
+					<result column="name3" property="parentName" />
+				</association>
+			</association>
+		</collection>
+
+		<collection property="prototypes" ofType="com.labwinner.domain.Prototype">
+			<id column="prototype_id" property="prototypeId" />
+			<id column="prototype_name" property="prototypeName" />
+			<result column="prototype_dosage" property="prototypeDosage" />
+			<result column="bar_code1" property="barCode" />
+			<result column="remarks" property="remarks" />
+			<result column="prototype_num" property="prototypeNum" />
+			<result column="qr_name1" property="qrName" />
+			<result column="com_date" property="comDate" />
+			<association property="measurement" javaType="com.labwinner.domain.Measurement">
+				<id property="measureUnitId" column="id3" />
+				<result property="conversionRelation" column="conversion_relation3" />
+				<result property="measureUnit" column="u3" />
+			</association>
+
+			<association property="inventoryLocation"
+				javaType="com.labwinner.domain.InventoryLocation">
+				<id column="cid1" property="cid" />
+				<result column="label1" property="label" />
+				<result column="pid1" property="pid" />
+				<result column="name1" property="parentName" />
+			</association>
+		</collection>
+
+		<collection property="notes" ofType="com.labwinner.domain.Note">
+			<id column="note_id" property="noteId" />
+			<result column="note_name" property="noteName" />
+			<result column="note_content" property="noteContent" />
+		</collection>
+
+		<collection property="reactionExecuteParameters"
+			ofType="com.labwinner.domain.ReactionExecuteParameter">
+			<id column="parameter_id" property="parameterId" />
+			<result column="execute_parameter_dosage" property="executeParameterDosage" />
+			<result column="reaction_parameter_id" property="reactionParameter" />
+			<association property="measurement" javaType="com.labwinner.domain.Measurement">
+				<id property="measureUnitId" column="id1" />
+				<result property="conversionRelation" column="conversion_relation1" />
+				<result property="measureUnit" column="u1" />
+			</association>
+		</collection>
+		
+		<collection property="executeChemicalGroups"
+			ofType="com.labwinner.domain.ExecuteChemicalGroup">
+			<id column="chemical_group_id" property="chemicalGroupId" />
+			<result column="group_dosage" property="groupDosage" />
+			
+			<association property="inventoryGroups" javaType="com.labwinner.domain.InventoryGroups">
+				<id column="group_id" property="groupId" />
+				<result column="inventory_name" property="inventoryName" />
+				<result column="batch_number" property="batchNumber" />
+				<association property="measurement" javaType="com.labwinner.domain.Measurement">
+					<id property="measureUnitId" column="id2" />
+					<result property="conversionRelation" column="conversion_relation2" />
+					<result property="measureUnit" column="u2" />
+				</association>
+				<association property="supplier" javaType="com.labwinner.domain.Supplier">
+					<id property="supId" column="sup_id" />
+					<result property="suprName" column="supr_name" />
+				</association>
+			</association>
+			<collection property="executeChemicals"
+			ofType="com.labwinner.domain.ExecuteChemical">
+				<id column="execute_chemical_id" property="executeChemicalId" />
+			</collection>
+		</collection>
+
+		<collection property="executeSolutions" ofType="com.labwinner.domain.ExecuteSolution">
+			<id column="execute_solution_id" property="executeSolutionId" />
+			<result column="solution_dosage" property="solutionDosage" />
+
+			<association property="measurement" javaType="com.labwinner.domain.Measurement">
+				<id property="measureUnitId" column="id4" />
+				<result property="conversionRelation" column="conversion_relation4" />
+				<result property="measureUnit" column="u4" />
+				<association property="measurementType" javaType="com.labwinner.domain.MeasurementType">
+			  <id column="measure_type" property="measureType" />
+        	  <result column="type_name" property="typeName" />
+        	  <result column="basic_unit" property="basicUnit" />
+        	  <result column="type_sourece" property="typeSource" />
+		</association>
+			</association>
+
+			<association property="solution" javaType="com.labwinner.domain.SolutionEntity">
+				<id column="solution_id" property="solutionId" />
+				<result column="solution_name" property="solutionName" />
+				<result column="solution_total" property="solutionTotal" />
+				<result column="solvent_name" property="solventName" />
+				<result column="concentration" property="concentration" />
+				<result column="solute_percent" property="solutePercent" />
+				<result column="solvent_percent" property="solventPercent" />
+				
+				<association property="soluteInventories" javaType="com.labwinner.domain.InventoryGroups">
+			<id property="groupId" column="group_id1" />
+			<association property="chemicalParameter"
+				javaType="com.labwinner.domain.ChemicalParameter">
+				<id property="chParId" column="ch_par_id1" />
+				<result property="chineseName" column="chinese_name1" />
+			</association>
+
+		</association>
+		
+		<association property="solventInventories" javaType="com.labwinner.domain.InventoryGroups">
+			<id property="groupId" column="group_id2" />
+
+			<association property="chemicalParameter"
+				javaType="com.labwinner.domain.ChemicalParameter">
+				<id property="chParId" column="ch_par_id2" />
+				<result property="chineseName" column="chinese_name2" />
+			</association>
+
+		</association>
+			</association>
+
+		</collection>
+
+		<collection property="teamAssists" ofType="com.labwinner.domain.TeamAssist">
+			<id property="teamAssistId" column="team_assist_id" />
+			<result property="assistContent" column="assist_content" />
+
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id2" />
+				<result property="realname" column="realname2" />
+				<result property="username" column="username2" />
+			</association>
+
+		</collection>
+
+
+	</resultMap>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="com.labwinner.domain.ReactionProcess"
+		parameterType="Integer" resultMap="reactionProcessMap">
+		select
+		reaction_process.*,
+		reaction.reaction_id,reaction.reaction_name,reaction.start_time as
+		time1,reaction.end_time as time2
+		from reaction_process
+		left outer join
+		reaction on reaction_process.reaction_id = reaction.reaction_id
+		where
+		reaction_process.reaction_process_id = #{id}
+	</select>
+
+	<select id="getByReactionId" resultType="Integer" parameterType="map">
+		select reaction_process_id from reaction_process where reaction_id =
+		#{id}
+	</select>
+
+	<select id="getByProcessId" resultType="com.labwinner.domain.ReactionProcess"
+		parameterType="Integer" resultMap="reactionProcessMap">
+		select
+		reaction_process.*,e.reaction_status_id,e.reaction_status,
+		reaction_device.*, device.*,
+		prototype.prototype_id,prototype.prototype_name,prototype.prototype_dosage,prototype.bar_code as bar_code1,
+		prototype.remarks,prototype.prototype_num,prototype.qr_name as qr_name1,prototype.com_date,
+		reaction.*,
+		local1.device_loca_id,local1.device_loca_name,local1.device_loca_pid,local2.device_loca_name as name3,
+		p.inventory_location_id as cid1,p.location_name as
+		label1,p.location_path as pid1,q.location_name as name1,
+		note.*,execute_chemical_group.chemical_group_id,execute_chemical_group.group_dosage,
+		inventory_groups.group_id,inventory_groups.inventory_name,
+		product_summary.catalogue_code as batch_number,
+		supplier.sup_id,supplier.supr_name,execute_chemical.execute_chemical_id,
+		h.user_id as user_id1,h.username as username1,h.realname as realname1,
+		execute_solution.execute_solution_id,execute_solution.solution_dosage,
+		i.measure_unit_id as id4,i.measure_unit as u4,measurement_type.*,
+		solution.solution_id,solution.solution_name,
+		
+		g1.group_id as group_id1,che1.ch_par_id as ch_par_id1,che1.chinese_name as chinese_name1,
+		g2.group_id as group_id2,che2.ch_par_id as ch_par_id2,che2.chinese_name as chinese_name2,
+		
+		f.measure_unit_id as id3,f.measure_unit as u3,
+		g.measure_unit_id as id2,g.measure_unit as u2,
+		l.measure_unit_id as
+		id1,l.measure_unit as u1,
+		team_assist.*,analytics.*,analytical_attachment.*,analytics_device.*,
+		device2.device_id as device_id2,device2.device_name as device_name2,
+		k.user_id as user_id2,k.username as username2,k.realname as realname2,
+		reaction_execute_parameter.*
+		from reaction_process
+		
+		left outer join reaction on reaction_process.reaction_id=reaction.reaction_id
+		left outer join sys_user h on h.user_id= reaction.user_id
+		left outer join reaction_status e on reaction_process.reaction_status_id =e.reaction_status_id
+		left outer join reaction_device on reaction_process.reaction_process_id=reaction_device.reaction_process_id
+		left outer join device on device.device_id = reaction_device.device_id
+		left outer join device_location local1 on device.device_loca_id=local1.device_loca_id
+		left outer join device_location local2 on local1.device_loca_pid=local2.device_loca_id
+		left outer join prototype on reaction_process.reaction_process_id =prototype.reaction_process_id
+
+		left outer join analytics on analytics.reaction_process_id =reaction_process.reaction_process_id
+		left outer join analytics_device on analytics_device.analytics_id =analytics.analytics_id
+		left outer join device as device2 on analytics_device.device_id =device2.device_id
+		left outer join analytical_attachment on analytical_attachment.analytics_id = analytics.analytics_id
+
+		left outer join inventory_location p on p.inventory_location_id=prototype.inventory_location_id
+		left outer join inventory_location q on p.location_path=q.inventory_location_id
+
+		left outer join measurement f on prototype.measure_unit_id =f.measure_unit_id
+		left outer join note on reaction_process.reaction_process_id = note.reaction_process_id
+		
+		left outer join execute_chemical_group on reaction_process.reaction_process_id =execute_chemical_group.reaction_process_id
+		left outer join inventory_groups on inventory_groups.group_id = execute_chemical_group.group_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join measurement g on inventory_groups.measure_unit_id = g.measure_unit_id
+		left outer join execute_chemical on execute_chemical.chemical_group_id =execute_chemical_group.chemical_group_id
+
+		left outer join execute_solution on reaction_process.reaction_process_id =execute_solution.reaction_process_id
+		left outer join measurement i on execute_solution.measure_unit_id = i.measure_unit_id
+		left outer join measurement_type on  i.measure_type =measurement_type.measure_type
+		left outer join solution on execute_solution.solution_id =solution.solution_id
+		
+		left outer join inventory_groups g1 on solution.solute_inventory_id = g1.group_id
+		left outer join product_summary x on g1.product_summary_id = x.product_summary_id
+		left outer join chemical_parameter che1 on x.ch_par_id=che1.ch_par_id
+		
+		left outer join inventory_groups g2 on solution.solvent_inventory_id = g2.group_id
+		left outer join product_summary  y on g2.product_summary_id = y.product_summary_id
+		left outer join chemical_parameter che2 on y.ch_par_id=che2.ch_par_id
+		
+		
+		left outer join team_assist on reaction_process.reaction_process_id =team_assist.reaction_process_id
+		left outer join sys_user k on k.user_id= team_assist.user_id
+		left outer join reaction_execute_parameter on reaction_process.reaction_process_id=reaction_execute_parameter.reaction_process_id
+		left outer join measurement l on reaction_execute_parameter.measure_unit_id=l.measure_unit_id
+		where
+		reaction_process.reaction_process_id = #{id}
+		order by execute_chemical_group.chemical_group_id,execute_solution.execute_solution_id
+	</select>
+
+	<insert id="save" parameterType="com.labwinner.domain.ReactionProcess"
+		useGeneratedKeys="true" keyProperty="reactionProcessId">
+		insert into
+		reaction_process
+		(process,process_name,
+		start_time,end_time,reaction_id,reaction_status_id,remark,
+		creater,create_date, modifier,modify_date)
+		value(
+		#{process},
+		#{processName},
+		#{startTime},
+		#{endTime},
+		#{reaction.reactionId},
+		#{reactionStatus.reactionStatusId},
+		#{remark},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_process
+		where
+		reaction_process_id=#{id}
+	</delete>
+
+	<delete id="deleteByReactionId" parameterType="Integer">
+		delete from
+		reaction_process where
+		reaction_id=#{id}
+	</delete>
+
+	<!-- 更新步骤对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ReactionProcess">
+		update reaction_process
+		<trim prefix="set" suffixOverrides=",">
+			<if test="startTime!=null">start_time=#{startTime},</if>
+			<if test="endTime!=null">end_time=#{endTime},</if>
+			<if test="remark!=null">remark=#{remark},</if>
+			<if test="reaction!=null">reaction_id=#{reaction.reactionId},</if>
+			<if test="reactionStatus!=null">reaction_status_id=#{reactionStatus.reactionStatusId},
+			</if>
+		</trim>
+		where
+		reaction_process_id=#{reactionProcessId}
+	</update>
+	
+	<!-- 单个更新步骤对象方法 -->
+	<update id="updateOneProcess" parameterType="com.labwinner.domain.ReactionProcess">
+		update reaction_process
+		<trim prefix="set" suffixOverrides=",">
+		    <if test="processName!=null">process_name=#{processName},</if>
+			<if test="startTime!=null">start_time=#{startTime},</if>
+			<if test="endTime!=null">end_time=#{endTime},</if>
+			<if test="remark!=null">remark=#{remark},</if>
+			<if test="reactionStatus!=null">reaction_status_id=#{reactionStatus.reactionStatusId},</if>
+		</trim>
+		where
+		reaction_process_id=#{reactionProcessId}
+	</update>
+
+	<!-- 当前步骤已完成下一步骤状态为进行方法 -->
+	<update id="updateProcessStatus">
+		update reaction_process
+		set
+		start_time=#{date},
+		reaction_status_id=#{statusId}
+		where
+		process=#{process}
+		and reaction_id=#{reactionId}
+	</update>
+
+	<!-- 更新实验步骤步骤 -->
+	<update id="updateProcess">
+		update reaction_process
+		set
+		reaction_process=#{reactionProcess}
+		where
+		reaction_process_id=#{id}
+	</update>
+	
+	<!-- 更新实验步骤步骤编号-->
+	 <update id="updateProcessNumber" parameterType="com.labwinner.domain.ReactionProcess">
+		update reaction_process 
+		set
+		process=#{process}
+		where 
+		reaction_process_id=#{reactionProcessId}
+	</update>
+	
+	<select id="getProcessByReactionId" parameterType="Integer"
+		resultMap="reactionProcessMap">
+		select
+		reaction_process_id,process_name,remark,process,
+		start_time,end_time,reaction_id,reaction_status_id,
+		creater,create_date, modifier,modify_date from reaction_process where
+		reaction_id = #{id} order by process
+	</select>
+</mapper>

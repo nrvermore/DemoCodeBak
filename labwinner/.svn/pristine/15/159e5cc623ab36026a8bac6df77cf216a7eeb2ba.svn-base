@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.SolutionDao">
+
+	<resultMap id="solutionMap" type="com.labwinner.domain.SolutionEntity">
+		<id column="solution_id" property="solutionId" />
+		<result column="solution_name" property="solutionName" />
+		<result column="solution_total" property="solutionTotal" />
+		<result column="solvent_name" property="solventName" />
+		<result column="concentration" property="concentration" />
+		<result column="solute_dosage" property="soluteDosage" />
+		<result column="solvent_dosage" property="solventDosage" />
+		<result column="solute_percent" property="solutePercent" />
+		<result column="solvent_percent" property="solventPercent" />
+		<result column="density" property="density" />
+		<result column="barcode" property="barcode" />
+		<result column="qr_name" property="qrName" />
+		<result column="create_date" property="createDate" />
+		<result column="creater" property="creater" />
+
+		<association property="solutionMeasurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id1" />
+			<result property="basicUnit" column="basic_unit1" />
+			<result property="conversionRelation" column="conversion_relation1" />
+			<result property="measureUnit" column="u1" />
+			<association property="measurementType" javaType="com.labwinner.domain.MeasurementType">
+			  <id column="measure_type" property="measureType" />
+        	  <result column="type_name" property="typeName" />
+        	  <result column="basic_unit" property="basicUnit" />
+        	  <result column="type_sourece" property="typeSource" />
+				</association>
+		</association>
+
+		<association property="concentrationMeasurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id2" />
+			<result property="basicUnit" column="basic_unit2" />
+			<result property="conversionRelation" column="conversion_relation2" />
+			<result property="measureUnit" column="u2" />
+		</association>
+		
+		<association property="soluteMeasurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id3" />
+			<result property="basicUnit" column="basic_unit3" />
+			<result property="conversionRelation" column="conversion_relation3" />
+			<result property="measureUnit" column="u3" />
+			<association property="measurementType" javaType="com.labwinner.domain.MeasurementType">
+			  <id column="measure_type3" property="measureType" />
+        	  <result column="type_name3" property="typeName" />
+        	  <result column="basic_unit3" property="basicUnit" />
+        	  <result column="type_sourece3" property="typeSource" />
+				</association>
+		</association>
+		
+		<association property="solventMeasurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id4" />
+			<result property="basicUnit" column="basic_unit4" />
+			<result property="conversionRelation" column="conversion_relation4" />
+			<result property="measureUnit" column="u4" />
+			<association property="measurementType" javaType="com.labwinner.domain.MeasurementType">
+			  <id column="measure_type4" property="measureType" />
+        	  <result column="type_name4" property="typeName" />
+        	  <result column="basic_unit4" property="basicUnit" />
+        	  <result column="type_sourece4" property="typeSource" />
+				</association>
+		</association>
+		
+		<association property="densityMeasurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id5" />
+			<result property="basicUnit" column="basic_unit5" />
+			<result property="conversionRelation" column="conversion_relation5" />
+			<result property="measureUnit" column="u5" />
+		</association>
+
+		<association property="soluteInventories" javaType="com.labwinner.domain.InventoryGroups">
+			<id property="groupId" column="group_id1" />
+			<association property="chemicalParameter"
+				javaType="com.labwinner.domain.ChemicalParameter">
+				<id property="chParId" column="ch_par_id1" />
+				<result property="chineseName" column="chinese_name1" />
+			</association>
+
+		</association>
+		
+		<association property="solventInventories" javaType="com.labwinner.domain.InventoryGroups">
+			<id property="groupId" column="group_id2" />
+
+			<association property="chemicalParameter"
+				javaType="com.labwinner.domain.ChemicalParameter">
+				<id property="chParId" column="ch_par_id2" />
+				<result property="chineseName" column="chinese_name2" />
+			</association>
+
+		</association>
+		
+		<association property="solutionLocation"
+			javaType="com.labwinner.domain.InventoryLocation">
+			<id column="inventory_location_id" property="cid" />
+			<result column="location_name" property="label" />
+			<result column="location_path" property="pid" />
+			<result column="name" property="parentName" />
+		</association>
+
+		<association property="createrUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+		</association>
+
+	</resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.SolutionEntity"
+		resultMap="solutionMap">
+		select solution.*,
+		b.measure_unit_id as id1,b.measure_unit as u1,b.conversion_relation as conversion_relation1,
+		c.measure_unit_id as id2,c.measure_unit as u2,c.conversion_relation as conversion_relation2,
+		m.measure_unit_id as id3,m.measure_unit as u3,m.conversion_relation as conversion_relation3,
+		n.measure_unit_id as id4,n.measure_unit as u4,n.conversion_relation as conversion_relation4,
+		k.measure_unit_id as id5,k.measure_unit as u5,k.conversion_relation as conversion_relation5,
+		d.group_id as group_id1,g.ch_par_id as ch_par_id1,g.chinese_name as chinese_name1,
+		e.group_id as group_id2,h.ch_par_id as ch_par_id2,h.chinese_name as chinese_name2,
+		loca1.inventory_location_id,loca1.location_name,loca1.location_path,loca2.location_name as name,
+		measurement_type.measure_type,measurement_type.type_name,type1.measure_type as measure_type3,type1.type_name as type_name3,
+		type2.measure_type as measure_type4,type2.type_name as type_name4,
+		f.user_id as user_id,f.realname as realname
+		from
+		solution
+		left outer join measurement b on solution.solution_unit_id =b.measure_unit_id
+		left outer join measurement_type on b.measure_type =measurement_type.measure_type
+		left outer join measurement c on solution.concentration_unit_id =c.measure_unit_id
+		left outer join measurement m on solution.solute_unit_id =m.measure_unit_id
+		left outer join measurement n on solution.solvent_unit_id =n.measure_unit_id
+		left outer join measurement_type type1 on m.measure_type =type1.measure_type
+		left outer join measurement_type type2 on n.measure_type =type2.measure_type
+		left outer join measurement k on solution.density_unit_id =k.measure_unit_id
+		
+		left outer join inventory_groups d on solution.solute_inventory_id = d.group_id
+		left outer join product_summary x on d.product_summary_id = x.product_summary_id
+		left outer join chemical_parameter g on x.ch_par_id=g.ch_par_id
+		
+		left outer join inventory_groups e on solution.solvent_inventory_id = e.group_id
+		left outer join product_summary  y on e.product_summary_id = y.product_summary_id
+		left outer join chemical_parameter h on y.ch_par_id=h.ch_par_id
+		
+		left outer join inventory_location loca1 on solution.inventory_location_id=loca1.inventory_location_id
+		left outer join inventory_location loca2 on loca1.location_path=loca2.inventory_location_id
+		
+		left outer join sys_user f on solution.creater = f.user_id
+	</select>
+	
+	<select id="getBykeyword" resultType="com.labwinner.domain.SolutionEntity"
+		resultMap="solutionMap">
+		select solution.*,
+		b.measure_unit_id as id1,b.measure_unit as u1,b.conversion_relation as conversion_relation1,
+		c.measure_unit_id as id2,c.measure_unit as u2,c.conversion_relation as conversion_relation2,
+		m.measure_unit_id as id3,m.measure_unit as u3,m.conversion_relation as conversion_relation3,
+		n.measure_unit_id as id4,n.measure_unit as u4,n.conversion_relation as conversion_relation4,
+		k.measure_unit_id as id5,k.measure_unit as u5,k.conversion_relation as conversion_relation5,
+		d.group_id as group_id1,g.ch_par_id as ch_par_id1,g.chinese_name as chinese_name1,
+		e.group_id as group_id2,h.ch_par_id as ch_par_id2,h.chinese_name as chinese_name2,
+		loca1.inventory_location_id,loca1.location_name,loca1.location_path,loca2.location_name as name,
+		f.user_id as user_id,f.realname as realname
+		from
+		solution
+		left outer join measurement b on solution.solution_unit_id =b.measure_unit_id
+		left outer join measurement c on solution.concentration_unit_id =c.measure_unit_id
+		left outer join measurement m on solution.solute_unit_id =m.measure_unit_id
+		left outer join measurement n on solution.solvent_unit_id =n.measure_unit_id
+		left outer join measurement k on solution.density_unit_id =k.measure_unit_id
+		
+		left outer join inventory_groups d on solution.solute_inventory_id = d.group_id
+		left outer join product_summary x on d.product_summary_id = x.product_summary_id
+		left outer join chemical_parameter g on x.ch_par_id=g.ch_par_id
+		
+		left outer join inventory_groups e on solution.solvent_inventory_id = e.group_id
+		left outer join product_summary  y on e.product_summary_id = y.product_summary_id
+		left outer join chemical_parameter h on y.ch_par_id=h.ch_par_id
+		
+		left outer join inventory_location loca1 on solution.inventory_location_id=loca1.inventory_location_id
+		left outer join inventory_location loca2 on loca1.location_path=loca2.inventory_location_id
+		
+		left outer join sys_user f on solution.creater = f.user_id
+		where solution.solution_name like CONCAT('%',#{keyword},'%')
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.SolutionEntity" resultMap="solutionMap">
+		select solution.*,
+		b.measure_unit_id as id1,b.measure_unit as u1,b.conversion_relation as conversion_relation1,
+		c.measure_unit_id as id2,c.measure_unit as u2,c.conversion_relation as conversion_relation2,
+		m.measure_unit_id as id3,m.measure_unit as u3,m.conversion_relation as conversion_relation3,
+		n.measure_unit_id as id4,n.measure_unit as u4,n.conversion_relation as conversion_relation4,
+		k.measure_unit_id as id5,k.measure_unit as u5,k.conversion_relation as conversion_relation5,
+		d.group_id as group_id1,g.ch_par_id as ch_par_id1,g.chinese_name as chinese_name1,
+		e.group_id as group_id2,h.ch_par_id as ch_par_id2,h.chinese_name as chinese_name2,
+		loca1.inventory_location_id,loca1.location_name,loca1.location_path,loca2.location_name as name,
+		f.user_id as user_id,f.realname as realname
+		from
+		solution
+		left outer join measurement b on solution.solution_unit_id =b.measure_unit_id
+		left outer join measurement c on solution.concentration_unit_id =c.measure_unit_id
+		left outer join measurement m on solution.solute_unit_id =m.measure_unit_id
+		left outer join measurement n on solution.solvent_unit_id =n.measure_unit_id
+		left outer join measurement k on solution.density_unit_id =k.measure_unit_id
+		
+		left outer join inventory_groups d on solution.solute_inventory_id = d.group_id
+		left outer join product_summary x on d.product_summary_id = x.product_summary_id
+		left outer join chemical_parameter g on x.ch_par_id=g.ch_par_id
+		
+		left outer join inventory_groups e on solution.solvent_inventory_id = e.group_id
+		left outer join product_summary  y on e.product_summary_id = y.product_summary_id
+		left outer join chemical_parameter h on y.ch_par_id=h.ch_par_id
+		
+		left outer join inventory_location loca1 on solution.inventory_location_id=loca1.inventory_location_id
+		left outer join inventory_location loca2 on loca1.location_path=loca2.inventory_location_id
+		
+		left outer join sys_user f on solution.creater = f.user_id
+		where solution.solution_id = #{id}
+	</select>
+	
+	<!-- 根据barcode获取对象 -->
+	<select id="getByBarcode" parameterType="String"
+		resultType="com.labwinner.domain.SolutionEntity" resultMap="solutionMap">
+		select solution.*,
+		b.measure_unit_id as id1,b.measure_unit as u1,b.conversion_relation as conversion_relation1,
+		c.measure_unit_id as id2,c.measure_unit as u2,c.conversion_relation as conversion_relation2,
+		m.measure_unit_id as id3,m.measure_unit as u3,m.conversion_relation as conversion_relation3,
+		n.measure_unit_id as id4,n.measure_unit as u4,n.conversion_relation as conversion_relation4,
+		k.measure_unit_id as id5,k.measure_unit as u5,k.conversion_relation as conversion_relation5,
+		d.group_id as group_id1,g.ch_par_id as ch_par_id1,g.chinese_name as chinese_name1,
+		e.group_id as group_id2,h.ch_par_id as ch_par_id2,h.chinese_name as chinese_name2,
+		loca1.inventory_location_id,loca1.location_name,loca1.location_path,loca2.location_name as name,
+		f.user_id as user_id,f.realname as realname
+		from
+		solution
+		left outer join measurement b on solution.solution_unit_id =b.measure_unit_id
+		left outer join measurement c on solution.concentration_unit_id =c.measure_unit_id
+		left outer join measurement m on solution.solute_unit_id =m.measure_unit_id
+		left outer join measurement n on solution.solvent_unit_id =n.measure_unit_id
+		left outer join measurement k on solution.density_unit_id =k.measure_unit_id
+		
+		left outer join inventory_groups d on solution.solute_inventory_id = d.group_id
+		left outer join product_summary x on d.product_summary_id = x.product_summary_id
+		left outer join chemical_parameter g on x.ch_par_id=g.ch_par_id
+		
+		left outer join inventory_groups e on solution.solvent_inventory_id = e.group_id
+		left outer join product_summary  y on e.product_summary_id = y.product_summary_id
+		left outer join chemical_parameter h on y.ch_par_id=h.ch_par_id
+		
+		left outer join inventory_location loca1 on solution.inventory_location_id=loca1.inventory_location_id
+		left outer join inventory_location loca2 on loca1.location_path=loca2.inventory_location_id
+		
+		left outer join sys_user f on solution.creater = f.user_id
+		where solution.barcode = #{barcode}
+	</select>
+	
+	<!-- 获取对象 -->
+	<select id="getBarCodes" parameterType="Integer"
+		resultType="com.labwinner.domain.SolutionEntity" resultMap="solutionMap">
+		select barcode from solution
+	</select>
+
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SolutionEntity"
+		useGeneratedKeys="true" keyProperty="solutionId">
+		insert into
+		solution(
+		solution_name,solution_total,solvent_name,concentration,solution_unit_id,solute_unit_id,solvent_unit_id,
+		concentration_unit_id,solute_inventory_id,solvent_inventory_id,inventory_location_id,density,density_unit_id,
+		solute_percent,solvent_percent,solute_dosage,solvent_dosage,barcode,qr_name,creater,create_date,modifier,modify_date
+		)
+		value(
+		#{solutionName},
+		#{solutionTotal},
+		#{solventName},
+		#{concentration},
+		#{solutionMeasurement.measureUnitId},
+		#{soluteMeasurement.measureUnitId},
+		#{solventMeasurement.measureUnitId},
+		#{concentrationMeasurement.measureUnitId},
+		#{soluteInventories.groupId},
+		#{solventInventories.groupId},
+		#{solutionLocation.cid},
+		#{density},
+		#{densityMeasurement.measureUnitId},
+		#{solutePercent},
+		#{solventPercent},
+		#{soluteDosage},
+		#{solventDosage},
+		#{barcode},
+		#{qrName},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate}
+		)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.SolutionEntity">
+		update solution 
+		<trim prefix="set" suffixOverrides=",">
+		<if test="solutionName!=null">solution_name =#{solutionName},</if>
+		<if test="solutionTotal!=null">solution_total=#{solutionTotal},</if>
+		<if test="solventName!=null">solvent_name=#{solventName},</if>
+		<if test="solutionMeasurement!=null">solution_unit_id=#{solutionMeasurement.measureUnitId},</if>
+		<if test="soluteMeasurement!=null">solute_unit_id=#{soluteMeasurement.measureUnitId},</if>
+		<if test="solventMeasurement!=null">solvent_unit_id=#{solventMeasurement.measureUnitId},</if>
+		<if test="soluteInventories!=null">solute_inventory_id=#{soluteInventories.groupId},</if>
+		<if test="solventInventories!=null">solvent_inventory_id=#{solventInventories.groupId},</if>
+		<if test="density!=null">density=#{density},</if>
+		<if test="densityMeasurement!=null">density_unit_id=#{densityMeasurement.measureUnitId},</if>
+		<if test="concentration!=null">concentration=#{concentration},</if>
+		<if test="concentrationMeasurement!=null">concentration_unit_id=#{concentrationMeasurement.measureUnitId},</if>
+		<if test="solutePercent!=null">solute_percent=#{solutePercent},</if>
+		<if test="solventPercent!=null">solvent_percent=#{solventPercent},</if>
+		<if test="solutionLocation!=null">inventory_location_id=#{solutionLocation.cid},</if>
+		<if test="soluteDosage!=null">solute_dosage=#{soluteDosage},</if>
+		<if test="solventDosage!=null">solvent_dosage=#{solventDosage},</if>
+		<if test="barcode!=null">barcode=#{barcode},</if>
+		<if test="modifier!=null">modifier=#{modifier},</if>
+		<if test="modifyDate!=null">modify_date=#{modifyDate},</if>
+		</trim>
+		where
+		solution_id=#{solutionId}
+
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from solution
+		where
+		solution_id=#{id}
+	</delete>
+
+</mapper> 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.AnalyticsDeviceDao">
+
+<resultMap id="analyticsDeviceMap" type="com.labwinner.domain.AnalyticsDevice">
+        <id column="analytics_device_id" property="analyticsDeviceId" />
+        <association property="analytics"
+			resultMap="com.labwinner.dao.AnalyticsDao.analyticsMap"></association>
+		<association property="device"
+			resultMap="com.labwinner.dao.DeviceDao.deviceMap"></association>
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="com.labwinner.domain.AnalyticsDevice" parameterType="Integer" resultMap="analyticsDeviceMap" >
+		select analytics_device.* ,device.device_id,device.device_name,
+		analytics.analytics_id,analytics.analytics_name
+		from analytics_device,device,analytics
+	    where analytics.analytics_id = #{id}
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.AnalyticsDevice"
+		useGeneratedKeys="true" keyProperty="analyticsDeviceId">
+		insert into
+		analytics_device
+		(analytics_id,device_id)
+		value(
+		#{analytics.analyticsId},
+		#{device.deviceId})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from analytics_device where
+		analytics_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from analytics_device where analytics_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.AnalyticsDevice">
+		update analytics_device 
+		set
+		analytics_id=#{analytics.analyticsId},
+		device_id=#{device.deviceId}
+		where 
+		analytics_device_id=#{analyticsDeviceId}
+	</update>
+</mapper>

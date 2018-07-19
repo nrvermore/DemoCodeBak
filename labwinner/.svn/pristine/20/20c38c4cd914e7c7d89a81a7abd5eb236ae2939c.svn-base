@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.TeamAssistDao">
+      
+      <resultMap id="teamAssistMap" type="com.labwinner.domain.TeamAssist">
+            <id property="teamAssistId" column="team_assist_id"/>
+            <result property="assistContent" column="assist_content" />
+     <association property="reactionProcess"
+			resultMap="com.labwinner.dao.ReactionProcessDao.reactionProcessMap"></association>
+			
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+		</association>	
+	</resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.TeamAssist" resultMap="teamAssistMap">
+		select * from team_assist
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.TeamAssist"
+		useGeneratedKeys="true" keyProperty="teamAssistId">
+		insert into
+		team_assist
+		(reaction_process_id,user_id,assist_content)
+		value(
+		#{reactionProcess.reactionProcessId},
+		#{sysUser.userId},
+		#{assistContent})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from team_assist where
+		team_assist_id=#{id}
+	</delete>
+	
+	<delete id="deleteByProcessId" parameterType="Integer">
+		delete from team_assist where
+		reaction_process_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from team_assist where reaction_process_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	<select id="getByProcessId"   resultType="java.util.Map">
+	select a.process_name,b.reaction_name from reaction_process a,reaction b
+   where a.reaction_id =b.reaction_id
+   and a.reaction_process_id=#{processId}
+	</select>
+</mapper> 

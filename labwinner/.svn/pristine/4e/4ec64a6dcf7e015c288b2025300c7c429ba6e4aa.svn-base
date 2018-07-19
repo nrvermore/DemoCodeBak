@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.ReactionDeviceDao">
+
+<resultMap id="reactionDeviceMap" type="com.labwinner.domain.ReactionDevice">
+        <id column="reaction_device_id" property="reactionDeviceId" />
+        
+       <association property="reactionProcess"
+			resultMap="com.labwinner.dao.ReactionProcessDao.reactionProcessMap"></association>
+			
+		<association property="device"
+			resultMap="com.labwinner.dao.DeviceDao.deviceMap"></association>
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="com.labwinner.domain.ReactionDevice" parameterType="Integer" resultMap="reactionDeviceMap" >
+		select * from reaction_device where reaction_device_id = #{id}
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.ReactionDevice"
+		useGeneratedKeys="true" keyProperty="reactionDeviceId">
+		insert into
+		reaction_device
+		(device_id,
+		reaction_process_id)
+		value(
+		#{device.deviceId},
+		#{reactionProcess.reactionProcessId}
+		)
+	</insert>
+	
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_device where
+		reaction_device_id=#{id}
+	</delete>
+	
+	<delete id="deleteByProcessId" parameterType="Integer">
+		delete from reaction_device where
+		reaction_process_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from reaction_device where reaction_process_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.ReactionDevice">
+		update reaction_device 
+		set
+		device_id=#{device.deviceId},
+		reaction_process_id=#{reactionProcess.reactionProcessId}
+		where 
+		reaction_device_id=#{reactionDeviceId}
+	</update>
+</mapper>

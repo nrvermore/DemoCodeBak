@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.labwinner.dao.InformAgainstDao">
+
+	<resultMap id="informAgainstResultMap" type="com.labwinner.domain.InformAgainst">
+		<id property="informAgainstId" column="inform_against_id" />
+		<result column="contents" property="contents" />
+		<result column="createDate" property="create_date" />
+		<association property="projectMoments" javaType="com.labwinner.domain.ProjectMoments">
+			<id property="projectMomentsId" column="project_moments_id" />
+			<result property="approvalResult" column="approval_result" />
+		</association>
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="userName" column="user_name" />
+		</association>
+	
+	</resultMap>
+	
+	
+
+		<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.InformAgainst"
+		useGeneratedKeys="true" keyProperty="informAgainstId">
+		insert into
+		inform_against(
+		project_moments_id, user_id, contents,create_date
+		)
+		value(
+		#{projectMoments.projectMomentsId},
+		#{sysUser.userId},
+		#{contents},
+		#{createDate})
+	</insert>
+
+</mapper>

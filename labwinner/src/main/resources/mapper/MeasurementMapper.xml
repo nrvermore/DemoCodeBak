@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.MeasurementDao">
+
+<resultMap id="measurementMap" type="com.labwinner.domain.Measurement">
+        <id column="measure_unit_id" property="measureUnitId" />
+        <result column="basic_unit" property="basicUnit" />
+        <result column="conversion_relation" property="conversionRelation" />
+        <result column="measure_unit" property="measureUnit" />
+        <result column="measure_resource" property="measureResource" />
+        
+         <association property="measurementType" javaType="com.labwinner.domain.MeasurementType">
+			  <id column="measure_type" property="measureType" />
+        	  <result column="type_name" property="typeName" />
+        	  <result column="basic_unit" property="basicUnit" />
+        	  <result column="type_sourece" property="typeSource" />
+		</association>
+       
+ </resultMap>
+<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Measurement" resultMap="measurementMap">
+		select measure_unit_id, measurement_type.basic_unit as basic_unit,measurement_type.type_name,
+		conversion_relation,measure_unit,measurement.measure_type,measure_resource 
+		from measurement,measurement_type 
+		where measurement.measure_type =measurement_type.measure_type and flag = 0
+	</select>
+	
+	<select id="getBySourceId" resultType="com.labwinner.domain.Measurement" resultMap="measurementMap">
+		select 
+		measure_unit_id, measurement_type.basic_unit as basic_unit,measurement_type.type_name,
+		conversion_relation,measure_unit,measurement.measure_type,measure_resource 
+		from measurement,measurement_type 
+		where measurement.measure_type =measurement_type.measure_type and  measure_resource = 1 and flag =0
+	</select>
+	
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.Measurement" resultMap="measurementMap">
+		select 
+		measure_unit_id, measurement_type.basic_unit as basic_unit,measurement_type.type_name,
+		conversion_relation,measure_unit,measurement.measure_type,measure_resource 
+		from measurement,measurement_type 
+		where measurement.measure_type =measurement_type.measure_type and measurement.measure_type = #{id} and flag = 0
+	</select>
+	
+	<select id="getByMeasureUnitId" parameterType="Integer" resultType="com.labwinner.domain.Measurement" resultMap="measurementMap">
+		select 
+		measure_unit_id, measurement_type.basic_unit as basic_unit,measurement_type.type_name,
+		conversion_relation,measure_unit,measurement.measure_type,measure_resource 
+		from measurement,measurement_type 
+		where measurement.measure_type =measurement_type.measure_type and measurement.measure_unit_id = #{id} and flag = 0
+	</select>
+	
+	<select id="getByMeasureType" parameterType="Integer" resultType="com.labwinner.domain.Measurement" resultMap="measurementMap">
+		select * from measurement where measure_type = #{id} and flag = 0
+	</select>
+	
+	<!-- 根据单位类型获取单位集合 -->
+	<select id="getMeasurementByMeasureType" parameterType="Integer" resultType="com.labwinner.domain.Measurement" resultMap="measurementMap">
+		select measurement.measure_unit_id,measurement.basic_unit,measurement.conversion_relation,
+		measurement.measure_unit,measurement.measure_resource,measurement_type.measure_type,
+   	    measurement_type.type_name,measurement_type.basic_unit,measurement_type.type_sourece
+		from measurement 
+		left outer join measurement_type on
+		measurement_type.measure_type=measurement.measure_type
+		where measurement_type.measure_type = #{id}
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getByType" resultType="Integer">
+		select count(*) from measurement where measure_type = #{id} and flag = 0
+	</select>
+	
+	<!-- 获取度量单位数量 -->
+	<select id="getByUnit" resultType="Integer">
+		select count(*) from measurement where measure_unit = #{measureUnit} and flag = 0
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getCount" resultType="Integer">
+		select count(*) from measurement where measure_unit = #{name} and measure_unit_id !=#{id}
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getMeasureTypes" resultType="Integer" parameterType="map">
+		select distinct measure_type from measurement;
+	</select>
+	
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Measurement"
+		useGeneratedKeys="true" keyProperty="measureUnitId">
+		insert into
+		measurement(
+		    basic_unit,
+		    conversion_relation,               
+			measure_unit, 
+			measure_resource,               
+			measure_type)
+		value(
+		#{basicUnit},
+		#{conversionRelation},
+		#{measureUnit},
+		#{measureResource},
+		#{measurementType.measureType})
+	</insert>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from measurement where
+		measure_unit_id=#{measureUnitId}
+	</delete>
+	
+	<!-- 删除对象方法  -->
+	<update id="deleteFlag" parameterType="Integer">
+		update
+		measurement 
+		set
+		flag = 1
+		where measure_unit_id = #{id}
+	</update>
+	
+	<update id="update" parameterType="com.labwinner.domain.Measurement">
+		update
+		measurement 
+		set
+		basic_unit = #{basicUnit},
+		conversion_relation = #{conversionRelation},
+		measure_unit = #{measureUnit},
+		measure_type = #{measurementType.measureType}
+		where measure_unit_id = #{measureUnitId}
+	</update>
+	
+</mapper>

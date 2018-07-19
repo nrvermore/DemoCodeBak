@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 附件 -->
+<mapper namespace="com.labwinner.dao.OrderHistoryDao">
+
+	<resultMap id="orderHistoryResultMap" type="com.labwinner.domain.OrderHistory">
+		<id property="orderHistoryId" column="order_history_id" />
+		<result property="orderHistoryDate" column="order_history_date" />
+		<result property="orderRemarks" column="order_remarks" />
+	</resultMap>
+
+	<sql id="columns">order_history_id, order_history_date, order_remarks
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="orderHistoryResultMap">
+		select
+		<include refid="columns" />
+		from order_history
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Long" resultMap="orderHistoryResultMap">
+		select
+		<include refid="columns" />
+		from
+		order_history
+		where order_history_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.OrderHistory"
+		useGeneratedKeys="true" keyProperty="roleId">
+		insert into
+		order_history(
+		<include refid="columns" />
+		)
+		value(#{orderHistoryId},
+		#{orderHistoryDate},
+		#{orderRemarks})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.OrderHistory">
+		update
+		order_history set
+		order_history_date=#{orderHistoryDate},
+		order_remarks=#{orderRemarks}
+		where order_history_id=#{orderHistoryId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Long">
+		delete from order_history
+		where
+		order_history_id=#{orderHistoryId}
+	</delete>
+
+</mapper> 

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labwinner.dao.SupplierDao">
+
+<resultMap id="supplierMap" type="com.labwinner.domain.Supplier">
+        <id column="sup_id" property="supId" />
+        <result column="supr_name" property="suprName" />
+        <result column="sup_address" property="supAddress" />
+        <result column="sup_phone" property="supPhone" />
+        <result column="sup_contacter" property="supContacter" />
+        <result column="url" property="url" />
+        <result column="create_date" property="createDate" />
+        <result column="email" property="email" />
+        <result column="creater" property="creater" />
+        <result column="modifier" property="modifier" />
+          <result column="productNum" property="productNum" />
+         <result column="modify_date" property="modifyDate" />
+         <result column="department" property="department" />
+         <result column="fax" property="fax" />
+         <result column="remark" property="remark" />
+         <result column="reserve_field" property="reserveField" />
+         <result column="reserve_field2" property="reserveField2" />
+         <result column="reserve_field3" property="reserveField3" />
+         
+         <association property="companyType" javaType="com.labwinner.domain.CompanyType">
+				<id property="companyTypeId" column="company_type_id" />
+				<result property="companyTypeName" column="company_type_name" />
+			</association>
+         <collection property="productSummary" ofType="com.labwinner.domain.ProductSummary">
+			<id property="productSummaryId" column="product_summary_id" />
+			 <result property="materialSpecification" column="material_specification" />
+			  <result property="price" column="price" />
+			    <result property="catalogueCode" column="catalogue_code" />
+			    <result property="innerCode" column="inner_code" />
+			  <association property="priceCurrency" javaType="com.labwinner.domain.PriceCurrency">
+				<id property="priCurId" column="pri_cur_id" />
+				<result property="curType" column="cur_type" />
+				<result property="curName" column="cur_name" />
+			</association>
+			<association property="chemicalParameter" javaType="com.labwinner.domain.ChemicalParameter">
+				<id property="chParId" column="ch_par_id" />
+				<result property="chineseName" column="chinese_name" />
+			</association>
+
+		</collection>
+ </resultMap>
+<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Supplier" resultMap="supplierMap">
+    select a.sup_id,a.supr_name,a.sup_phone,a.sup_contacter,a.url,c.company_type_id,c.company_type_name,count(product_summary_id) as productNum 
+		from supplier a
+		left outer join product_summary b on a.sup_id=b.supplier_id
+		left outer join company_type c on a.company_type_id=c.company_type_id
+		group by  a.sup_id,a.supr_name,a.supr_name,a.sup_phone,a.sup_contacter,a.url,c.company_type_name
+	</select>
+	<!-- 更具名字获取所有对象列表 -->
+	<select id="getByName" parameterType="String" resultType="com.labwinner.domain.Supplier" resultMap="supplierMap">
+    select a.sup_id,a.supr_name,a.sup_phone,a.sup_contacter,a.url,c.company_type_name,count(product_summary_id) as productNum 
+		from supplier a
+		left outer join product_summary b on a.sup_id=b.supplier_id
+		left outer join company_type c on a.company_type_id=c.company_type_id
+		where a.supr_name  LIKE CONCAT('%',#{keyword},'%')
+		group by  a.sup_id,a.supr_name,a.supr_name,a.sup_phone,a.sup_contacter,a.url,c.company_type_name
+	</select>
+	
+		<!-- 更具名字获取所有对象列表 -->
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.Supplier" resultMap="supplierMap">
+    select a.sup_id,a.supr_name,a.sup_phone,a.sup_contacter,a.url,c.company_type_id,c.company_type_name,a.department,a.fax,a.remark,a.sup_address,
+    b.product_summary_id,d.chinese_name,b.material_specification,b.price,e.cur_type,e.cur_type,b.catalogue_code,b.inner_code
+		from supplier a
+		left outer join product_summary b on a.sup_id=b.supplier_id
+		left outer join company_type c on a.company_type_id=c.company_type_id
+		left outer join chemical_parameter d on b.ch_par_id=d.ch_par_id
+		left outer join price_currency e on b.pri_cur_id=e.pri_cur_id
+		where sup_id=#{id}
+	</select>
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Supplier"
+		useGeneratedKeys="true" keyProperty="supId">
+		insert into
+		supplier(
+		supr_name,sup_address,sup_phone,sup_contacter,url,create_date,email,creater,modifier,modify_date,company_type_id,department,fax,remark
+		)
+		value(
+		#{suprName},
+		#{supAddress},
+		#{supPhone},
+		#{supContacter},
+		#{url},
+		#{createDate},
+		#{email},
+		#{creater},
+		#{modifier},
+		#{modifyDate},
+		#{companyType.companyTypeId},
+		#{department},
+		#{fax},
+		#{remark}
+		)
+	</insert>
+	
+	
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.Supplier">
+		update
+		supplier set
+		supr_name=#{suprName},
+		sup_address=#{supAddress},
+		sup_phone=#{supPhone},
+		sup_contacter=#{supContacter},
+		url=#{url},
+		create_date=#{createDate},
+		email=#{email},
+		creater=#{creater},
+		modifier=#{modifier},
+		modify_date=#{modifyDate},
+		company_type_id=#{companyType.companyTypeId},
+		department=#{department},
+		fax=#{fax},
+		remark=#{remark}
+		where sup_id=#{supId}
+	</update>
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from supplier
+		where
+		sup_id=#{id}
+	</delete>
+	<select id="getCompanyType" resultType="java.util.Map" >
+    select company_type_id,company_type_name from company_type 
+	</select>
+	
+</mapper>

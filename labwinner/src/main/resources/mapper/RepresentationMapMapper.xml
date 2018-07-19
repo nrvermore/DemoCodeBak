@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.RepresentationMapDao">
+
+<resultMap id="representationMap" type="com.labwinner.domain.RepresentationMap">
+        <id column="rep_map_id" property="repMapId" />
+        <result column="rep_name" property="repName" />
+        <result column="rep_image" property="repImage" />
+        
+        <association property="chemicalParameter"
+			resultMap="com.labwinner.dao.AnalyticsDao.chemicalParameterMap"></association>
+ </resultMap>
+ 	<select id="getById" resultType="com.labwinner.domain.RepresentationMap" parameterType="Integer" resultMap="representationMap" >
+		select rep_map_id ,rep_name
+		from representation_map where rep_map_id = #{id}
+	</select>
+
+	<insert id="save" parameterType="com.labwinner.domain.RepresentationMap"
+		useGeneratedKeys="true" keyProperty="repMapId">
+		insert into
+		representation_map
+		(rep_name,ch_par_id)
+		value(
+		#{repName},
+		#{chemicalParameter.chParId})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from representation_map where
+		rep_map_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByUrl" parameterType="String">
+		delete from representation_map where
+		rep_name=#{url}
+	</delete>
+	
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.RepresentationMap">
+		update representation_map 
+		set
+		rep_name=#{repName},
+		ch_par_id=#{chemicalParameter.chParId}
+		where 
+		rep_map_id=#{repMapId}
+	</update>
+ 
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.TeamMomentsDao">
+
+	<resultMap id="teamMomentsMap" type="com.labwinner.domain.TeamMoments">
+		<id column="team_moments_id" property="teamMomentsId" />
+		<result column="publish_time" property="publishTime" />
+		<result column="publish_content" property="publishContent" />
+		<result column="url" property="url" />
+		<result column="url_icon" property="urlIcon" />
+		<result column="url_title" property="urlTitle" />
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id1" />
+			<result property="realname" column="realname1" />
+			<result property="username" column="username1" />
+			<result property="email" column="email1" />
+		</association>
+		
+		<collection property="teamMomentsImages"
+			ofType="com.labwinner.domain.TeamMomentsImage">
+			<id property="teamProjCircleImageId" column="team_proj_circle_image_id" />
+			<result property="image" column="image" />
+			<result property="momentsType" column="moments_type1" />
+			<result property="momentsInfoId" column="moments_info_id1" />
+		</collection>
+		
+		<collection property="teamMomentsLikes"
+			ofType="com.labwinner.domain.TeamMomentsLike">
+			<id property="teamMomentsLikeId" column="team_moments_like_id" />
+			<result property="momentsType" column="moments_type2" />
+			<result property="momentsInfoId" column="moments_info_id2" />
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id3" />
+				<result property="realname" column="realname3" />
+				<result property="username" column="username3" />
+				<result property="userImage" column="user_image3" />
+			</association>
+		</collection>
+		
+		<collection property="teamProjMomentsComments"
+			ofType="com.labwinner.domain.TeamProjMomentsComment">
+			<id property="teamProjMomentsCommentId" column="team_proj_moments_comment_id" />
+			<result property="commentContent" column="comment_content" />
+			<result property="replyContent" column="reply_content" />
+			<result property="momentsType" column="moments_type3" />
+			<result property="momentsInfoId" column="moments_info_id3" />
+			<association property="commentUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id4" />
+				<result property="realname" column="realname4" />
+				<result property="username" column="username4" />
+				<result property="userImage" column="user_image4" />
+			</association>
+			<association property="replyUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id5" />
+				<result property="realname" column="realname5" />
+				<result property="username" column="username5" />
+				<result property="userImage" column="user_image5" />
+			</association>
+		</collection>
+		
+
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.TeamMoments" resultMap="teamMomentsMap">
+		select a.*,
+		b.user_id as user_id1,b.username as username1,b.realname as realname1,
+		g.team_proj_circle_image_id,g.image,g.moments_type as moments_type1,g.moments_info_id as moments_info_id1,
+		h.team_moments_like_id,h.moments_type as moments_type2,h.moments_info_id as moments_info_id2,
+		j.team_proj_moments_comment_id,j.comment_content,j.reply_content,
+		j.moments_type as moments_type3,j.moments_info_id as moments_info_id3,
+		i.user_id as user_id3,i.username as username3,i.realname as realname3,
+		k.user_id as user_id4,k.username as username4,k.realname as realname4,
+		l.user_id as user_id5,l.username as username5,l.realname as realname5
+		from (select * from team_moments  where team_moments_id order by publish_time desc limit 0,#{endCount}) as a
+	    left outer join sys_user b on a.user_id = b.user_id
+	    left outer join team_moments_image g on g.moments_info_id = a.team_moments_id and g.moments_type = 2 
+	    left outer join team_moments_like h on h.moments_info_id = a.team_moments_id and h.moments_type = 2 
+	    left outer join sys_user i on i.user_id = h.user_id
+	    left outer join team_proj_moments_comment j on j.moments_info_id = a.team_moments_id and j.moments_type = 2 
+	    left outer join sys_user k on k.user_id = j.commentator_id
+	    left outer join sys_user l on l.user_id = j.reply_record_id
+        order by a.publish_time desc
+	</select>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from team_moments where team_moments_id = #{id}
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.TeamMoments"
+		useGeneratedKeys="true" keyProperty="teamMomentsId">
+		insert into
+		team_moments
+		(publish_time,publish_content,
+		url,user_id,url_icon,url_title)
+		value(
+		#{publishTime},
+		#{publishContent},
+		#{url},
+		#{sysUser.userId},
+		#{urlIcon},
+		#{urlTitle}
+		)
+	</insert>
+</mapper>

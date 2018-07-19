@@ -1,0 +1,1679 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ReactionDesignDao">
+
+	<resultMap id="reactionDesignMap" type="com.labwinner.domain.ReactionDesign">
+		<id column="reaction_design_id" property="reactionDesignId" />
+		<result column="num1" property="reactionNum" />
+		<result column="reaction_group_name" property="reactionGroupName" />
+		<result column="type" property="type" />
+		<result column="pre_start_time" property="preStartTime" />
+		<result column="pre_end_time" property="preEndTime" />
+		<result property="execute" column="execute1" />
+		<result column="creater" property="creater" />
+		<result column="create_date" property="createDate" />
+		<result column="modifier" property="modifier" />
+		<result column="modify_date" property="modifyDate" />
+
+	
+		<association property="projectBasicInfo" javaType="com.labwinner.domain.ProjectBasicInfo">
+			<id property="proId" column="pro_id" />
+            <result property="proName" column="pro_name" />
+			
+		</association>
+
+       <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="u1" />
+            <result property="realname" column="r1" />
+	   </association>
+
+
+		<collection property="reactionDesignProcesses"
+			ofType="com.labwinner.domain.ReactionDesignProcess">
+			<id column="reaction_design_process_id" property="reactionDesignProcessId" />
+			<result column="process" property="process" />
+			<result column="process_name" property="processName" />
+			<result column="remark" property="remark" />
+
+			<collection property="reactionDesignParameters"
+				ofType="com.labwinner.domain.ReactionDesignParameter">
+				<id property="designParameterId" column="design_parameter_id" />
+				<result property="designParameterDosage" column="design_parameter_dosage" />
+				<result column="reaction_parameter" property="reactionParameter" />
+				<association property="measurement" javaType="com.labwinner.domain.Measurement">
+					<id property="measureUnitId" column="id3" />
+					<result property="basicUnit" column="basic_unit" />
+					<result property="conversionRelation" column="conversion_relation" />
+					<result property="measureUnit" column="u3" />
+				</association>
+
+				<!-- <association property="reactionParameter" resultMap="com.labwinner.dao.ReactionParameterDao.reactionParameterMap"> 
+					</association> -->
+
+			</collection>
+		</collection>
+		
+		<collection property="designTechnologyRelations"
+			ofType="com.labwinner.domain.DesignTechnologyRelation">
+			<id column="relation_id" property="relationId" />
+			
+			<association property="designTechnology" javaType="com.labwinner.domain.DesignTechnology">
+					<id property="technologyId" column="technology_id" />
+					<result property="technologyName" column="technology_name" />
+					
+			<collection property="designTechnologyProcesses" ofType="com.labwinner.domain.DesignTechnologyProcess">
+				<id property="processId" column="process_id" />
+				<result property="processNumber" column="process_number" />
+				<result property="processName" column="process_name" />
+				<result property="remark" column="remark" />
+	
+			  <collection property="designTechnologyDosages" ofType="com.labwinner.domain.DesignTechnologyDosage">
+				<id property="designTechnologyDosageId" column="design_technology_dosage_id" />
+				<result property="designTechnologyDosage" column="design_technology_dosage" />
+				<result column="design_parameter_name" property="designParameterName" />
+
+				<association property="measurement" javaType="com.labwinner.domain.Measurement">
+					<id property="measureUnitId" column="id6" />
+					<result property="basicUnit" column="basic_unit" />
+					<result property="conversionRelation" column="conversion_relation" />
+					<result property="measureUnit" column="u6" />
+				</association>
+
+			   </collection>
+		      </collection>
+			</association>
+		</collection>
+
+		<collection property="reactionDesignChemicals"
+			ofType="com.labwinner.domain.ReactionDesignChemical">
+			<id property="designChemicalId" column="design_chemical_id" />
+			<result property="changeable" column="changeable" />
+
+			<association property="inventoryGroups" javaType="com.labwinner.domain.InventoryGroups">
+				<id property="groupId" column="group_id" />
+		        <result property="inventoryName" column="inventory_name" />
+		        <result property="batchNumber" column="batch_number" />
+
+				<!-- <association property="measurement" javaType="com.labwinner.domain.Measurement">
+					<id property="measureUnitId" column="id1" />
+					<result property="basicUnit" column="basic_unit" />
+					<result property="conversionRelation" column="conversion_relation" />
+					<result property="measureUnit" column="u1" />
+
+			   </association> -->
+				<association property="chemicalParameter" javaType="com.labwinner.domain.ChemicalParameter">
+					<id property="chParId" column="ch_par_id" />
+					<result property="chineseName" column="chinese_name" />
+					<result property="englishName" column="english_name" />
+			   </association>
+			   
+				<association property="supplier" javaType="com.labwinner.domain.Supplier">
+					<id property="supId" column="sup_id" />
+					<result property="suprName" column="supr_name" />
+			   </association>
+			   
+           </association>
+			<collection property="designDosages" ofType="com.labwinner.domain.DesignDosage">
+				<id property="designDosageId" column="design_dosage_id" />
+				<result property="reactionNum" column="num3" />
+				<result property="chemicalDosage" column="chemical_dosage" />
+				<result property="percentage" column="percentage" />
+
+				<association property="measurement" javaType="com.labwinner.domain.Measurement">
+					<id property="measureUnitId" column="id2" />
+					<result property="basicUnit" column="basic_unit" />
+					<result property="conversionRelation" column="conversion_relation" />
+					<result property="measureUnit" column="u2" />
+					
+					<association property="measurementType" javaType="com.labwinner.domain.MeasurementType">
+					<id property="measureType" column="measure_type" />
+					<result property="typeName" column="type_name" />
+					<result property="basicUnit" column="basic_unit" />
+					<result property="typeSource" column="type_sourece" />
+			        </association>
+					
+				</association>
+
+			</collection>
+
+		</collection>
+		
+		<collection property="reactionDesignSolutions"
+			ofType="com.labwinner.domain.ReactionDesignSolution">
+			<id property="solutionDesignId" column="solution_design_id" />
+			<result property="changeable" column="c1" />
+
+			<association property="solutionEntity" javaType="com.labwinner.domain.SolutionEntity">
+				<id property="solutionId" column="solution_id" />
+				<result property="solutionName" column="solution_name" />
+				<result property="solutionTotal" column="solution_total" />
+				
+				<!-- 溶剂 -->
+				<result property="solventName" column="solvent_name" />
+
+				<association property="solutionMeasurement" javaType="com.labwinner.domain.Measurement">
+					<id property="measureUnitId" column="id4" />
+					<result property="basicUnit" column="basic_unit" />
+					<result property="conversionRelation" column="conversion_relation" />
+					<result property="measureUnit" column="u4" />
+				</association>
+				
+				<!-- 溶质 -->
+				<association property="soluteInventories" javaType="com.labwinner.domain.InventoryGroups">
+					<id property="groupId" column="inventory_id1" />
+					<result property="inventoryName" column="inventory_name1" />
+				</association>
+				
+				<!-- 库存溶剂 -->
+				<association property="solventInventories" javaType="com.labwinner.domain.InventoryGroups">
+					<id property="groupId" column="inventory_id2" />
+					<result property="inventoryName" column="inventory_name2" />
+				</association>
+
+			</association>
+
+			<collection property="solutionDesignDosages" ofType="com.labwinner.domain.SolutionDesignDosage">
+				<id property="solutionDesignDosageId" column="solution_design_dosage_id" />
+				<result property="reactionNum" column="num4" />
+				<result property="solutionDosage" column="solution_dosage" />
+                <result property="percentage" column="percentage" />
+
+				<association property="measurement" javaType="com.labwinner.domain.Measurement">
+					<id property="measureUnitId" column="id5" />
+					<result property="basicUnit" column="basic_unit" />
+					<result property="conversionRelation" column="conversion_relation" />
+					<result property="measureUnit" column="u5" />
+				</association>
+
+			</collection>
+
+		</collection>
+
+		<collection property="reactionRecords" ofType="com.labwinner.domain.ReactionRecord">
+			<id property="reactionRecordId" column="reaction_record_id" />
+			<result property="reactionNum" column="num2" />
+			<result property="reactionName" column="reaction_name" />
+			<result property="execute" column="execute2" />
+		</collection>
+
+		<collection property="reactions" ofType="com.labwinner.domain.Reaction"> 
+			 <id column="reaction_id" property="reactionId" />
+	         <result column="reaction_name2" property="reactionName" />
+	         <result column="time1" property="startTime" />
+			<result column="time2" property="endTime" />
+	         <result column="is_lock" property="isLock" />
+	         <association property="reactionStatus" javaType="com.labwinner.domain.ReactionStatus">
+				<id column="reaction_status_id" property="reactionStatusId" />
+				<result column="reaction_status" property="reactionStatus" />
+			</association>
+			
+			<collection property="reactionProcesses" ofType="com.labwinner.domain.ReactionProcess">
+				<id column="reaction_process_id" property="reactionProcessId" />
+				<result column="reaction_process" property="reactionProcess" />
+				<result column="process_name" property="processName" />
+				<result column="process" property="process" />
+				<result column="start_time" property="startTime" />
+				<result column="end_time" property="endTime" />
+			</collection>
+			
+			<collection property="analyticses" ofType="com.labwinner.domain.Analytics">
+				<id column="analytics_id" property="analyticsId" />
+				<result column="analytics_name" property="analyticsName" />
+				<result column="analytics_content" property="analyticsContent" />
+			</collection>
+		</collection> 
+
+	</resultMap>
+	
+	<sql id="columns"> reaction_design_id,reaction_design.reaction_num as num1,reaction_group_name
+		,pre_start_time,pre_end_time,reaction_design.execute as execute1,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name,
+		sys_user.user_id as u1,sys_user.realname as r1
+	</sql>
+	
+	<sql id="singlecolumns"> reaction_design.reaction_design_id,reaction_design.reaction_num as num1,reaction_group_name
+		,pre_start_time,pre_end_time,reaction_design.execute as execute1,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name,reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		sys_user.user_id as u1,sys_user.realname as r1
+	</sql>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllDesignsList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		 select a.reaction_design_id,a.reaction_num as num1,reaction_group_name
+		,pre_start_time,pre_end_time,a.execute as execute1,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		project_basic_info.pro_id,project_basic_info.pro_name,
+		sys_user.user_id,sys_user.realname
+		from (select * from reaction_design where execute = "true" order by reaction_design_id) a
+		left outer join project_basic_info on a.pro_id=project_basic_info.pro_id
+		left outer join reaction on a.reaction_design_id = reaction.reaction_design_id
+		left outer join sys_user on a.user_id = sys_user.user_id
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getUserDesignsList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select a.reaction_design_id,a.reaction_num as num1,reaction_group_name
+		,pre_start_time,pre_end_time,a.execute as execute1,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		project_basic_info.pro_id,project_basic_info.pro_name
+    from 
+    (select b.* from 
+   (select reaction_design.* 
+		from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and execute = "true"
+		union 
+		select reaction_design.*
+    	from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and reaction_design.user_id = #{userId}
+		and execute = "true") b order by b.reaction_design_id)a
+		left outer join project_basic_info on a.pro_id=project_basic_info.pro_id
+    	left outer join reaction on a.reaction_design_id = reaction.reaction_design_id
+		left outer join sys_user on a.user_id = sys_user.user_id
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllDesigns" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		 select a.reaction_design_id,a.reaction_num as num1,reaction_group_name
+		,pre_start_time,pre_end_time,a.execute as execute1,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		project_basic_info.pro_id,project_basic_info.pro_name,
+		sys_user.user_id,sys_user.realname
+		from (select * from reaction_design where execute = "true" order by reaction_design_id limit #{page},#{pageSize}) a
+		left outer join project_basic_info on a.pro_id=project_basic_info.pro_id
+		left outer join reaction on a.reaction_design_id = reaction.reaction_design_id
+		left outer join sys_user on a.user_id = sys_user.user_id
+	</select>
+	
+	<select id="getAllCount" resultType="Integer">
+		 select count(*) from reaction_design where execute = "true"
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllDesignsByKeyword" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select a.reaction_design_id,a.reaction_num as num1,reaction_group_name
+		,pre_start_time,pre_end_time,a.execute as execute1,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		project_basic_info.pro_id,project_basic_info.pro_name,
+		sys_user.user_id,sys_user.realname
+		from 
+		( select * from reaction_design where reaction_group_name LIKE concat('%',#{keyword},'%') 
+		and execute = "true" limit #{page},#{pageSize}) a
+		left outer join project_basic_info on a.pro_id=project_basic_info.pro_id
+     	left outer join reaction on a.reaction_design_id = reaction.reaction_design_id
+		left outer join sys_user on a.user_id = sys_user.user_id
+	</select>
+	
+	<select id="getAllDesignsCount" resultType="Integer">
+		select count(*) from reaction_design where reaction_group_name LIKE concat('%',#{keyword},'%') and execute = "true"
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getUserDesigns" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select a.reaction_design_id,a.reaction_num as num1,reaction_group_name
+		,pre_start_time,pre_end_time,a.execute as execute1,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		project_basic_info.pro_id,project_basic_info.pro_name,
+		sys_user.user_id,sys_user.realname
+    from 
+    (select b.* from 
+   (select reaction_design.* 
+		from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and  reaction_design.user_id = sys_user.user_id
+		and reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and execute = "true"
+		union 
+		select reaction_design.*
+    	from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and reaction_design.user_id = sys_user.user_id
+		and reaction_design.user_id = #{userId}
+		and execute = "true") b order by b.reaction_design_id limit #{page},#{pageSize})a
+		left outer join project_basic_info on a.pro_id=project_basic_info.pro_id
+    	left outer join reaction on a.reaction_design_id = reaction.reaction_design_id
+		left outer join sys_user on a.user_id = sys_user.user_id
+	</select>
+	
+	<select id="getUserCount" resultType="Integer">
+		select count(*)
+    from 
+    (select b.* from 
+   (select reaction_design.* 
+		from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and  reaction_design.user_id = sys_user.user_id
+		and reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and execute = "true"
+		union 
+		select reaction_design.*
+    	from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and reaction_design.user_id = sys_user.user_id
+		and reaction_design.user_id = #{userId}
+		and execute = "true") b order by b.reaction_design_id)a
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getUserDesignsByKeyword" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+	select a.reaction_design_id,a.reaction_num as num1,reaction_group_name,
+	pre_start_time,pre_end_time,a.execute as execute1,
+	reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+	project_basic_info.pro_id,project_basic_info.pro_name,
+	sys_user.user_id,sys_user.realname
+    from 
+    (select b.* from 
+   		(select reaction_design.* 
+		from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and  reaction_design.user_id = sys_user.user_id
+		and reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and execute = "true"
+		union 
+		select reaction_design.*
+    	from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and reaction_design.user_id = sys_user.user_id
+		and reaction_design.user_id =#{userId}
+		and execute = "true") b
+	where b.reaction_group_name like concat('%',#{keyword},'%') order by b.reaction_design_id limit #{page},#{pageSize})a
+	left outer join project_basic_info on a.pro_id=project_basic_info.pro_id
+    left outer join reaction on a.reaction_design_id = reaction.reaction_design_id
+	left outer join sys_user on a.user_id = sys_user.user_id
+	</select>
+	
+	<!--关键字 获取我的实验设计 -->
+	<select id="getMyDesignsByKeyword" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId} and reaction_design.type = 1
+		and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		order by reaction_design_id desc
+	</select>
+	
+	<!--获取我的实验设计 -->
+	<select id="getMyList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId} and reaction_design.type = 1
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		order by reaction_design_id desc
+	</select>
+	
+	<!--获取我的单一实验设计 -->
+	<select id="getMySingleDesignList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" />
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId} and reaction_design.type =0
+		order by reaction_design_id desc
+	</select>
+	
+	<select id="getUserDesignsCount" resultType="Integer">
+	select count(*)
+    from 
+    (select b.* from 
+   		(select reaction_design.* 
+		from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and  reaction_design.user_id = sys_user.user_id
+		and reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and execute = "true"
+		union 
+		select reaction_design.*
+    	from reaction_design,project_basic_info,sys_user
+		where reaction_design.pro_id=project_basic_info.pro_id
+		and reaction_design.user_id = sys_user.user_id
+		and reaction_design.user_id =#{userId}
+		and execute = "true") b
+	where b.reaction_group_name like concat('%',#{keyword},'%') order by b.reaction_design_id)a
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on
+		reaction_design.user_id = sys_user.user_id
+		where reaction_design.type = 1
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		order by reaction_design_id desc
+	</select>
+	
+	<!-- 获取项目成员负责设计数 -->
+	<select id="getCount" resultType="Integer">
+		select count(reaction_design_id)
+		from reaction_design
+		where user_id = #{numberId}
+	</select>
+	
+	<!-- 获取我的组实验所有对象列表 -->
+	<select id="getUserList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+	<!-- and  reaction_design.reaction_group_name is not null -->
+		and reaction_design.type = 1
+		union 
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId} and reaction_design.type = 1
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		order by reaction_design_id desc
+	</select>
+	
+	<!-- 获取团队单一实验对象列表 -->
+	<select id="getTeamSingleDesigns" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" />
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and reaction_design.type = 0
+		union 
+		select <include refid="columns" />
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId} and reaction_design.type = 0
+		order by reaction_design_id desc
+	</select>
+	
+	<!-- 获取团队单一实验对象列表 -->
+	<select id="getAllSingleDesigns" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" />
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.type = 0
+		order by reaction_design_id desc
+	</select>
+
+	<!-- 根据输入关键字获取对象 -->
+	<select id="getAllPageable" parameterType="String"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on
+		reaction_design.user_id = sys_user.user_id
+		where reaction_design.type = 1
+		and	reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		order by reaction_design.reaction_design_id desc
+	</select>
+	
+	<!-- 根据输入关键字获取对象 -->
+	<select id="getUserListByKeyword" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on
+		reaction_design.user_id = sys_user.user_id
+		where reaction_design.type = 1 and reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		union 
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.type = 1 and reaction_design.user_id = #{userId}
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		order by reaction_design_id desc
+	</select>
+
+	<!-- 根据输入关键字获取对象 -->
+	<select id="getChemicals" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+	    <!--select reaction_design.reaction_design_id,reaction_design.reaction_group_name,reaction_design_chemical.design_chemical_id,
+		reaction_design_chemical.reaction_design_id,reaction_design_chemical.group_id,reaction_design_chemical.changeable,
+		inventory_groups.group_id,inventory_groups.inventory_name,inventory_groups.batch_number,chemical_parameter.ch_par_id,
+		chemical_parameter.chinese_name,chemical_parameter.english_name,
+		supplier.sup_id,supplier.supr_name,inventory_groups.measure_unit_id,a.measure_unit_id as id1,a.measure_unit as u1,
+		design_dosage.design_dosage_id,design_dosage.reaction_num as num3,design_dosage.chemical_dosage,
+		design_dosage.percentage,design_dosage.measure_unit_id,b.measure_unit_id as id2,b.measure_unit as u2,
+		measurement_type.measure_type,measurement_type.type_name,measurement_type.basic_unit,measurement_type.type_sourece
+		from reaction_design
+    	left outer join reaction_design_chemical on
+		reaction_design_chemical.reaction_design_id=reaction_design.reaction_design_id
+		left outer join inventory_groups on
+		reaction_design_chemical.group_id=inventory_groups.group_id
+		left outer join chemical_parameter on
+		inventory_groups.ch_par_id=chemical_parameter.ch_par_id
+		left outer join product_summary on 
+		inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on 
+		product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on 
+		product_summary.ch_par_id=chemical_parameter.ch_par_id
+		left outer join supplier on
+		supplier.sup_id=inventory_groups.sup_id
+		left outer join measurement as a on
+		inventory_groups.measure_unit_id=a.measure_unit_id
+		left outer join design_dosage on
+		design_dosage.design_chemical_id=reaction_design_chemical.design_chemical_id
+		left outer join measurement as b on
+		design_dosage.measure_unit_id=b.measure_unit_id
+		left outer join measurement_type on
+		measurement_type.measure_type=b.measure_type -->
+		select reaction_design.reaction_design_id,reaction_design.reaction_group_name,reaction_design_chemical.design_chemical_id,
+		reaction_design_chemical.reaction_design_id,reaction_design_chemical.group_id,reaction_design_chemical.changeable,
+		inventory_groups.group_id,inventory_groups.inventory_name,inventory_groups.batch_number,chemical_parameter.ch_par_id,
+		chemical_parameter.chinese_name,chemical_parameter.english_name,supplier.sup_id,supplier.supr_name,
+		design_dosage.design_dosage_id,design_dosage.reaction_num as num3,design_dosage.chemical_dosage,
+		design_dosage.percentage,design_dosage.measure_unit_id,b.measure_unit_id as id2,b.measure_unit as u2,
+		measurement_type.measure_type,measurement_type.type_name,measurement_type.basic_unit,measurement_type.type_sourece
+		from reaction_design
+    	left outer join reaction_design_chemical on
+		reaction_design_chemical.reaction_design_id=reaction_design.reaction_design_id
+		left outer join inventory_groups on
+		reaction_design_chemical.group_id=inventory_groups.group_id
+		left outer join product_summary on 
+		inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on 
+		product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on 
+		product_summary.ch_par_id=chemical_parameter.ch_par_id
+		left outer join design_dosage on
+		design_dosage.design_chemical_id=reaction_design_chemical.design_chemical_id
+		left outer join measurement as b on
+		design_dosage.measure_unit_id=b.measure_unit_id
+		left outer join measurement_type on
+		measurement_type.measure_type=b.measure_type
+   		where 
+ 	    reaction_design.reaction_design_id=#{id}
+	</select>
+
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,reaction_design.type,reaction_design.execute as execute1,
+		reaction_design.reaction_group_name,reaction_design.pre_start_time,reaction_design.pre_end_time,
+		project_basic_info.*,project_number.pro_number_id,h.user_id,h.realname,m.user_id as u1,m.realname as r1,
+		reaction_design_process.reaction_design_process_id,reaction_design_process.process,
+		reaction_design_process.process_name,reaction_design_process.remark,
+		reaction_design_parameter.design_parameter_id,
+		reaction_design_parameter.design_parameter_dosage,reaction_design_parameter.reaction_parameter,
+		c.measure_unit_id as id3,c.measure_unit as u3
+		from reaction_design
+		left outer join project_basic_info on
+		reaction_design.pro_id=project_basic_info.pro_id
+		left outer join project_number on
+		reaction_design.pro_number_id=project_number.pro_number_id
+		left outer join sys_user as h on
+		project_number.user_id = h.user_id 
+		left outer join sys_user as m on
+		reaction_design.user_id = m.user_id
+		left outer join reaction_design_process on
+		reaction_design_process.reaction_design_id=reaction_design.reaction_design_id
+		left outer join reaction_design_parameter on
+		reaction_design_parameter.reaction_design_process_id=reaction_design_process.reaction_design_process_id
+		left outer join measurement as c on
+		reaction_design_parameter.measure_unit_id=c.measure_unit_id
+		where
+		reaction_design.reaction_design_id=#{id}
+	</select>
+	<!-- 查看试验设计基本信息 -->
+	<select id="getReactionDesignById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_design.type,reaction_design.execute as execute1,
+		reaction_design.reaction_group_name,reaction_design.pre_start_time,reaction_design.pre_end_time,
+		project_basic_info.*,<!-- reaction_design.pro_number_id,project_number.pro_number_id,h.user_id,
+		h.realname -->m.user_id as u1,m.realname as r1
+		from reaction_design
+		left outer join project_basic_info on
+		reaction_design.pro_id=project_basic_info.pro_id
+		<!-- left outer join project_number on
+		reaction_design.pro_number_id=project_number.pro_number_id
+		left outer join sys_user as h on
+		project_number.user_id = h.user_id  -->
+		left outer join sys_user as m on
+		reaction_design.user_id = m.user_id 
+		where
+		reaction_design.reaction_design_id=#{id}
+	</select>
+	<!-- 根据主键获取设计溶液对象 -->
+	<select id="getSolutionById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design_solution.reaction_design_id,
+		reaction_design_solution.solution_design_id,reaction_design_solution.changeable as c1,
+		solution.solution_id,solution.solution_name,solution.solution_total,solution.solvent_name,
+		solution.solute_inventory_id,i.inventory_name as inventory_name1,
+		solution.solvent_inventory_id,s.inventory_name as inventory_name2,
+		solution.solution_unit_id,w.measure_unit_id as id4,w.measure_unit as u4, 
+	    solution_design_dosage.solution_design_id,solution_design_dosage.solution_design_dosage_id,
+	    solution_design_dosage.reaction_num as num4,solution_design_dosage.percentage,
+	    solution_design_dosage.solution_dosage,v.measure_unit_id as id5,v.measure_unit as u5
+		from reaction_design
+        left outer join reaction_design_solution on
+		reaction_design_solution.reaction_design_id=reaction_design.reaction_design_id
+		left outer join solution on
+		reaction_design_solution.solution_id=solution.solution_id
+		left outer join inventory_groups as i on
+		i.group_id=solution.solute_inventory_id
+		left outer join inventory_groups as s on
+		s.group_id=solution.solvent_inventory_id
+		left outer join measurement as w on
+		solution.solution_unit_id=w.measure_unit_id
+		left outer join solution_design_dosage on
+		solution_design_dosage.solution_design_id=reaction_design_solution.solution_design_id
+		left outer join measurement as v on
+		solution_design_dosage.measure_unit_id=v.measure_unit_id
+		where
+		reaction_design.reaction_design_id=#{id}
+	</select>
+	
+	<!-- 根据主键获取实际原料对象 -->
+	<select id="getFindDeleteById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,
+		reaction_design_chemical.design_chemical_id,reaction_design_chemical.changeable,
+		inventories.inventory_id,inventories.inventory_name,
+		a.measure_unit_id as id1,a.measure_unit as u1,
+		design_dosage.design_dosage_id,design_dosage.reaction_num as num3,design_dosage.chemical_dosage,
+		b.measure_unit_id as id2,a.measure_unit as u2
+		from reaction_design 
+        left outer join reaction_design_chemical on
+		reaction_design_chemical.reaction_design_id=reaction_design.reaction_design_id
+		left outer join inventories on
+		reaction_design_chemical.inventory_id=inventories.inventory_id
+		left outer join measurement as a on
+		inventories.measure_unit_id=a.measure_unit_id
+		left outer join design_dosage on
+		design_dosage.design_chemical_id=reaction_design_chemical.design_chemical_id
+		left outer join measurement as b on
+		design_dosage.measure_unit_id=b.measure_unit_id
+		where
+		reaction_design.reaction_design_id=#{id}
+	</select>
+	<!-- 根据主键获取试验生成记录对象 -->
+	<select id="getReactionRecordsById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_record.reaction_record_id,reaction_record.reaction_design_id,
+		reaction_record.reaction_num as num2,reaction_record.reaction_name,
+		reaction_record.execute as execute2
+		from reaction_record 
+        left outer join reaction_design on
+		reaction_record.reaction_design_id=reaction_design.reaction_design_id
+		where
+		reaction_record.reaction_design_id=#{id}
+	</select>
+	<!-- 根据主键获设计工艺对象 -->
+	<select id="getDesignTechnologyRelationById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,design_technology_relation.reaction_design_id,
+		 design_technology_relation.relation_id,design_technology_relation.technology_id,
+		 design_technology.technology_id,technology_name,design_technology_process.process_id,
+		 design_technology_process.process_number,design_technology_process.technology_id,
+		 design_technology_process.process_name,design_technology_process.remark,
+		 design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+		 measure_resource,flag,design_technology_relation.relation_id,
+		 design_technology_relation.technology_id,design_technology_dosage.process_id,
+		  design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+		 design_technology_dosage.design_technology_dosage_id,design_technology_relation.reaction_design_id,
+		 reaction_num,reaction_group_name,pre_start_time,
+		 pre_end_time,execute from design_technology_relation
+		 left outer join reaction_design on
+		 design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+		 left outer join design_technology on
+		 design_technology.technology_id=design_technology_relation.technology_id
+		 left outer join design_technology_process on
+		 design_technology_process.technology_id=design_technology.technology_id
+		 left outer join design_technology_dosage on
+		 design_technology_process.process_id=design_technology_dosage.process_id
+		 left outer join measurement as q on
+		 q.measure_unit_id=design_technology_dosage.measure_unit_id
+		where
+		reaction_design.reaction_design_id=#{id}
+		order by design_technology_process.process_id
+	</select>
+	<!-- 根据登录人关键字查询获团队设计工艺对象集合-->
+	<select id="getDesignTechnologyByUserId" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select  reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_design.type,reaction_design.execute as execute1,reaction_design.reaction_group_name,
+		reaction_design.pre_start_time,reaction_design.pre_end_time,project_basic_info.*,
+		m.user_id as u1,m.realname as r1,design_technology_relation.reaction_design_id,
+	    design_technology_relation.relation_id,design_technology_relation.technology_id,
+	    design_technology.technology_id,technology_name,design_technology_process.process_id,
+	    design_technology_process.process_number,design_technology_process.technology_id,
+	    design_technology_process.process_name,design_technology_process.remark,
+	    design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+	    measure_resource,flag,design_technology_relation.relation_id,
+	    design_technology_relation.technology_id,design_technology_dosage.process_id,
+	    design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+	    design_technology_dosage.design_technology_dosage_id
+	    from reaction_design
+	    left outer join design_technology_relation on
+	    design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+	    left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+	    left outer join sys_user as m on
+	    reaction_design.user_id = m.user_id
+	    left outer join design_technology on
+	    design_technology.technology_id=design_technology_relation.technology_id
+	    left outer join design_technology_process on
+	    design_technology_process.technology_id=design_technology.technology_id
+	    left outer join design_technology_dosage on
+	    design_technology_process.process_id=design_technology_dosage.process_id
+	    left outer join measurement as q on
+	    q.measure_unit_id=design_technology_dosage.measure_unit_id
+	    where reaction_design.pro_id in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+	    and reaction_design.type = 1
+	    and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+	    and reaction_design.execute = "true"
+	    union 
+		select  reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_design.type,reaction_design.execute as execute1,reaction_design.reaction_group_name,
+		reaction_design.pre_start_time,reaction_design.pre_end_time,project_basic_info.*,
+		m.user_id as u1,m.realname as r1,design_technology_relation.reaction_design_id,
+	    design_technology_relation.relation_id,design_technology_relation.technology_id,
+	    design_technology.technology_id,technology_name,design_technology_process.process_id,
+	    design_technology_process.process_number,design_technology_process.technology_id,
+	    design_technology_process.process_name,design_technology_process.remark,
+	    design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+	    measure_resource,flag,design_technology_relation.relation_id,
+	    design_technology_relation.technology_id,design_technology_dosage.process_id,
+	    design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+	    design_technology_dosage.design_technology_dosage_id
+	    from reaction_design
+	    left outer join design_technology_relation on
+	    design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+	    left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+	    left outer join sys_user as m on
+	    reaction_design.user_id = m.user_id
+	    left outer join design_technology on
+	    design_technology.technology_id=design_technology_relation.technology_id
+	    left outer join design_technology_process on
+	    design_technology_process.technology_id=design_technology.technology_id
+	    left outer join design_technology_dosage on
+	    design_technology_process.process_id=design_technology_dosage.process_id
+	    left outer join measurement as q on
+	    q.measure_unit_id=design_technology_dosage.measure_unit_id
+	    where reaction_design.user_id=#{userId} and reaction_design.type = 1
+	    and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+	    and reaction_design.execute = "true"
+	</select>
+	<!-- 团队负责人根据关键字查询获团队设计工艺对象集合-->
+	<select id="getDesignTechnologyNoUserIdBykeyword" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select  reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_design.type,reaction_design.execute as execute1,reaction_design.reaction_group_name,
+		reaction_design.pre_start_time,reaction_design.pre_end_time,project_basic_info.*,
+		m.user_id as u1,m.realname as r1,design_technology_relation.reaction_design_id,
+	    design_technology_relation.relation_id,design_technology_relation.technology_id,
+	    design_technology.technology_id,technology_name,design_technology_process.process_id,
+	    design_technology_process.process_number,design_technology_process.technology_id,
+	    design_technology_process.process_name,design_technology_process.remark,
+	    design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+	    measure_resource,flag,design_technology_relation.relation_id,
+	    design_technology_relation.technology_id,design_technology_dosage.process_id,
+	    design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+	    design_technology_dosage.design_technology_dosage_id
+	    from reaction_design
+	    left outer join design_technology_relation on
+	    design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+	    left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+	    left outer join sys_user as m on
+	    reaction_design.user_id = m.user_id
+	    left outer join design_technology on
+	    design_technology.technology_id=design_technology_relation.technology_id
+	    left outer join design_technology_process on
+	    design_technology_process.technology_id=design_technology.technology_id
+	    left outer join design_technology_dosage on
+	    design_technology_process.process_id=design_technology_dosage.process_id
+	    left outer join measurement as q on
+	    q.measure_unit_id=design_technology_dosage.measure_unit_id
+	    where reaction_design.type = 1
+	    and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+	    and reaction_design.execute = "true"
+	    
+	</select>
+	<!-- 团队负责人获团队设计工艺对象集合-->
+	<select id="getDesignTechnologyNoUserId" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select  reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_design.type,reaction_design.execute as execute1,reaction_design.reaction_group_name,
+		reaction_design.pre_start_time,reaction_design.pre_end_time,project_basic_info.*,
+		m.user_id as u1,m.realname as r1,design_technology_relation.reaction_design_id,
+	    design_technology_relation.relation_id,design_technology_relation.technology_id,
+	    design_technology.technology_id,technology_name,design_technology_process.process_id,
+	    design_technology_process.process_number,design_technology_process.technology_id,
+	    design_technology_process.process_name,design_technology_process.remark,
+	    design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+	    measure_resource,flag,design_technology_relation.relation_id,
+	    design_technology_relation.technology_id,design_technology_dosage.process_id,
+	    design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+	    design_technology_dosage.design_technology_dosage_id
+	    from reaction_design
+	    left outer join design_technology_relation on
+	    design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+	    left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+	    left outer join sys_user as m on
+	    reaction_design.user_id = m.user_id
+	    left outer join design_technology on
+	    design_technology.technology_id=design_technology_relation.technology_id
+	    left outer join design_technology_process on
+	    design_technology_process.technology_id=design_technology.technology_id
+	    left outer join design_technology_dosage on
+	    design_technology_process.process_id=design_technology_dosage.process_id
+	    left outer join measurement as q on
+	    q.measure_unit_id=design_technology_dosage.measure_unit_id
+	    where reaction_design.type = 1
+	    and reaction_design.execute = "true"
+	    
+	</select>
+	<!-- 根据登录人获团队设计工艺对象集合-->
+	<select id="getDesignTechnologyByUserIdNokeyword" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select  reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_design.type,reaction_design.execute as execute1,reaction_design.reaction_group_name,
+		reaction_design.pre_start_time,reaction_design.pre_end_time,project_basic_info.*,
+		m.user_id as u1,m.realname as r1,design_technology_relation.reaction_design_id,
+	    design_technology_relation.relation_id,design_technology_relation.technology_id,
+	    design_technology.technology_id,technology_name,design_technology_process.process_id,
+	    design_technology_process.process_number,design_technology_process.technology_id,
+	    design_technology_process.process_name,design_technology_process.remark,
+	    design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+	    measure_resource,flag,design_technology_relation.relation_id,
+	    design_technology_relation.technology_id,design_technology_dosage.process_id,
+	    design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+	    design_technology_dosage.design_technology_dosage_id
+	    from reaction_design
+	    left outer join design_technology_relation on
+	    design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+	    left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+	    left outer join sys_user as m on
+	    reaction_design.user_id = m.user_id
+	    left outer join design_technology on
+	    design_technology.technology_id=design_technology_relation.technology_id
+	    left outer join design_technology_process on
+	    design_technology_process.technology_id=design_technology.technology_id
+	    left outer join design_technology_dosage on
+	    design_technology_process.process_id=design_technology_dosage.process_id
+	    left outer join measurement as q on
+	    q.measure_unit_id=design_technology_dosage.measure_unit_id
+	    where reaction_design.pro_id in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+	    and reaction_design.type = 1
+	    and reaction_design.execute = "true"
+	    union
+		select  reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_design.type,reaction_design.execute as execute1,reaction_design.reaction_group_name,
+		reaction_design.pre_start_time,reaction_design.pre_end_time,project_basic_info.*,
+		m.user_id as u1,m.realname as r1,design_technology_relation.reaction_design_id,
+	    design_technology_relation.relation_id,design_technology_relation.technology_id,
+	    design_technology.technology_id,technology_name,design_technology_process.process_id,
+	    design_technology_process.process_number,design_technology_process.technology_id,
+	    design_technology_process.process_name,design_technology_process.remark,
+	    design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+	    measure_resource,flag,design_technology_relation.relation_id,
+	    design_technology_relation.technology_id,design_technology_dosage.process_id,
+	    design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+	    design_technology_dosage.design_technology_dosage_id
+	    from reaction_design
+	    left outer join design_technology_relation on
+	    design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+	    left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+	    left outer join sys_user as m on
+	    reaction_design.user_id = m.user_id
+	    left outer join design_technology on
+	    design_technology.technology_id=design_technology_relation.technology_id
+	    left outer join design_technology_process on
+	    design_technology_process.technology_id=design_technology.technology_id
+	    left outer join design_technology_dosage on
+	    design_technology_process.process_id=design_technology_dosage.process_id
+	    left outer join measurement as q on
+	    q.measure_unit_id=design_technology_dosage.measure_unit_id
+	    where reaction_design.user_id=#{userId} and reaction_design.type = 1
+	    and reaction_design.execute = "true"
+	</select>
+	<!-- 根据登录人关键字查询获单一设计工艺对象集合-->
+	<select id="getTechnologyByUserIdAndKeyword" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select  reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_design.type,reaction_design.execute as execute1,reaction_design.reaction_group_name,
+		reaction_design.pre_start_time,reaction_design.pre_end_time,project_basic_info.*,
+		m.user_id as u1,m.realname as r1,design_technology_relation.reaction_design_id,
+	    design_technology_relation.relation_id,design_technology_relation.technology_id,
+	    design_technology.technology_id,technology_name,design_technology_process.process_id,
+	    design_technology_process.process_number,design_technology_process.technology_id,
+	    design_technology_process.process_name,design_technology_process.remark,
+	    design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+	    measure_resource,flag,design_technology_relation.relation_id,
+	    design_technology_relation.technology_id,design_technology_dosage.process_id,
+	    design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+	    design_technology_dosage.design_technology_dosage_id
+	    from reaction_design
+	    left outer join design_technology_relation on
+	    design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+	    left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+	    left outer join sys_user as m on
+	    reaction_design.user_id = m.user_id
+	    left outer join design_technology on
+	    design_technology.technology_id=design_technology_relation.technology_id
+	    left outer join design_technology_process on
+	    design_technology_process.technology_id=design_technology.technology_id
+	    left outer join design_technology_dosage on
+	    design_technology_process.process_id=design_technology_dosage.process_id
+	    left outer join measurement as q on
+	    q.measure_unit_id=design_technology_dosage.measure_unit_id
+	    where reaction_design.user_id=#{userId} and reaction_design.type =0
+	    and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+	    and reaction_design.execute = "true"
+	    order by reaction_design.reaction_design_id desc
+	</select>
+	<!-- 根据登录人获单一设计工艺对象集合-->
+	<select id="getTechnologyByUserId" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select  reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_design.type,reaction_design.execute as execute1,reaction_design.reaction_group_name,
+		reaction_design.pre_start_time,reaction_design.pre_end_time,project_basic_info.*,
+		m.user_id as u1,m.realname as r1,design_technology_relation.reaction_design_id,
+	    design_technology_relation.relation_id,design_technology_relation.technology_id,
+	    design_technology.technology_id,technology_name,design_technology_process.process_id,
+	    design_technology_process.process_number,design_technology_process.technology_id,
+	    design_technology_process.process_name,design_technology_process.remark,
+	    design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+	    measure_resource,flag,design_technology_relation.relation_id,
+	    design_technology_relation.technology_id,design_technology_dosage.process_id,
+	    design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+	    design_technology_dosage.design_technology_dosage_id
+	    from reaction_design
+	    left outer join design_technology_relation on
+	    design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+	    left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+	    left outer join sys_user as m on
+	    reaction_design.user_id = m.user_id
+	    left outer join design_technology on
+	    design_technology.technology_id=design_technology_relation.technology_id
+	    left outer join design_technology_process on
+	    design_technology_process.technology_id=design_technology.technology_id
+	    left outer join design_technology_dosage on
+	    design_technology_process.process_id=design_technology_dosage.process_id
+	    left outer join measurement as q on
+	    q.measure_unit_id=design_technology_dosage.measure_unit_id
+	    where reaction_design.user_id=#{userId} and reaction_design.type =0
+	    and reaction_design.execute = "true"
+	    order by reaction_design.reaction_design_id desc
+	</select>
+	<!-- 根据登录人获单一试验对象集合-->
+	<select id="getPrivateReactionByUserId" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_group_name,reaction_design.type,reaction_design.execute as execute1,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		project_basic_info.pro_id,project_basic_info.pro_name,sys_user.user_id as u1,sys_user.realname as r1
+		from reaction_design 
+		left outer join project_basic_info on
+		reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join sys_user on 
+		reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId}
+		and reaction_design.type =0
+	    and reaction_design.execute = "true"
+	</select>
+	<!-- 根据（团队负责人）登录人获单一试验对象集合-->
+	<select id="getPrivateReaction" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_group_name,reaction_design.type,reaction_design.execute as execute1,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		project_basic_info.pro_id,project_basic_info.pro_name,sys_user.user_id as u1,sys_user.realname as r1
+		from reaction_design 
+		left outer join project_basic_info on
+		reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join sys_user on 
+		reaction_design.user_id = sys_user.user_id
+		where reaction_design.type =0
+	    and reaction_design.execute = "true"
+	</select>
+	<!-- 根据登录人获组试验对象集合-->
+	<select id="getTeamReactionByUserId" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_group_name,reaction_design.type,reaction_design.execute as execute1,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		project_basic_info.pro_id,project_basic_info.pro_name,sys_user.user_id as u1,sys_user.realname as r1
+		from reaction_design 
+		left outer join project_basic_info on
+		reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join sys_user on 
+		reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId}
+		and reaction_design.type =1
+	    and reaction_design.execute = "true"
+	</select>
+	<!-- 根据（团队负责人）登录人获组试验对象集合-->
+	<select id="getTeamReaction" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,
+		reaction_group_name,reaction_design.type,reaction_design.execute as execute1,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,reaction.is_lock,
+		project_basic_info.pro_id,project_basic_info.pro_name,sys_user.user_id as u1,sys_user.realname as r1
+		from reaction_design 
+		left outer join project_basic_info on
+		reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join sys_user on 
+		reaction_design.user_id = sys_user.user_id
+		where reaction_design.type =1
+	    and reaction_design.execute = "true"
+	</select>
+	
+	 <!-- 根据试验设计ID分页获取设计工艺列表-->
+	<!--<select id="getTechnologyByreactionDesignId" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select  reaction_design.reaction_design_id,
+		reaction_design.type,reaction_design.reaction_group_name,
+		design_technology_relation.reaction_design_id,
+	    design_technology_relation.relation_id,design_technology_relation.technology_id,
+	    design_technology.technology_id,technology_namedesign_technology_process.process_id,
+	    design_technology_process.process_number,design_technology_process.technology_id,
+	    design_technology_process.process_name,design_technology_process.remark,
+	    design_technology_dosage.measure_unit_id,q.measure_unit_id as id6,q.measure_unit as u6,
+	    measure_resource,flag,design_technology_relation.relation_id,
+	    design_technology_relation.technology_id,design_technology_dosage.process_id,
+	    design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+	    design_technology_dosage.design_technology_dosage_id
+	    from reaction_design
+	    left outer join design_technology_relation on
+	    design_technology_relation.reaction_design_id=reaction_design.reaction_design_id
+	    left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+	    left outer join sys_user as m on
+	    reaction_design.user_id = m.user_id
+	    left outer join design_technology on
+	    design_technology.technology_id=design_technology_relation.technology_id
+	    left outer join design_technology_process on
+	    design_technology_process.technology_id=design_technology.technology_id
+	    left outer join design_technology_dosage on
+	    design_technology_process.process_id=design_technology_dosage.process_id
+	    left outer join measurement as q on
+	    q.measure_unit_id=design_technology_dosage.measure_unit_id
+	    where reaction_design.reaction_design_id=#{reactionDesignId}
+	</select> -->
+	<!-- 根据Type获取试验组名称 -->
+	<select id="getReactionGropNameByType" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design_id,reaction_group_name,type
+		from reaction_design
+		where type=#{type}
+	</select>
+
+	<!-- 项目试验保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ReactionDesign"
+		useGeneratedKeys="true" keyProperty="reactionDesignId">
+		insert into
+		reaction_design(
+		reaction_num,
+		reaction_group_name,
+		type,execute,
+		pre_start_time,
+		pre_end_time,
+		pro_id,
+		user_id,
+		creater,
+		create_date,
+		modifier,
+		modify_date)
+		value(
+		#{reactionNum},
+		#{reactionGroupName},
+		#{type},#{execute},
+		#{preStartTime},
+		#{preEndTime},
+		#{projectBasicInfo.proId},
+		#{sysUser.userId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+	
+	<!-- 非项目试验保存对象方法 -->
+	<insert id="saveNoProject" parameterType="com.labwinner.domain.ReactionDesign"
+		useGeneratedKeys="true" keyProperty="reactionDesignId">
+		insert into
+		reaction_design(
+		reaction_num,
+		reaction_group_name,
+		type,
+		execute,
+		pre_start_time,
+		pre_end_time,
+		pro_id,
+		user_id,
+		creater,
+		create_date,
+		modifier,
+		modify_date)
+		value(
+		#{reactionNum},
+		#{reactionGroupName},
+		#{type},
+		#{execute},
+		#{preStartTime},
+		#{preEndTime},
+		#{projectBasicInfo.proId},
+		#{sysUser.userId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+
+	<!-- 更新项目试验对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ReactionDesign">
+		update
+		reaction_design set
+		reaction_num=#{reactionNum},
+		reaction_group_name=#{reactionGroupName},
+		pre_start_time=#{preStartTime},
+		pre_end_time=#{preEndTime},
+		user_id=#{sysUser.userId},
+		pro_id=#{projectBasicInfo.proId},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where
+		reaction_design_id=#{reactionDesignId}
+
+	</update>
+	<!-- 更新非项目试验对象方法 -->
+	<update id="updateNoProject" parameterType="com.labwinner.domain.ReactionDesign">
+		update
+		reaction_design set
+		reaction_num=#{reactionNum},
+		reaction_group_name=#{reactionGroupName},
+		pre_start_time=#{preStartTime},
+		pre_end_time=#{preEndTime},
+		pro_id=#{projectBasicInfo.proId},
+		user_id=#{sysUser.userId},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where
+		reaction_design_id=#{reactionDesignId}
+
+	</update>
+	
+	<!-- 更新对象属性状态方法 -->
+	<update id="updateExecute" parameterType="com.labwinner.domain.ReactionDesign">
+		update
+		reaction_design set
+		execute=#{execute}
+		where
+		reaction_design_id=#{reactionDesignId}
+
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_design
+		where
+		reaction_design_id=#{reactionDesignId}
+	</delete>
+	
+	<!-- App实验设计sql -->
+	
+	<!--关键字 获取App我的实验设计 -->
+	<select id="getAppMyDesignsByKeyword" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId}
+		and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		and reaction_design.execute = "true" and reaction_design.type = 1
+		order by reaction_design_id desc
+	</select>
+	
+	<!--获取App我的实验设计 -->
+	<select id="getAppMyList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId} and reaction_design.type = 1
+		and reaction_design.execute = "true"
+		order by reaction_design_id desc
+	</select>
+	
+	<!--关键字 获取App我的单一实验设计 -->
+	<select id="getAppMySingleDesignsByKeyword" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select <include refid="singlecolumns" />
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		left outer join reaction on reaction_design.reaction_design_id = reaction.reaction_design_id
+		where reaction_design.user_id = #{userId}
+		and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if> 
+		 and reaction_design.type = 0
+		order by reaction_design_id desc
+	</select>
+	
+	<!--获取我的单一实验设计 -->
+	<select id="getAppMySingleList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="singlecolumns" />
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		left outer join reaction on reaction_design.reaction_design_id = reaction.reaction_design_id
+		where reaction_design.user_id = #{userId} and reaction_design.type =0
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if> 
+		order by reaction_design_id desc
+	</select>
+	<!--关键字 获取过滤无工艺App我的单一实验设计 -->
+	<select id="getNoTechnologyAppMySingleDesignsByKeyword" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,reaction_group_name,
+		pre_start_time,pre_end_time,reaction_design.execute as execute1,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name,reaction.reaction_id,
+		reaction.reaction_name as reaction_name2,reaction.is_lock,sys_user.user_id as u1,sys_user.realname as r1,
+		reaction_process.reaction_process_id,reaction_process.reaction_process,
+		reaction_process.process_name,reaction_process.process,reaction_process.start_time,reaction_process.end_time
+		from reaction_design
+	    left outer join sys_user on
+	    reaction_design.user_id = sys_user.user_id
+		left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join reaction_process on 
+		reaction_process.reaction_id = reaction.reaction_id
+		where reaction_design.pro_id in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+	<!-- 	and  reaction_design.reaction_group_name is not null -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if> 
+		and reaction_design.type = 0
+		union 
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,reaction_group_name,
+		pre_start_time,pre_end_time,reaction_design.execute as execute1,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name,reaction.reaction_id,
+		reaction.reaction_name as reaction_name2,reaction.is_lock,sys_user.user_id as u1,sys_user.realname as r1,
+		reaction_process.reaction_process_id,reaction_process.reaction_process,
+		reaction_process.process_name,reaction_process.process,reaction_process.start_time,reaction_process.end_time
+		from reaction_design
+	    left outer join sys_user on
+	    reaction_design.user_id = sys_user.user_id
+		left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join reaction_process on 
+		reaction_process.reaction_id = reaction.reaction_id
+		where reaction_design.user_id = #{userId}
+		and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+	<!-- 	and  reaction_design.reaction_group_name is not null -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if> 
+		 and reaction_design.type = 0
+		order by reaction_design_id desc
+	</select>
+	
+	<!--团队负责人关键字 获取过滤无工艺App我的单一实验设计 -->
+	<select id="getNoTechnologyAppMySingleDesignsByNoUserIdKeyword" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,reaction_group_name,
+		pre_start_time,pre_end_time,reaction_design.execute as execute1,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name,reaction.reaction_id,
+		reaction.reaction_name as reaction_name2,reaction.is_lock,sys_user.user_id as u1,sys_user.realname as r1,
+		reaction_process.reaction_process_id,reaction_process.reaction_process,
+		reaction_process.process_name,reaction_process.process,reaction_process.start_time,reaction_process.end_time
+		from reaction_design
+	    left outer join sys_user on
+	    reaction_design.user_id = sys_user.user_id
+		left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join reaction_process on 
+		reaction_process.reaction_id = reaction.reaction_id
+		where reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+   <!-- and  reaction_design.reaction_group_name is not null -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if> 
+		and reaction_design.type = 0
+	</select>
+	
+	<!--团队负责人获取我的单一实验设计过滤无工艺 -->
+	<select id="getNoTechnologyAppMySingleListByNoUserId" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,reaction_group_name,
+		pre_start_time,pre_end_time,reaction_design.execute as execute1,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name,reaction.reaction_id,reaction.reaction_name as reaction_name2,
+		reaction.is_lock,sys_user.user_id as u1,sys_user.realname as r1,
+		reaction_process.reaction_process_id,reaction_process.reaction_process,reaction_process.process_name,
+		reaction_process.process,reaction_process.start_time,reaction_process.end_time
+		from reaction_design
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join reaction_process on 
+		reaction_process.reaction_id = reaction.reaction_id
+		where reaction_design.type =0
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		and reaction_design.execute = "true"
+	</select>
+	<!--无关键字获取我的单一实验设计过滤无工艺 -->
+	<select id="getNoTechnologyAppMySingleList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,reaction_group_name,
+		pre_start_time,pre_end_time,reaction_design.execute as execute1,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name,reaction.reaction_id,
+		reaction.reaction_name as reaction_name2,reaction.is_lock,sys_user.user_id as u1,sys_user.realname as r1,
+		reaction_process.reaction_process_id,reaction_process.reaction_process,
+		reaction_process.process_name,reaction_process.process,reaction_process.start_time,reaction_process.end_time
+		from reaction_design
+	    left outer join sys_user on
+	    reaction_design.user_id = sys_user.user_id
+		left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join reaction_process on 
+		reaction_process.reaction_id = reaction.reaction_id
+		where reaction_design.pro_id in (select pro_id from project_number
+		where user_id =#{userId} and pro_role_id=1)
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if> 
+		and reaction_design.type = 0
+		union 
+		select reaction_design.reaction_design_id,reaction_design.reaction_num as num1,reaction_group_name,
+		pre_start_time,pre_end_time,reaction_design.execute as execute1,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name,reaction.reaction_id,
+		reaction.reaction_name as reaction_name2,reaction.is_lock,sys_user.user_id as u1,sys_user.realname as r1,
+		reaction_process.reaction_process_id,reaction_process.reaction_process,
+		reaction_process.process_name,reaction_process.process,reaction_process.start_time,reaction_process.end_time
+		from reaction_design
+	    left outer join sys_user on
+	    reaction_design.user_id = sys_user.user_id
+		left outer join project_basic_info on
+	    reaction_design.pro_id=project_basic_info.pro_id
+		left outer join reaction on 
+		reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join reaction_process on 
+		reaction_process.reaction_id = reaction.reaction_id
+		where reaction_design.user_id = #{userId}
+		and  reaction_design.reaction_group_name is not null
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if> 
+		 and reaction_design.type = 0
+		order by reaction_design_id desc
+	</select>
+	
+	<!-- 根据输入关键字获取团队实验对象 -->
+	<select id="getAppUserListByKeyword" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on
+		reaction_design.user_id = sys_user.user_id
+		where reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and reaction_design.execute = "true" and reaction_design.type = 1
+		and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		union 
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId}
+		and reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		and reaction_design.execute = "true" and reaction_design.type = 1
+		order by reaction_design_id desc
+	</select>
+	
+	<!-- 根据输入关键字获取对象 -->
+	<select id="getAppAllPageable" parameterType="String"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on
+		reaction_design.user_id = sys_user.user_id
+		where
+		reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		and reaction_design.execute = "true" and reaction_design.type = 1
+		order by reaction_design_id desc
+	</select>
+	
+	<select id="getAppUserList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and reaction_design.type = 1 and reaction_design.execute = "true"
+		union 
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId} and reaction_design.type = 1
+		and reaction_design.execute = "true"
+		order by reaction_design_id desc
+	</select>
+	
+	<select id="getAppAll" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on
+		reaction_design.user_id = sys_user.user_id
+		where reaction_design.type = 1 and reaction_design.execute = "true"
+		order by reaction_design_id desc
+	</select>
+	
+	<select id="getAppUserSingleByKeyword" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="singlecolumns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		left outer join reaction on reaction_design.reaction_design_id = reaction.reaction_design_id
+		where reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		and reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+	<!-- 	and  reaction_design.reaction_group_name is not null -->
+		and reaction_design.type = 0 
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if> 
+		union 
+		select <include refid="singlecolumns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		left outer join reaction on reaction_design.reaction_design_id = reaction.reaction_design_id
+		where reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		and reaction_design.user_id = #{userId} and reaction_design.type = 0
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if>
+		order by reaction_design_id desc
+	</select>
+	
+	<!-- 根据输入关键字获取对象 -->
+	<select id="getAppAllSinglePageable" parameterType="String"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select <include refid="singlecolumns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		left outer join reaction on reaction_design.reaction_design_id = reaction.reaction_design_id
+		where reaction_design.reaction_group_name LIKE concat('%',#{keyword},'%')
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if>
+		and reaction_design.type = 0
+		order by reaction_design_id desc
+	</select>
+	
+	<select id="getAppUserSingleList" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="singlecolumns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		left outer join reaction on reaction_design.reaction_design_id = reaction.reaction_design_id
+		where reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and reaction_design.type = 0
+		<!-- and  reaction_design.reaction_group_name is not null  -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if>
+		union 
+		select <include refid="singlecolumns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		left outer join reaction on reaction_design.reaction_design_id = reaction.reaction_design_id
+		where reaction_design.user_id = #{userId} and reaction_design.type = 0
+		<!-- and  reaction_design.reaction_group_name is not null  -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if>
+		order by reaction_design_id desc
+	</select>
+	
+	<!-- 根据输入关键字获取对象 -->
+	<select id="getAppAllSingle" resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select <include refid="singlecolumns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		left outer join reaction on reaction_design.reaction_design_id = reaction.reaction_design_id
+		where reaction_design.type = 0
+		<!-- and  reaction_design.reaction_group_name is not null -->
+		<if test="appType!=1">
+		and reaction_design.execute = "true"
+		</if>
+		order by reaction_design_id desc
+	</select>
+	
+	<!-- 根据主键获取单个设计对象 -->
+	<select id="getAppSingleDesignById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesign" resultMap="reactionDesignMap">
+		select reaction_design.reaction_design_id,,reaction_design.type,reaction_design.execute as execute1,
+		reaction_design.reaction_group_name,
+		project_basic_info.pro_id,project_basic_info.pro_name,h.user_id,h.realname,
+		reaction.reaction_id,reaction.reaction_name as reaction_name2,
+    	reaction_process.reaction_process_id,reaction_process.process_name,analytics.analytics_id,analytics.analytics_name
+		from reaction_design
+		left outer join project_basic_info on	reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user as h on reaction_design.user_id = h.user_id 
+		left outer join reaction on reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join reaction_process on reaction.reaction_id = reaction_process.reaction_id
+		left outer join analytics on analytics.reaction_id = reaction_process.reaction_id
+		where
+		reaction_design.reaction_design_id=#{id}
+	</select>
+
+	<!--获取我的实验设计 -->
+	<select id="getFirstMyDesigns" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId} 
+		order by reaction_design_id desc
+		limit 0,5
+	</select>
+	
+	<!-- 获取我的组实验所有对象列表 -->
+	<select id="getFirstTeamUserDesign" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		union 
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on reaction_design.user_id = sys_user.user_id
+		where reaction_design.user_id = #{userId}
+		order by reaction_design_id desc
+		limit 0,5
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getFirstTeamDesign" resultType="com.labwinner.domain.ReactionDesign"
+		resultMap="reactionDesignMap">
+		select <include refid="columns" /> 
+		from reaction_design
+		left outer join project_basic_info on reaction_design.pro_id=project_basic_info.pro_id
+		left outer join sys_user on
+		reaction_design.user_id = sys_user.user_id
+		order by reaction_design_id desc
+		limit 0,5
+	</select>
+	
+	<select id="getSingleNames" resultType="string" parameterType="map">
+		select reaction_group_name from reaction_design where type = 0
+	</select>
+	
+</mapper> 

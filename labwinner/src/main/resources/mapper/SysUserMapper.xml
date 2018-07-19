@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.SysUserDao">
+
+	<resultMap id="sysUserResultMap" type="com.labwinner.domain.SysUser">
+		<id property="userId" column="user_id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="realname" column="realname" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+		<result property="loginTime" column="lgin_time" />
+		<result property="lastLoginTime" column="last_login_time" />
+		<result property="loginTimes" column="login_times" />
+		<result property="createTime" column="create_time" />
+		<result property="remark" column="remark" />
+		<result property="userState" column="user_state" />
+		<result property="userImage" column="user_image" />
+		<result property="qq" column="qq" />
+		<result property="weixin" column="weixin" />
+		<result property="blog" column="blog" />
+		<result property="personalProfile" column="personal_profile" />
+		<result property="creater" column="creater" />
+		<result property="createDate" column="create_date" />
+		<result property="modifier" column="modifier" />
+		<result property="modifyDate" column="modify_date" />
+		<result property="latitudeLongitude" column="latitude_longitude" />
+		<association property="sysSigningAgency"
+			resultMap="com.labwinner.dao.SysSigningAgencyDao.sysSigningAgencyResultMap"></association>
+		<association property="sysRole"
+			resultMap="com.labwinner.dao.SysRoleDao.sysRoleResultMap"></association>
+			 <association property="expert" javaType="com.labwinner.domain.Expert">
+            <id property="expertId" column="expert_id"/>
+            <result property="expertNameCh" column="expert_name_ch"/>
+             <result property="expertNameEn" column="expert_name_en"/>
+       </association>
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="sysUserResultMap">
+		select sys_user.*,sys_signing_agency.agency_id,sys_signing_agency.user_name,sys_signing_agency.sys_sign_time,expert.expert_id,expert.expert_name_ch,expert.expert_name_en from sys_user 
+		left outer join expert on sys_user.expert_id=expert.expert_id
+		left outer join sys_signing_agency on sys_user.agency_id=sys_signing_agency.agency_id 
+		where user_state = 1
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="findByRoleId" resultType="Integer">
+		select count(*) from sys_user where role_id = #{roleId} and user_state = 1
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPhone" resultMap="sysUserResultMap">
+		select user_id,sys_user.phone from sys_user where user_state = 1
+	</select>
+
+	<!-- 获取所有消息联系人列表 -->
+	<select id="getContacter" resultMap="sysUserResultMap">
+		select
+		user_id,username,realname,email,phone,qq from sys_user where user_state = 1
+	</select>
+
+	<!-- 获取所有项目成员人列表 -->
+	<select id="getProList" resultType="com.labwinner.domain.SysUser" resultMap="sysUserResultMap">
+		select
+		user_id,username,realname from sys_user where user_state = 1
+	</select>
+	<!-- 获取所有成员用户名 -->
+	<select id="getUserName" resultType="com.labwinner.domain.SysUser" resultMap="sysUserResultMap">
+		select
+		user_id,username from sys_user where user_state = 1
+	</select>
+	
+	<!-- 获取项目负责人所有对象 -->
+	<select id="getProRoleAll" resultMap="sysUserResultMap">
+		select sys_user.user_id,sys_user.realname,sys_user.role_id from sys_user,sys_role
+		where sys_user.role_id=sys_role.role_id 
+        and sys_user.role_id=12  and sys_user.user_state = 1
+        union
+        select sys_user.user_id,sys_user.realname,sys_user.role_id from sys_user,sys_role
+		where sys_user.role_id=sys_role.role_id 
+        and sys_user.role_id=11 and sys_user.user_state = 1
+	</select>
+	
+		<!-- 获取所有成员用户名 -->
+	<select id="getByBasUser" resultType="com.labwinner.domain.SysUser" resultMap="sysUserResultMap">
+		select * from labwinner_base.base_user where user_id=#{userId} and agency_id=#{agencyId} 
+	</select>
+
+	<!-- 根据查询条件获取对象 -->
+	<select id="getAllPageable" resultMap="sysUserResultMap">
+		 select sys_user.*,expert.expert_id,expert.expert_name_ch,expert.expert_name_en from sys_user 
+		left outer join expert on sys_user.expert_id=expert.expert_id 
+		where user_state = 1 and username like
+		CONCAT('%',#{filter},'%') or realname like
+		CONCAT('%',#{filter},'%') or
+		phone like CONCAT('%',#{filter},'%') or
+		email like
+		CONCAT('%',#{filter},'%') or weixin like
+		CONCAT('%',#{filter},'%')
+	</select>
+	
+	<select id="getUser" resultType="com.labwinner.domain.SysUser"  resultMap="sysUserResultMap">
+		select a.user_id,a.realname,a.username from
+		 sys_user a where a.user_state = 1 and a.user_id in 
+		 (select b.user_id from sys_user_role b where role_id = #{roleId}
+		 union
+		  select c.user_id from project_number c where pro_id =#{proId} )
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Long" resultMap="sysUserResultMap">
+		select
+		sys_user.*,sys_signing_agency.agency_id,sys_signing_agency.user_name,sys_signing_agency.sys_sign_time,expert.expert_name_ch,expert.expert_name_en,
+		sys_user.role_id,sys_role.role_desc
+		from
+		sys_user
+		left outer join sys_signing_agency on
+		sys_user.agency_id=sys_signing_agency.agency_id 
+		left outer join sys_role on
+		sys_user.role_id=sys_role.role_id 
+		left outer join expert on sys_user.expert_id=expert.expert_id
+		where sys_user.user_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SysUser"
+		useGeneratedKeys="true" keyProperty="userId">
+		insert into
+		sys_user(username,
+		password, realname, phone, email,
+		login_time,
+		last_login_time,
+		login_times, create_time, remark,
+		user_state,
+		user_image, qq, weixin,
+		blog,
+		personal_profile, creater,
+		create_date,
+		modifier,
+		modify_date,
+		reserve_field1, reserve_field2,
+		reserve_field3,
+		reserve_field4,
+		reserve_field5, latitude_longitude,
+		agency_id,role_id,expert_id)
+		value(#{username},
+		#{password}, #{realname}, #{phone}, #{email},
+		#{loginTime},
+		#{lastLoginTime},
+		#{loginTimes}, #{createTime},
+		#{remark},
+		#{userState},
+		#{userImage},
+		#{qq}, #{weixin}, #{blog},
+		#{personalProfile},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate}, #{reserveField1},
+		#{reserveField2},
+		#{reserveField3},
+		#{reserveField4},
+		#{reserveField5},
+		#{latitudeLongitude},
+		#{sysSigningAgency.agencyId},
+		#{sysRole.roleId},
+		#{expert.expertId})
+	</insert>
+	<!-- 保存对象方法 -->
+	<insert id="saveNoImage" parameterType="com.labwinner.domain.SysUser"
+		useGeneratedKeys="true" keyProperty="userId">
+		insert into
+		sys_user(username,
+		password, realname, phone, email,
+		login_time,
+		last_login_time,
+		login_times, create_time, remark,
+		user_state,
+	    qq, weixin,
+		blog,
+		personal_profile, latitude_longitude,
+		agency_id,role_id,expert_id,create_date)
+		value(#{username},
+		#{password}, #{realname}, #{phone}, #{email},
+		#{loginTime},
+		#{lastLoginTime},
+		#{loginTimes}, #{createTime},
+		#{remark},
+		#{userState},
+		#{qq}, #{weixin}, #{blog},
+		#{personalProfile},
+		#{latitudeLongitude},
+		#{sysSigningAgency.agencyId},
+		#{sysRole.roleId},
+		#{expert.expertId},
+		#{createDate}
+		)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.SysUser">
+		update
+		sys_user set
+		username=#{username},
+		password=#{password},
+		realname=#{realname},
+		phone=#{phone},
+		email=#{email},
+		remark=#{remark},
+		user_state=#{userState},
+		user_image=#{userImage},
+		qq=#{qq},
+		weixin=#{weixin},
+		blog=#{blog},
+		personal_profile=#{personalProfile},
+		agency_id =#{sysSigningAgency.agencyId},
+		role_id = #{sysRole.roleId},
+		expert_id=#{expert.expertId}
+		where
+		user_id=#{userId}
+	 <!--  update
+	  sys_user 
+      <trim prefix="set" suffixOverrides=",">
+	  <if test="realname!=null">realname=#{realname},</if>
+	  <if test="phone!=null">phone=#{phone},</if>
+	  <if test="email!=null">email=#{email},</if>
+	  <if test="userImage!=null">user_image=#{userImage},</if>
+	  <if test="qq!=null">qq=#{qq},</if>
+	  <if test="weixin!=null">weixin=#{weixin},</if>
+	  <if test="blog!=null">blog=#{blog},</if>
+	  <if test="password!=null">password=#{password},</if>
+	  <if test="username!=null">username=#{username},</if>
+	  <if test="remark!=null">remark=#{remark},</if>
+	  <if test="userState!=null">user_state=#{userState},</if>
+	  <if test="personalProfile!=null">personal_profile=#{personalProfile},</if>
+	  <if test="sysSigningAgency.agencyId!=null">agency_id=#{sysSigningAgency.agencyId},</if>
+	  <if test="sysRole.roleId!=null">role_id=#{sysRole.roleId},</if>
+	  </trim>
+      where
+	  user_id=#{userId}	 -->
+	</update>
+	<!-- 更新对象方法 -->
+	<update id="updatePersonal" parameterType="com.labwinner.domain.SysUser">
+		update
+		sys_user set
+		username=#{username},
+		realname=#{realname},
+		phone=#{phone},
+		email=#{email},
+		user_image=#{userImage},
+		qq=#{qq},
+		weixin=#{weixin},
+		blog=#{blog},
+		personal_profile=#{personalProfile}
+		where
+		user_id=#{userId}
+	</update>
+	<!-- App个人设置方法 -->
+	<update id="updateAppPersonal" parameterType="com.labwinner.domain.SysUser">
+	  update
+	  sys_user 
+      <trim prefix="set" suffixOverrides=",">
+	  <if test="realname!=null">realname=#{realname},</if>
+	  <if test="phone!=null">phone=#{phone},</if>
+	  <if test="email!=null">email=#{email},</if>
+	  <if test="userImage!=null">user_image=#{userImage},</if>
+	  <if test="qq!=null">qq=#{qq},</if>
+	  <if test="weixin!=null">weixin=#{weixin},</if>
+	  <if test="blog!=null">blog=#{blog},</if>
+	  </trim>
+      where
+	  user_id=#{userId}	
+	</update>
+	
+	<!-- 更新对象状态方法 -->
+	<update id="updateState" parameterType="com.labwinner.domain.SysUser">
+		update
+		sys_user set
+		user_state=#{userState}
+		where
+		user_id=#{userId}
+	</update>
+	
+	<!-- 更新密码方法 -->
+	<update id="updatePassWord" parameterType="com.labwinner.domain.SysUser">
+		update
+		sys_user set
+		password=#{password}
+		where
+		user_id=#{userId}
+	</update>
+	<!-- 更新App密码方法 -->
+	<update id="updateAppPassWord" parameterType="com.labwinner.domain.SysUser">
+		update
+		sys_user set
+		password=#{password}
+		where
+		user_id=#{userId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Long">
+		delete from sys_user where
+		user_id=#{userId}
+	</delete>
+
+	<!-- 根据用户名获取用户对象列表 -->
+	<select id="getByUsername" resultMap="sysUserResultMap">
+		select sys_user.*,sys_role.* from
+		sys_user,sys_role where
+		sys_user.role_id = sys_role.role_id
+		and sys_user.user_state = 1
+		and (username=#{username} or phone=#{username} )
+	</select>
+	
+	<!-- 根据用户名获取用户对象列表 -->
+	<select id="getUsers" resultMap="sysUserResultMap">
+		select sys_user.*,sys_role.* from
+		sys_user,sys_role where
+		sys_user.role_id = sys_role.role_id
+		and sys_user.user_state = 1
+		and sys_role.role_name = #{roleName} order by sys_user.user_id
+	</select>
+
+	<!-- 根据用户名和密码获取用户对象列表 -->
+	<select id="getByUsernameAndPassword" resultMap="sysUserResultMap">
+		select * from
+		sys_user where username=#{username} and password=#{password} and user_state = 1
+	</select>
+	
+		<!-- 根据专家Id获取对应的用户 -->
+	<select id="getByExpertId" resultMap="sysUserResultMap">
+		select * from
+		labwinner_base.base_user where expert_id=#{expertId} 
+	</select>
+			<!-- 根据专家Id获取对应的用户 -->
+	<select id="getExpertUser" resultMap="sysUserResultMap">
+		select * from
+		sys_user where expert_id=#{expertId} and user_state = 1
+	</select>
+	
+	<!-- 根据用户名获取用户对象列表 -->
+	<select id="getByKeyword" resultMap="sysUserResultMap">
+		select sys_user.*,sys_role.* from
+		sys_user,sys_role where
+		sys_user.role_id = sys_role.role_id
+		and sys_user.user_state = 1
+		and realname like
+		CONCAT('%',#{username},'%')
+	</select>
+
+	
+	
+		<!-- 根据用户名获取用户对象列表 -->
+	<select id="getByNameOrPho" resultMap="sysUserResultMap">
+		select sys_user.*,sys_role.* from
+		sys_user,sys_role where
+		sys_user.role_id = sys_role.role_id
+		and user_state = 1
+		and username=#{username}
+		or phone=#{username}
+	</select>
+		
+		<!-- 根据用户名获取用户对象列表 -->
+	<select id="getTeamUsers" resultMap="sysUserResultMap">
+		     select * from sys_user ,sys_role 
+      where sys_user.role_id=sys_role.role_id
+      and role_name='ROLE_TEAM'
+      and user_state = 1
+	</select>
+	
+		<select id="getAllUser" resultType="java.lang.Integer">
+		     select count(*) from sys_user ,sys_role 
+      where sys_user.role_id=sys_role.role_id
+      and role_name<![CDATA[ <>  ]]>'ROLE_TEAM'
+      and user_state = 1
+	</select>
+	
+
+</mapper> 

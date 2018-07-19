@@ -1,0 +1,830 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.MessageDao">
+
+<resultMap id="messageMap" type="com.labwinner.domain.Message">
+        <id column="message_id" property="messageId" />
+        <result column="message_title" property="messageTitle" />
+        <result column="message_date" property="messageDate" />
+        <result column="message_icon" property="messageIcon" />
+        <result column="sender_date" property="senderDate" />
+        <result column="message_content" property="messageContent" />
+         <result column="flag" property="flag" />
+        <result column="creater" property="creater" />
+		<result column="create_date" property="createDate" />
+		<result column="modifier" property="modifier" />
+		<result column="modify_date" property="modifyDate" />
+        <result column="buss_id" property="bussId" />
+		<result column="agency_id" property="agencyId" />
+		
+		<association property="msgType" javaType="com.labwinner.domain.MsgType">
+			<id column="msg_type_id" property="msgTypeId" />
+       		<result column="msg_type" property="msgType" />
+		</association>
+		  <association property="msgDetailtype" javaType="com.labwinner.domain.MsgDetailtype">
+			<id column="msg_detailtype_id" property="msgDetailtypeId" />
+       		<result column="msg_detailtype" property="msgDetailtype" />
+		</association>
+		
+		
+		
+		<association property="priority" javaType="com.labwinner.domain.Priority">
+			 <id column="priority_id" property="priorityId" />
+        	 <result column="priority_level" property="priorityLevel" />
+		</association>
+		
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id1" />
+			<result property="realname" column="realname1" />
+			<result property="username" column="username1" />
+			<result property="email" column="email1" />
+			<result property="userImage" column="user_image1" />
+		</association>
+        
+        <collection property="attachments" ofType="com.labwinner.domain.Attachment">
+			<id column="attachment_id" property="attachmentId" />
+			<result column="attachment_name" property="attachmentName" />
+			<result column="attachment_content" property="attachmentContent" />
+			<result property="conversionCount" column="conversion_count" />
+			<result property="pdfCount" column="pdf_count" />
+			<result property="pdfUrl" column="pdf_url" />
+		</collection>  
+		
+		 <collection property="messageRecipientses" ofType="com.labwinner.domain.MessageRecipients">
+			<id column="msg_recipients_id" property="msgRecipientsId" />
+			<result column="flag" property="flag" />
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id2" />
+			<result property="realname" column="realname2" />
+			<result property="username" column="username2" />
+			<result property="email" column="email2" />
+			<result property="userImage" column="user_image2" />
+		</association>
+		<association property="msgState" javaType="com.labwinner.domain.MsgState">
+			 <id column="msg_id" property="msgId" />
+        	 <result column="msg_state" property="msgState" />
+		</association>
+		</collection>          
+       
+ </resultMap>
+ 
+ 	<sql id="columns">message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1
+	</sql>
+
+<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select * from message
+	</select>
+	
+    <!-- 获取所有对象列表 -->
+	<select id="getAllByDay" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select
+		message.message_id,message.message_title,sender_date,message.message_icon,message.message_content,
+		message.flag,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+ 	    b.user_id as user_id2,b.username as username2,b.realname as realname2,b.user_image as user_image2,
+ 	    message_recipients.msg_recipients_id
+		from message 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		WHERE DATE_FORMAT(sender_date,'%Y-%m-%d')=DATE_FORMAT(#{date},'%Y-%m-%d') and
+		message.msg_detailtype_id=2
+		order by sender_date desc
+		
+	</select>
+	
+	
+	<!-- 根据用户获取收到的日报对象-->
+	<select id="getMessageByUserId" resultType="com.labwinner.domain.Message"
+		resultMap="messageMap">
+		select
+		message.message_id,message.message_title,sender_date,message.message_icon,message.message_content,attachment.*,
+		message.flag,message.msg_detailtype_id,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+		b.user_id as user_id2,b.username as username2,b.realname as realname2,b.user_image as user_image2,
+		a.user_id as user_id1,a.username as username1,a.realname as realname1,a.user_image as user_image1,
+ 	    message_recipients.msg_recipients_id,message_recipients.flag,message_recipients.msg_id
+		from message 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a  on message.user_id = a.user_id
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join attachment on message.message_id = attachment.message_id
+		left outer join sys_user b on message_recipients.user_id =b.user_id
+		WHERE message_recipients.user_id=#{userId} and message_recipients.flag=0 and
+		message.msg_detailtype_id=2
+		order by sender_date desc
+	</select>
+	
+	<!-- 根据用户获取发出的日报对象-->
+	<select id="getMessageGiveByUserId" resultType="com.labwinner.domain.Message"
+		resultMap="messageMap">
+		select
+		message.message_id,message.message_title,sender_date,message.message_icon,message.message_content,attachment.*,
+		message.flag,message.msg_detailtype_id,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+		b.user_id as user_id2,b.username as username2,b.realname as realname2,b.user_image as user_image2,
+		a.user_id as user_id1,a.username as username1,a.realname as realname1,a.user_image as user_image1,
+ 	    message_recipients.msg_recipients_id,message_recipients.flag,message_recipients.msg_id
+		from message 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a  on message.user_id = a.user_id
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join attachment on message.message_id = attachment.message_id
+		left outer join sys_user b on message_recipients.user_id =b.user_id
+		WHERE message.user_id=#{userId} and message.flag=0 and
+		message.msg_detailtype_id=2
+		order by sender_date desc
+	</select>
+	
+	<!-- 根据用户获取收到的周报对象-->
+	<select id="getMessageWeekByUserId" resultType="com.labwinner.domain.Message"
+		resultMap="messageMap">
+		select
+		message.message_id,message.message_title,sender_date,message.message_icon,message.message_content,attachment.*,
+		message.flag,message.msg_detailtype_id,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+		b.user_id as user_id2,b.username as username2,b.realname as realname2,b.user_image as user_image2,
+		a.user_id as user_id1,a.username as username1,a.realname as realname1,a.user_image as user_image1,
+ 	    message_recipients.msg_recipients_id,message_recipients.flag,message_recipients.msg_id
+		from message 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a  on message.user_id = a.user_id
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join attachment on message.message_id = attachment.message_id
+		left outer join sys_user b on message_recipients.user_id =b.user_id
+		WHERE message_recipients.user_id=#{userId} and message_recipients.flag=0 and
+		message.msg_detailtype_id=3
+		order by sender_date desc
+	</select>
+	
+	<!-- 根据用户获取发出的周报对象-->
+	<select id="getMessageWeekGiveByUserId" resultType="com.labwinner.domain.Message"
+		resultMap="messageMap">
+		select
+		message.message_id,message.message_title,sender_date,message.message_icon,message.message_content,attachment.*,
+		message.flag,message.msg_detailtype_id,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+		b.user_id as user_id2,b.username as username2,b.realname as realname2,b.user_image as user_image2,
+		a.user_id as user_id1,a.username as username1,a.realname as realname1,a.user_image as user_image1,
+ 	    message_recipients.msg_recipients_id,message_recipients.flag,message_recipients.msg_id
+		from message 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a  on message.user_id = a.user_id
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join attachment on message.message_id = attachment.message_id
+		left outer join sys_user b on message_recipients.user_id =b.user_id
+		WHERE message.user_id=#{userId} and message.flag=0 and
+		message.msg_detailtype_id=3
+		order by sender_date desc
+	</select>
+	
+	  <!-- 根据日期和查看类型获取所有对象列表 -->
+	<select id="getAllByDayAndType" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select
+		message.message_id,message.message_title,sender_date,message.message_icon,message.message_content,attachment.*,
+		message.flag,message.msg_detailtype_id,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+		b.user_id as user_id2,b.username as username2,b.realname as realname2,b.user_image as user_image2,
+		a.user_id as user_id1,a.username as username1,a.realname as realname1,a.user_image as user_image1,
+ 	    message_recipients.msg_recipients_id,message_recipients.msg_id
+		from message 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a  on message.user_id = a.user_id
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join attachment on message.message_id = attachment.message_id
+		left outer join sys_user b on message_recipients.user_id =b.user_id
+		WHERE message.msg_detailtype_id=2 order by sender_date desc
+	</select>
+	
+	
+	<!-- 获取接受列为1，3，4 -->
+	<select id="getAppMessages" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+ 	message_recipients.msg_recipients_id,msg_state.msg_id,msg_state.msg_state
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where b.user_id = #{userId} 
+		and message_recipients.flag = 0
+		order by message.sender_date desc LIMIT 0,5
+	</select>
+	
+	<!-- 获取接受列为1，3，4 -->
+	<select id="getTotalUnread" resultType="Integer">
+		select count(message.message_id)
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message_recipients.msg_id = 1
+		and b.user_id = #{userId} 
+		and message.msg_type_id = #{typeId}
+		and message_recipients.flag = 0
+	</select>
+	
+	<!-- 日报周报，未读 -->
+	<select id="getDailyOrWeekUnread" resultType="Integer">
+		select count(message.message_id)
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message_recipients.msg_id = 1
+		and b.user_id = #{userId} 
+		and message.msg_detailtype_id = #{detailId}
+		and message_recipients.flag = 0
+	</select>
+	
+	<!-- 获取详情Type为2 -->
+	<select id="getById" resultType="com.labwinner.domain.Message" parameterType="Integer" resultMap="messageMap">
+		select message.*, msg_type.*,msg_state.*,priority.*,attachment.*,message_recipients.*,
+		a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+		b.user_id as user_id2,b.username as username2,b.realname as realname2,b.email as email2,b.user_image as user_image2
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join priority on message.priority_id = priority.priority_id
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join attachment on message.message_id = attachment.message_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message.message_id = #{id} 
+	</select>
+	
+	<!-- 获取详情Type为1，3，4 -->
+	<select id="getByReceiverId" resultType="com.labwinner.domain.Message" parameterType="Integer" resultMap="messageMap">
+		select message.*, msg_type.*,msg_state.*,priority.*,attachment.*,message_recipients.*,
+		a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+		b.user_id as user_id2,b.username as username2,b.realname as realname2,b.email as email2,b.user_image as user_image2
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join priority on message.priority_id = priority.priority_id
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join attachment on message.message_id = attachment.message_id
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message.message_id = #{id}
+		and b.user_id = #{userId} 
+	</select>
+	
+	<!-- 关键字查询 -->
+	<select id="getByKeyword" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select  messages.* from (
+			select 
+			message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+ 	message_recipients.msg_recipients_id,msg_state.msg_id,msg_state.msg_state
+			from message 
+			left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+				left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+			left outer join priority on message.priority_id = priority.priority_id
+			left outer join sys_user a on message.user_id = a.user_id 
+			left outer join message_recipients on message.message_id = message_recipients.message_id
+			left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+			left outer join sys_user b  on message_recipients.user_id = b.user_id
+			where message.message_title LIKE  CONCAT('%',#{keyword},'%') 
+			and b.user_id = #{userId}
+			and message_recipients.flag = 0
+			UNION ALL
+			select 
+			message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+ 	message_recipients.msg_recipients_id,msg_state.msg_id,msg_state.msg_state
+			from message 
+			left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+				left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+			left outer join priority on message.priority_id = priority.priority_id
+			left outer join sys_user a on message.user_id = a.user_id 
+			left outer join message_recipients on message.message_id = message_recipients.message_id
+			left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+			left outer join sys_user b  on message_recipients.user_id = b.user_id
+			where message.message_title LIKE CONCAT('%',#{keyword},'%')
+			and a.user_id = #{userId}
+			and message.flag = 0
+		) as messages
+		order by messages.sender_date desc LIMIT #{size}
+	</select>
+	
+	
+	<!-- 安卓关键字查询 -->
+	<select id="getByKeywords" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select  messages.* from (
+			select 
+			message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+ 	message_recipients.msg_recipients_id,msg_state.msg_id,msg_state.msg_state
+			from message 
+			left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+			left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+			left outer join priority on message.priority_id = priority.priority_id
+			left outer join sys_user a on message.user_id = a.user_id 
+			left outer join message_recipients on message.message_id = message_recipients.message_id
+			left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+			left outer join sys_user b  on message_recipients.user_id = b.user_id
+			where message.message_title LIKE  CONCAT('%',#{keyword},'%') 
+			and b.user_id = #{userId}
+			and message_recipients.flag = 0
+			UNION ALL
+			select 
+			message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+ 	message_recipients.msg_recipients_id,msg_state.msg_id,msg_state.msg_state
+			from message 
+			left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+			left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		    left outer join msg_state on message.msg_id = msg_state.msg_id
+			left outer join priority on message.priority_id = priority.priority_id
+			left outer join sys_user a on message.user_id = a.user_id 
+			where message.message_title LIKE CONCAT('%',#{keyword},'%')
+			and a.user_id = #{userId}
+			and message.flag = 0
+		) as messages
+		order by messages.sender_date desc
+	</select>
+	
+	<!-- 获取发送列为2 -->
+	<select id="getSenders" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		<!-- left outer join priority on message.priority_id = priority.priority_id -->
+		left outer join sys_user a on message.user_id = a.user_id 
+		where message.msg_type_id = #{typeId} 
+		and a.user_id = #{userId} 
+		and message.flag = 0
+		order by message.sender_date desc LIMIT #{size}
+	</select>
+	
+	<!-- web获取发送列为2 -->
+	<select id="getWebSenders" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		<!-- left outer join priority on message.priority_id = priority.priority_id -->
+		left outer join sys_user a on message.user_id = a.user_id 
+		where message.msg_type_id = #{typeId} 
+		and a.user_id = #{userId} 
+		and message.flag = 0
+		order by message.sender_date desc
+	</select>
+	
+	<!-- web获取接受列为1，3，4 -->
+	<select id="getWebReceivers" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+ 	message_recipients.msg_recipients_id,msg_state.msg_id,msg_state.msg_state
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message.msg_type_id = #{typeId} 
+		and b.user_id = #{userId} 
+		and message_recipients.flag = 0
+		order by message.sender_date desc
+	</select>
+	
+	<select id="getSendersByKeyword" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		<!-- left outer join priority on message.priority_id = priority.priority_id -->
+		left outer join sys_user a on message.user_id = a.user_id 
+		where message.msg_type_id = #{typeId} 
+		and a.user_id = #{userId} 
+		and message.message_title LIKE CONCAT('%',#{keyword},'%')
+		and message.flag = 0
+		order by message.sender_date desc 
+	</select>
+	
+	<select id="getUserMessage" resultType="java.util.Map" >
+			select a1.* from (select message.message_id  ,message_title ,sender_date ,
+	 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id  ,msg_state.msg_state,
+	 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1
+	  from message 
+			left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+			left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+			left outer join sys_user a on message.user_id = a.user_id 
+			left outer join message_recipients on message.message_id = message_recipients.message_id
+			left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+			left outer join sys_user b  on message_recipients.user_id = b.user_id
+			where message.msg_detailtype_id =1
+			and b.user_id = #{userId} 
+			and message_recipients.flag = 0 
+			and message_recipients.msg_delete is null 
+			order by message.sender_date desc) a1,
+	    (select max(message.sender_date) as sender_date,message.user_id from message
+	    left outer join message_recipients on message.message_id = message_recipients.message_id
+	    where message.msg_detailtype_id =1 and message_recipients.user_id=#{userId} 
+	    and message_recipients.msg_delete is null 
+	    group by message.user_id) a2
+	    where a1.user_id1=a2.user_id
+	    and a1.sender_date=a2.sender_date
+	</select>
+	<select id="getNoteMessage" resultType="java.util.Map" >
+		select message.message_id  ,message_title ,sender_date ,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id  ,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1
+  from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message.msg_detailtype_id =#{type}
+			<!-- and date_sub(curdate(), INTERVAL 7 DAY) &lt;= date(message.sender_date)-->
+		and b.user_id = #{userId} 
+		and message_recipients.flag = 0 
+		and message_recipients.msg_delete is null
+		order by message.sender_date desc  
+	</select>
+	
+	<select id="getMarketMessage" resultType="java.util.Map" >
+		select message.message_id  ,message_title ,sender_date ,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id  ,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.user_image as user_image1
+  from labwinner_base.message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join labwinner_base.base_user a on message.user_id = a.user_id and message.agency_id=a.agency_id
+		left outer join  labwinner_base.message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join  labwinner_base.base_user b  on message_recipients.user_id = b.user_id and message_recipients.agency_id=b.agency_id
+		where message.msg_detailtype_id =#{type}
+		and b.user_id = #{userId} 
+		and b.agency_id=#{agencyId}
+		and message_recipients.flag = 0 
+		and message_recipients.msg_delete is null
+		order by message.sender_date desc  
+	</select>
+	
+	<select id="getMarketMessageList" resultType="java.util.Map" >
+	  select g.* from 
+   ( select c.realname as realname1,c.user_image,c.agency_id,b.sender_date ,b.buss_id ,b.message_title, 
+   msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id  ,msg_state.msg_state
+   from labwinner_base.message_recipients a 
+    left outer join labwinner_base.message b on a.message_id=b.message_id
+    left outer join labwinner_base.base_user c on b.user_id=c.user_id and  b.agency_id=c.agency_id 
+    left outer join msg_detailtype on b.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+    	left outer join msg_state on a.msg_id = msg_state.msg_id
+    	left outer join msg_type on b.msg_type_id = msg_type.msg_type_id 
+    ) g,
+    (     select max(sender_date) as sender_date,buss_id from labwinner_base.message d 
+    left outer join labwinner_base.message_recipients e on d.message_id=e.message_id 
+    where e.user_id=#{userId} and e.agency_id=#{agencyId} and d.msg_detailtype_id=#{msgDetailtypeId} 
+    and (e.msg_delete is null or e.msg_delete=1)
+    group by buss_id )f
+   where g.sender_date=f.sender_date
+   and g.buss_id=f.buss_id
+     order by sender_date desc
+	</select>
+	
+	
+	<select id="getMessageList" resultType="java.util.Map" >
+		select message.message_id  ,message_title ,sender_date ,buss_id,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id  ,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1
+  from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message.msg_detailtype_id =#{msgDetailtypeId}
+		and b.user_id = #{userId} 
+		and message_recipients.flag = 0 
+		and (message_recipients.msg_delete is null or message_recipients.msg_delete=1)
+		order by message.sender_date desc 
+	</select>
+	
+	<select id="getUserMessageList" resultType="java.util.Map" >
+		select message.message_id  ,message_title ,sender_date ,buss_id,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id  ,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1
+  from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message.msg_detailtype_id =#{msgDetailtypeId}
+		and a.user_id=#{userId}
+		and b.user_id = #{loginUserId} 
+		and message_recipients.flag = 0 
+		and (message_recipients.msg_delete is null or message_recipients.msg_delete=1)
+		order by message.sender_date desc 
+	</select>
+	
+	
+	
+	<!-- 获取接受列为1，3，4 -->
+	<select id="getReceivers" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+ 	message_recipients.msg_recipients_id,msg_state.msg_id,msg_state.msg_state
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		
+		<!-- left outer join priority on message.priority_id = priority.priority_id -->
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message.msg_type_id = #{typeId} 
+		and b.user_id = #{userId} 
+		and message_recipients.flag = 0
+		order by message.sender_date desc LIMIT #{size}
+	</select>
+	
+	<!-- 获取接受列为1，3，4 -->
+	<select id="getReceiversByKeyword" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select message.message_id,message_title,sender_date,message_content,
+ 	msg_type.msg_type_id,msg_type.msg_Type,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,msg_state.msg_id,msg_state.msg_state,
+ 	a.user_id as user_id1,a.username as username1,a.realname as realname1,a.email as email1,a.user_image as user_image1,
+ 	message_recipients.msg_recipients_id,msg_state.msg_id,msg_state.msg_state
+		from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		
+		<!-- left outer join priority on message.priority_id = priority.priority_id -->
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message.msg_type_id = #{typeId} 
+		and b.user_id = #{userId} 
+		and message.message_title LIKE CONCAT('%',#{keyword},'%')
+		and message_recipients.flag = 0
+		order by message.sender_date desc 
+	</select>
+	
+	<select id="getRecentContacter" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select DISTINCT b.user_id as user_id2,b.username as username2,b.realname as realname2,b.email as email2,b.user_image as user_image2 
+    	from message_recipients,sys_user b
+    	where message_recipients.user_id = b.user_id
+    	and message_id in (
+   		select message_id from message where msg_type_id =1 
+		and user_id =#{userId} and flag = 0 
+ 	  	order by sender_date desc)
+    	and message_recipients.flag =0
+    	limit 10
+	</select>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from message where
+		message_id=#{id}
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.Message"
+		useGeneratedKeys="true" keyProperty="messageId">
+		insert into
+		message
+		(message_title,message_date,message_icon,sender_date,message_content,
+		msg_type_id,msg_detailtype_id,priority_id,user_id,flag,
+		creater,create_date, modifier,modify_date,buss_id)
+		value(
+		#{messageTitle},
+		#{messageDate},
+		#{messageIcon},
+		#{senderDate},
+		#{messageContent},
+		#{msgType.msgTypeId},
+		#{msgDetailtype.msgDetailtypeId},
+		#{priority.priorityId},
+		#{sysUser.userId},
+		#{flag},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate},
+		#{bussId})
+	</insert>
+	
+	<insert id="saveBase" parameterType="com.labwinner.domain.Message"
+		useGeneratedKeys="true" keyProperty="messageId">
+		insert into
+		labwinner_base.message
+		(message_title,message_date,message_icon,sender_date,message_content,
+		msg_type_id,msg_detailtype_id,priority_id,user_id,agency_id,flag,
+		creater,create_date, modifier,modify_date,buss_id)
+		value(
+		#{messageTitle},
+		#{messageDate},
+		#{messageIcon},
+		#{senderDate},
+		#{messageContent},
+		#{msgType.msgTypeId},
+		#{msgDetailtype.msgDetailtypeId},
+		#{priority.priorityId},
+		#{sysUser.userId},
+		#{agencyId},
+		#{flag},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate},
+		#{bussId})
+	</insert>
+	
+	
+	<update id="update" parameterType="com.labwinner.domain.Message">
+	update message 
+		set
+		message_title = #{messageTitle},
+		message_date=#{messageDate},
+		message_icon=#{messageIcon},
+		sender_date=#{senderDate},
+		message_content=#{messageContent},
+		msg_type_id=#{msgType.msgTypeId},
+		msg_detailtype_id=#{msgDetailtype.msgDetailtypeId},
+		priority_id=#{priority.priorityId},
+		user_id=#{sysUser.userId},
+		creater=#{creater}, 
+		create_date=#{createDate}, 
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where 
+		message_id=#{messageId}
+	</update>
+	
+	<update id="updateState" parameterType="com.labwinner.domain.Message">
+	update message 
+		set
+		msg_id=#{msgState.msgId}
+		where 
+		message_id=#{messageId}
+	</update>
+	
+	<update id="updateMessageByDelete" parameterType="com.labwinner.domain.Message">
+	update message 
+		set
+		flag=#{flag}
+		where 
+		message_id=#{id}
+	</update>
+	
+	<update id="updateList" >
+	    update message_recipients set msg_delete=1 where msg_recipients_id in ( select * from(select  a.msg_recipients_id from message_recipients a
+    left outer join message b on a.message_id=b.message_id
+    where b.msg_detailtype_id=#{msgDetailtypeId}
+    and a.user_id=#{userId} )temp)
+	</update>
+	
+	<update id="updateMarketList" >
+	    update labwinner_base.message_recipients set msg_delete=1 where msg_recipients_id in ( select * from(select  a.msg_recipients_id from labwinner_base.message_recipients a
+    left outer join labwinner_base.message b on a.message_id=b.message_id
+    where b.msg_detailtype_id=#{msgDetailtypeId}
+    and a.user_id=#{userId} 
+    and a.agency_id=#{agencyId})temp)
+	</update>
+	
+	<update id="updateMarket" >
+	    update labwinner_base.message_recipients set msg_delete=2 
+    where message=#{id}
+    and user_id=#{userId} 
+    and agency_id=#{agencyId}
+	</update>
+	
+	
+	
+		<update id="updateMessageForDelete" >
+	    update message_recipients set msg_delete=2 where message_id=#{id} and user_id=#{userId}
+	</update>
+	
+		<update id="updateReviceMessage" >
+	    update message_recipients set msg_delete=1 where message_id=#{id} and user_id=#{userId}
+	</update>
+	
+	
+	
+		<select id="getAppoint" resultType="java.util.Map">
+		 select
+           device.device_name,device_appointment.start_date,device_appointment.end_date,reaction.reaction_name,reaction_design.reaction_group_name
+           from
+		   device_appointment
+       	   left outer join device on device_appointment.device_id=device.device_id
+		   left outer join reaction on  device_appointment.reaction_id=reaction.reaction_id
+           left outer join reaction_design on reaction_design.reaction_design_id=reaction.reaction_design_id
+	       where appointment_id=#{bussId}
+	</select>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteBase" parameterType="Integer">
+		delete from labwinner_base.message where
+		message_id=#{messageId}
+	</delete>
+	
+	
+
+	
+	<select id="getMessageUnread" resultType="Integer">
+	select count(*) from message_recipients ,message 
+    where message.message_id=message_recipients.message_id 
+    and message.msg_detailtype_id in (1,2,3,6,7,8,9,10)
+    and message_recipients.user_id=#{userId} and message_recipients.msg_id=1 and msg_delete is null
+    and  message_recipients.flag =0
+	</select>
+	
+	<select id="getBaseMessageUnread" resultType="Integer">
+	select count(*) from labwinner_base.message_recipients ,labwinner_base.message 
+    where message.message_id=message_recipients.message_id
+     and message_recipients.user_id=#{userId} and message_recipients.agency_id=#{agencyId} and message_recipients.msg_id=1 and msg_delete is null
+	</select>
+	
+	
+	<select id="getUserMessageNum" resultType="java.lang.Integer" >
+		select count(*) as count
+  from message 
+		left outer join msg_type on message.msg_type_id = msg_type.msg_type_id 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a on message.user_id = a.user_id 
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join msg_state on message_recipients.msg_id = msg_state.msg_id
+		left outer join sys_user b  on message_recipients.user_id = b.user_id
+		where message.msg_detailtype_id =#{detailTypeId}
+		and a.user_id=#{userId}
+		and b.user_id = #{loginUserId} 
+		and message_recipients.flag = 0 
+		and message_recipients.msg_id=1
+		and (message_recipients.msg_delete is null or message_recipients.msg_delete=1)
+		order by message.sender_date desc 
+	</select>
+	
+	<select id="getDayPaperByUser" resultType="Integer" parameterType="map">
+		select message.message_id from message, message_recipients
+		 where message.message_id = message_recipients.message_id
+		 and message.user_id = #{userId} and msg_detailtype_id = 2
+		 and message_recipients.user_id = #{logInUserId}
+		 and message_recipients.flag = 0
+		order by sender_date desc
+	</select>
+	
+	<select id="getMySendDayPaper" resultType="Integer" parameterType="map">
+		select message_id from message
+		where user_id = #{userId}
+		and msg_detailtype_id = 2 and flag = 0
+		order by sender_date desc
+	</select>
+	
+	<select id="getWeekDayPaperByUser" resultType="Integer" parameterType="map">
+		select message.message_id from message, message_recipients
+		 where message.message_id = message_recipients.message_id
+		 and message.user_id = #{userId} and msg_detailtype_id = 3
+		 and message_recipients.user_id = #{logInUserId}
+		 and message_recipients.flag = 0
+		order by sender_date desc
+	</select>
+	
+	<select id="getWeekMySendDayPaper" resultType="Integer" parameterType="map">
+		select message_id from message
+		where user_id = #{userId}
+		and msg_detailtype_id = 3 and flag = 0
+		order by sender_date desc
+	</select>
+	
+	<select id="getAllMessages" resultType="com.labwinner.domain.Message" resultMap="messageMap">
+		select message.* from message, message_recipients
+		 where message.message_id = message_recipients.message_id
+		 and message.user_id = #{userId} and msg_detailtype_id = 2
+		 and message_recipients.user_id = #{logInUserId}
+		 and message_recipients.flag = 0
+		order by sender_date desc
+	</select>
+	
+	
+	
+</mapper>

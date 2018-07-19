@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.PriorityDao">
+
+<resultMap id="priorityMap" type="com.labwinner.domain.Priority">
+        <id column="priority_id" property="priorityId" />
+        <result column="priority_level" property="priorityLevel" />
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Priority" resultMap="priorityMap">
+		select * from priority
+	</select>
+</mapper>

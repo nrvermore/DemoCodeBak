@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.DeviceDao">
+   
+   <resultMap id="deviceMap" type="com.labwinner.domain.Device">
+        <id column="device_id" property="deviceId" />        
+        <result column="device_name" property="deviceName" />
+        <result column="vendor" property="vendor" />
+        <result column="model" property="model" />
+        <result column="number_peoplet" property="numberPeoplet" />
+        <result column="key_equipment" property="keyEquipment" />
+        <result column="barcode" property="barCode" />
+        <result column="qr_name" property="qrName" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+      
+        <association property="deviceLocation" javaType="com.labwinner.domain.DeviceLocation">
+            <id property="deviceLocaId" column="device_loca_id"/>
+            <result property="label" column="device_loca_name"/>
+            <result property="deviceLocaPid" column="device_loca_pid"/> 
+            <result column="name" property="parentName" />    
+            
+       </association>
+       
+       
+       <association property="deviceType" javaType="com.labwinner.domain.DeviceType">
+            <id property="deviceTypeId" column="device_type_id"/>
+            <result property="deviceTypeName" column="device_type_name"/>
+          
+       </association> 
+       
+            <collection property="devicePictures" ofType="com.labwinner.domain.DevicePicture">
+	        <id property="picturesId" column="pictures_id"/>
+	        <result property="picture" column="picture"/>
+	        <result property="pictureNote" column="picture_note"/>
+            </collection> 
+             
+            <collection property="deviceAppointments" ofType="com.labwinner.domain.DeviceAppointment">
+			        <id property="appointmentId" column="appointment_id"/>
+			        <result property="startDate" column="start_date"/>
+		            <result property="endDate" column="end_date"/>
+			        <result property="appointmenttDate" column="appointmentt_date"/>
+			        
+			         <association property="deviceState" javaType="com.labwinner.domain.DeviceState">
+		            <id property="stateId" column="state_id"/>
+		            <result property="deviceState" column="device_state"/>
+		       		</association>
+        
+			       <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			            <id property="userId" column="id1"/>
+			            <result property="realname" column="u1"/>
+			       </association> 
+			       <association property="feedFromPeople" javaType="com.labwinner.domain.SysUser">
+			            <id property="userId" column="id2"/>
+			            <result property="realname" column="u2"/>
+			       </association> 
+			       
+					<association property="reaction" javaType="com.labwinner.domain.Reaction">
+						<id column="reaction_id" property="reactionId" />
+						<result column="reaction_name" property="reactionName" />
+						<association property="reactionDesign"
+						javaType="com.labwinner.domain.ReactionDesign">
+						<id column="reaction_design_id" property="reactionDesignId" />
+						<result column="reaction_group_name" property="reactionGroupName" />
+						<result column="type" property="type" />
+						
+						</association>
+					</association>
+			       
+            </collection>
+              
+            <collection property="reactionDevices" ofType="com.labwinner.domain.ReactionDevice">
+	       <id column="reaction_device_id" property="reactionDeviceId" />
+            </collection> 
+             
+            <collection property="analyticsDevices" ofType="com.labwinner.domain.AnalyticsDevice">
+	        <id column="analytics_device_id" property="analyticsDeviceId" />
+            </collection>  
+            
+            <collection property="testDevices" ofType="com.labwinner.domain.TestDevice">
+	        <id column="test_device_id" property="testDeviceId" />
+            </collection>  
+            
+            <collection property="deviceVideos" ofType="com.labwinner.domain.DeviceVideo">
+	        <id column="device_video_id" property="deviceVideoId" />        
+	        <result column="video" property="video" />
+	        <result column="upload_time" property="uploadTime" />
+	        <result column="video_remark" property="videoRemark" />
+	        <result column="video_pic" property="videoPic" />
+            </collection>  
+            
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		<!-- select device.device_id,device_name,device_picture.*,
+		 vendor,model,number_peoplet,key_equipment,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.* from device
+		 left outer join device_location e on
+		 device.device_loca_id=e.device_loca_id
+		 left outer join
+		 device_location f on
+		 e.device_loca_pid=f.device_loca_id
+		 left outer join device_appointment on
+		 device.device_id=device_appointment.device_id
+		 left outer join device_type on
+		 device.device_type_id=device_type.device_type_id
+		 left outer join device_picture on
+		 device_picture.device_id=device.device_id -->
+		  select device.device_id,device_name,barcode,c.*,
+		 vendor,model,number_peoplet,key_equipment,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.* from device
+		 left outer join device_location e on
+		 device.device_loca_id=e.device_loca_id
+		 left outer join
+		 device_location f on
+		 e.device_loca_pid=f.device_loca_id
+		 left outer join device_type on
+		 device.device_type_id=device_type.device_type_id
+		 left outer join (select a.* from device_picture a,
+         (select device_id,max(pictures_id)as pictures_id  from device_picture group by 1) b 
+	     where a.device_id=b.device_id and a.pictures_id =b.pictures_id)c on
+         c.device_id=device.device_id
+         order by device.device_id desc
+		 
+	</select>
+	
+	<select id="getAllDevices" resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+	<!-- 	select device_id,device_name,barcode,qr_name from device  -->
+		select x.device_id,x.device_name,c.*,
+		 vendor,model,number_peoplet,key_equipment,barcode,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.* from (select * from device
+		 order by device.device_id desc) as x
+		 left outer join device_location e on
+		 x.device_loca_id=e.device_loca_id
+		 left outer join
+		 device_location f on
+		 e.device_loca_pid=f.device_loca_id
+		 left outer join device_type on
+		 x.device_type_id=device_type.device_type_id
+		 left outer join (select a.* from device_picture a,
+         (select device_id,max(pictures_id)as pictures_id  from device_picture group by 1) b 
+	     where a.device_id=b.device_id and a.pictures_id =b.pictures_id)c on c.device_id=x.device_id
+		 order by x.device_id desc
+	</select>
+	
+	<select id="getByKeyword" resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		<!-- select device_id,device_name from device where device_name LIKE concat('%',#{keyword},'%') -->
+		select x.device_id,x.device_name,c.*,
+		 vendor,model,number_peoplet,key_equipment,barcode,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.* from (select * from device
+		 order by device.device_id desc) as x
+		 left outer join device_location e on
+		 x.device_loca_id=e.device_loca_id
+		 left outer join
+		 device_location f on
+		 e.device_loca_pid=f.device_loca_id
+		 left outer join device_type on
+		 x.device_type_id=device_type.device_type_id
+		 left outer join (select a.* from device_picture a,
+         (select device_id,max(pictures_id)as pictures_id  from device_picture group by 1) b 
+	     where a.device_id=b.device_id and a.pictures_id =b.pictures_id)c on
+         c.device_id=x.device_id
+		 where x.device_name LIKE concat('%',#{keyword},'%')
+		 order by x.device_id desc
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		<!-- select device.device_id,device_name,device_picture.*,
+		 vendor,model,number_peoplet,key_equipment,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.* from device
+		 left outer join device_location e on
+		 device.device_loca_id=e.device_loca_id
+		 left outer join
+		 device_location f on
+		 e.device_loca_pid=f.device_loca_id
+		 left outer join device_appointment on
+		 device.device_id=device_appointment.device_id
+		 left outer join device_type on
+		 device.device_type_id=device_type.device_type_id
+		 left outer join device_picture on
+		 device_picture.device_id=device.device_id -->
+		 select device.device_id,device_name,c.*,
+		 vendor,model,number_peoplet,key_equipment,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.* from device
+		 left outer join device_location e on
+		 device.device_loca_id=e.device_loca_id
+		 left outer join
+		 device_location f on
+		 e.device_loca_pid=f.device_loca_id
+		 left outer join device_type on
+		 device.device_type_id=device_type.device_type_id
+		 left outer join (select a.* from device_picture a,
+         (select device_id,max(pictures_id)as pictures_id  from device_picture group by 1) b 
+	     where a.device_id=b.device_id and a.pictures_id =b.pictures_id)c on
+         c.device_id=device.device_id
+		 where device.device_name LIKE concat('%',#{keyword},'%')
+		 order by device.device_id desc
+		 
+	</select>
+	
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageableAppByKeyword" resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		
+		 select x.device_id,x.device_name,c.*,
+		 vendor,model,number_peoplet,key_equipment,barcode,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.* from (select * from device
+		 order by device.device_id desc limit 0,#{endCount}) as x
+		 left outer join device_location e on
+		 x.device_loca_id=e.device_loca_id
+		 left outer join
+		 device_location f on
+		 e.device_loca_pid=f.device_loca_id
+		 left outer join device_type on
+		 x.device_type_id=device_type.device_type_id
+		 left outer join (select a.* from device_picture a,
+         (select device_id,max(pictures_id)as pictures_id  from device_picture group by 1) b 
+	     where a.device_id=b.device_id and a.pictures_id =b.pictures_id)c on
+         c.device_id=x.device_id
+		 where x.device_name LIKE concat('%',#{keyword},'%')
+		 order by x.device_id desc
+		 
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageableApp" resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		
+		 select x.device_id,x.device_name,c.*,
+		 vendor,model,number_peoplet,key_equipment,barcode,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.* from (select * from device
+		 order by device.device_id desc limit 0,#{endCount}) as x
+		 left outer join device_location e on
+		 x.device_loca_id=e.device_loca_id
+		 left outer join
+		 device_location f on
+		 e.device_loca_pid=f.device_loca_id
+		 left outer join device_type on
+		 x.device_type_id=device_type.device_type_id
+		 left outer join (select a.* from device_picture a,
+         (select device_id,max(pictures_id)as pictures_id  from device_picture group by 1) b 
+	     where a.device_id=b.device_id and a.pictures_id =b.pictures_id)c on
+         c.device_id=x.device_id
+		 order by x.device_id desc
+		 
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getByType" resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		select device.device_id,device_name,device_type.*
+		 from device,device_type where device.device_type_id = device_type.device_type_id
+		 and device.device_type_id = #{typeId}
+	</select>
+		<!-- 获取所有设备型号列表 -->
+	<select id="getAllModelName" resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		select device_id,device_name,model from device
+	</select>
+	
+		<!-- 获取所有对象名称 -->
+	<select id="getAllName" resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		select device_name from device
+	</select>
+	
+	<select id="getBarCodes" resultType="string" parameterType="map">
+		select barcode from device
+	</select>
+	
+	 <!-- 根据输入关键字获取对象 -->
+	  <select id="findByDeviceName" parameterType="String"
+		resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		select device.device_id,device_name,device_picture.*,
+		vendor,model,number_peoplet,key_equipment,device_location.*,
+		device_type.*,creater,create_date,modifier,modify_date
+		from device
+		left outer join device_location on
+		device.device_loca_id=device_location.device_loca_id
+		left outer join device_type on
+		device.device_type_id=device_type.device_type_id
+		left outer join device_picture on
+		device_picture.device_id=device.device_id
+		where device.device_name LIKE concat('%',#{keyword},'%')
+	</select> 
+	 <!-- 获取修改日期 -->
+	  <select id="getByModifydate" parameterType="date" resultType="com.labwinner.domain.Device" >
+		select device_id from device where modify_date=#{date} 
+	</select> 
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		 select device.device_id,device_name,device_picture.*,barcode,qr_name,
+		 vendor,model,number_peoplet,key_equipment,device_appointment.*,
+		 device_video_id,video,upload_time,video_pic,video_remark,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.*,reaction_device_id,
+		 analytics_device_id,test_device_id 
+		 from device
+		 left outer join device_location e on device.device_loca_id=e.device_loca_id
+		 left outer join device_location f on e.device_loca_pid=f.device_loca_id
+		 left outer join device_appointment on device.device_id=device_appointment.device_id
+		 left outer join device_type on device.device_type_id=device_type.device_type_id
+		 left outer join device_picture on device_picture.device_id=device.device_id
+		 left outer join reaction_device on reaction_device.device_id=device.device_id
+		 left outer join analytics_device on analytics_device.device_id=device.device_id
+		 left outer join test_device on test_device.device_id=device.device_id
+		 left outer join device_video on device.device_id=device_video.device_id
+		 where device.device_id=#{id}
+		 order by device_picture.pictures_id desc
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getByBarcode" parameterType="string"
+		resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		 select device.device_id,device_name,device_picture.*,barcode,qr_name,
+		 vendor,model,number_peoplet,key_equipment,device_appointment.*,
+		 e.device_loca_id,e.device_loca_name,e.device_loca_pid,
+		 f.device_loca_name as name,device_type.*,
+		 device_video_id,video,upload_time,video_pic,video_remark,
+		 b.user_id as id1, b.realname as u1,c.user_id as id2, c.realname as u2,
+         device_state.*,reaction.reaction_id,reaction_name,
+         reaction_design.reaction_design_id,reaction_design.type,reaction_design.reaction_group_name
+		 from device
+		 left outer join device_location e on device.device_loca_id=e.device_loca_id
+		 left outer join device_location f on e.device_loca_pid=f.device_loca_id
+		 left outer join device_appointment on device.device_id=device_appointment.device_id
+		 left outer join sys_user as b on device_appointment.user_id = b.user_id
+         left outer join sys_user as c on device_appointment.feed_from_people = c.user_id
+         left outer join reaction on device_appointment.reaction_id=reaction.reaction_id
+         left outer join reaction_design on reaction.reaction_design_id=reaction_design.reaction_design_id
+         left outer join device_state on device_appointment.state_id=device_state.state_id
+		 left outer join device_type on device.device_type_id=device_type.device_type_id
+		 left outer join device_picture on device_picture.device_id=device.device_id
+		 left outer join device_video on device.device_id=device_video.device_id
+		 where device.barcode=#{barcode}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Device"
+		useGeneratedKeys="true" keyProperty="deviceId">
+		insert into
+		device(
+		    device_name,
+		    vendor,               
+			model,                
+			number_peoplet,       
+			key_equipment,        
+			device_loca_id,                  
+			device_type_id,
+			barcode,
+			qr_name,
+			creater,              
+			create_date,         
+			modifier,            
+			modify_date )
+		value(
+		#{deviceName},
+		#{vendor},
+		#{model},
+		#{numberPeoplet},
+		#{keyEquipment},
+		#{deviceLocation.deviceLocaId},
+		#{deviceType.deviceTypeId},
+		#{barCode},
+		#{qrName},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+
+	<update id="updateQrName" parameterType="com.labwinner.domain.Device">
+		update device
+		set
+		barcode=#{barCode},
+		qr_name=#{qrName}
+		where
+		device_id=#{deviceId}
+		
+	</update>
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.Device">
+		update
+		device
+		<trim prefix="set" suffixOverrides=",">
+		<if test="deviceName!=null">device_name=#{deviceName},</if>
+		<if test="vendor!=null">vendor=#{vendor},</if>
+		<if test="model!=null">model=#{model},</if>
+		<if test="numberPeoplet!=null">number_peoplet=#{numberPeoplet},</if>
+		<if test="keyEquipment!=null">key_equipment=#{keyEquipment},</if>
+		<if test="deviceLocation.deviceLocaId!=null">device_loca_id=#{deviceLocation.deviceLocaId},</if>
+		<if test="deviceType.deviceTypeId!=null">device_type_id=#{deviceType.deviceTypeId},</if>
+		<!-- device_name=#{deviceName},
+		vendor=#{vendor},
+		model=#{model},
+		number_peoplet=#{numberPeoplet},
+		key_equipment=#{keyEquipment},
+		device_loca_id=#{deviceLocation.deviceLocaId},
+		device_type_id=#{deviceType.deviceTypeId} -->
+		</trim>
+		where
+		device_id=#{deviceId}
+		
+	</update>
+
+		<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from device
+		where
+		device_id=#{id}
+	</delete>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getByLocationId" parameterType="Integer"
+		resultType="com.labwinner.domain.Device" resultMap="deviceMap">
+		  select * from device where device_loca_id in (select device_loca_id  from device_location where device_loca_id in(
+     select device_loca_id from device_location where device_loca_pid in(
+     select device_loca_id from device_location where device_loca_pid in(
+     select device_loca_id from device_location where (device_loca_id=#{id} or device_loca_pid=#{id}) or device_loca_id=#{id}) or device_loca_id=#{id}) or device_loca_id=#{id}))
+	</select>
+
+</mapper> 

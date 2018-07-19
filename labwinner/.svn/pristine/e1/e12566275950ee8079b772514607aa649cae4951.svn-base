@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.PersonalTemplateDao">
+
+	<resultMap id="personalTemplateMap" type="com.labwinner.domain.PersonalTemplate">
+		<id column="personal_template_id" property="personalTemplateId" />
+		<result column="template_name" property="templateName" />
+		<result column="publish_date" property="publishDate" />
+		<result column="version" property="version" />
+		<result column="share_scope" property="shareScope" />
+		<!-- <result column="creater" property="creater" /> -->
+		<result column="create_date" property="createDate" />
+	<!-- 	<result column="modifier" property="modifier" /> -->
+		<result column="modify_date" property="modifyDate" />
+		<result column="template_intro" property="templateIntro" />
+
+		<!-- <association property="sysUser"
+			resultMap="com.labwinner.dao.SysUserDao.sysUserResultMap">
+		</association> -->
+
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="id1"/>
+            <result property="realname" column="u1"/>
+       </association> 
+       <association property="creater" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="id2"/>
+            <result property="realname" column="u2"/>
+       </association> 
+		
+		
+       <association property="modifier" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="id3"/>
+            <result property="realname" column="u3"/>
+       </association> 
+
+		<collection property="shareProjects" ofType="com.labwinner.domain.ShareProject">
+			<id property="shareProjectId" column="share_project_id" />
+			<association property="projectBasicInfo"
+				resultMap="com.labwinner.dao.ProjectBasicInfoDao.proInfoMap">
+			</association>
+
+		</collection>
+
+		<collection property="personalReactionTemplateProcesses"
+			ofType="com.labwinner.domain.PersonalReactionTemplateProcess">
+			<id property="personalProcessId" column="personal_process_id" />
+			<result property="personalProcessName" column="personal_process_name" />
+			<result property="personalStepNumber" column="personal_step_number" />
+			<result property="remark" column="remark" />
+           
+			<collection property="personalReactionTemplateParameters"
+				ofType="com.labwinner.domain.PersonalReactionTemplateParameter">
+				<id property="persReacTempParaId" column="pers_reac_temp_para_id" />
+				<result property="referenceValue" column="reference_value" />
+                <result column="reaction_parameter" property="reactionParameter" />
+				<association property="measurement"
+					resultMap="com.labwinner.dao.MeasurementDao.measurementMap"></association>
+				<!-- <association property="reactionParameter"
+					resultMap="com.labwinner.dao.ReactionParameterDao.reactionParameterMap"></association> -->
+			</collection>
+
+		</collection>
+
+	</resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.PersonalTemplate"
+		resultMap="personalTemplateMap">
+		<!-- select personal_template_id,template_name,template_intro 
+		from personal_template
+		left outer join sys_user on
+		personal_template.creater=sys_user.user_id
+		where personal_template.creater=#{userId} -->
+		  select * from personal_template 
+          where share_scope=3 or (share_scope=1 and personal_template.creater=#{userId})
+          union 
+          select 
+          personal_template.*     
+          from personal_template,share_project,reaction_design
+          where personal_template.personal_template_id=share_project.personal_template_id
+          and share_project.pro_id=reaction_design.pro_id
+          and personal_template.share_scope=2
+	</select>
+	<!-- 获取所有对象列表 -->
+	<select id="getMyAll" resultType="com.labwinner.domain.PersonalTemplate"
+		resultMap="personalTemplateMap">
+		select personal_template_id,template_name,template_intro 
+		from personal_template
+		left outer join sys_user a on
+		personal_template.creater=a.user_id
+		where personal_template.creater=#{userId}
+	</select>
+	
+	<!-- 分页 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.PersonalTemplate"
+		resultMap="personalTemplateMap">
+		select personal_template_id,template_name,template_intro 
+		from personal_template
+		left outer join sys_user b on
+		personal_template.creater=b.user_id
+		where personal_template.creater=#{userId}
+		and personal_template.template_name LIKE concat('%',#{keyword},'%')
+	</select>
+	
+	<!-- 获取所有对象名称 -->
+	<select id="getAllTemplateName" resultType="com.labwinner.domain.PersonalTemplate" resultMap="personalTemplateMap">
+		select personal_template_id,template_name from personal_template
+		left outer join sys_user on
+		personal_template.creater=sys_user.user_id
+		where personal_template.creater=#{userId}
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.PersonalTemplate" resultMap="personalTemplateMap">
+		select
+		personal_template.personal_template_id,template_name,publish_date,version,share_scope,
+		template_intro,personal_reaction_template_process.*,personal_reaction_template_parameter.*,
+		share_project.share_project_id,share_project.personal_template_id,share_project.pro_id,project_basic_info.pro_name,
+		measurement.*,personal_template.creater as id2,sys_user.realname as u2
+        from personal_template
+		left outer join share_project on
+		share_project.personal_template_id=personal_template.personal_template_id
+		left outer join project_basic_info on
+		share_project.pro_id=project_basic_info.pro_id
+		left outer join personal_reaction_template_process on
+		personal_reaction_template_process.personal_template_id=personal_template.personal_template_id
+		left outer join personal_reaction_template_parameter on
+		personal_reaction_template_parameter.personal_process_id=personal_reaction_template_process.personal_process_id
+        left outer join measurement on
+		personal_reaction_template_parameter.measure_unit_id=measurement.measure_unit_id
+		left outer join sys_user on
+		personal_template.creater=sys_user.user_id
+		where
+		personal_template.personal_template_id=#{id}
+	    order by personal_reaction_template_process.personal_process_id
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.PersonalTemplate"
+		useGeneratedKeys="true" keyProperty="personalTemplateId">
+		insert into
+		personal_template(
+		template_name,
+		publish_date,
+		version,
+		share_scope,
+		template_intro,
+		user_id,
+		creater,
+		create_date,
+		modifier,
+		modify_date)
+		value(
+		#{templateName},
+		#{publishDate},
+		#{version},
+		#{shareScope},
+		#{templateIntro},
+		#{sysUser.userId},
+		#{creater.userId},
+		#{createDate},
+		#{modifier.userId},
+		#{modifyDate})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.PersonalTemplate">
+		update
+		personal_template set
+		template_name=#{templateName},
+		publish_date=#{publishDate},
+		version=#{version},
+		share_scope=#{shareScope},
+		template_intro=#{templateIntro},
+		user_id=#{sysUser.userId},
+		modifier=#{modifier.userId},
+		modify_date=#{modifyDate}
+		where
+		personal_template_id=#{personalTemplateId}
+
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from personal_template
+		where
+		personal_template_id=#{personalTemplateId}
+	</delete>
+
+</mapper> 

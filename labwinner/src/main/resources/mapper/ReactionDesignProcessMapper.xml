@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ReactionDesignProcessDao">
+   
+   <resultMap id="reactionDesignProcessMap" type="com.labwinner.domain.ReactionDesignProcess">
+        <id column="reaction_design_process_id" property="reactionDesignProcessId" />        
+        <result column="process" property="process" />
+        <result column="process_name" property="processName" />
+        <result column="remark" property="remark" />
+      
+              <association property="reactionDesign"
+				resultMap="com.labwinner.dao.ReactionDesignDao.reactionDesignMap">
+			  </association>
+			  
+            <collection property="reactionDesignParameters" ofType="com.labwinner.domain.ReactionDesignParameter">
+	        <id property="designParameterId" column="design_parameter_id"/>
+	        <result property="designParameterDosage" column="design_parameter_dosage"/>
+	        <result property="reactionParameter" column="reaction_parameter"/>
+	        
+	      
+		      <association property="measurement"
+				resultMap="com.labwinner.dao.MeasurementDao.measurementMap">
+			  </association>
+	       
+	      <!--   <association property="reactionParameter"
+				resultMap="com.labwinner.dao.ReactionParameterDao.reactionParameterMap">
+			</association> -->
+	      
+            </collection>  
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ReactionDesignProcess" resultMap="reactionDesignProcessMap">
+		select * from reaction_design_process,reaction_design,reaction_design_parameter,
+		reaction_parameter,measurement
+		where
+		 reaction_design_process.reaction_design_id=reaction_design.reaction_design_id
+		 and reaction_design_parameter.reaction_design_process_id=reaction_design_process.reaction_design_process_id
+		 and reaction_design_parameter.reaction_parameter_id=reaction_parameter.reaction_parameter_id
+		 and reaction_design_parameter.measure_unit_id=measurement.measure_unit_id
+	</select>
+	
+	 <!-- 获取修改日期 -->
+	  <select id="getByModifydate" parameterType="date" resultType="com.labwinner.domain.ReactionDesignProcess" >
+		select device_id from device where modify_date=#{date} 
+	</select> 
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionDesignProcess" resultMap="reactionDesignProcessMap">
+		select reaction_design_process.reaction_design_process_id,process,process_name,remark,
+		reaction_design.*,reaction_design_parameter.*,measurement.*
+		from reaction_design_process
+		left outer join reaction_design on 
+		reaction_design.reaction_design_id=reaction_design_process.reaction_design_id
+		left outer join reaction_design_parameter on
+		reaction_design_process.reaction_design_process_id=reaction_design_parameter.reaction_design_process_id
+		left outer join measurement on
+		measurement.measure_unit_id = reaction_design_parameter.measure_unit_id
+		where reaction_design_process.reaction_design_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ReactionDesignProcess"
+		useGeneratedKeys="true" keyProperty="reactionDesignProcessId">
+		insert into
+		reaction_design_process(
+		    process,
+		    process_name,   
+		    remark,            
+			reaction_design_id
+			)
+		value(
+		#{process},
+		#{processName},
+		#{remark},
+		#{reactionDesign.reactionDesignId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ReactionDesignProcess">
+		update
+		reaction_design_process set
+		process=#{process},
+		process_name=#{processName},
+		remark=#{remark},
+		reaction_design_id=#{reactionDesign.reactionDesignId}
+		where
+		reaction_design_id=#{reactionDesignId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_design_process where
+		reaction_design_id=#{reactionDesignId}
+	</delete>
+
+</mapper> 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.InventoryUserDao">
+
+<resultMap id="inventoryUserMap" type="com.labwinner.domain.InventoryUser">
+        <id column="inventory_user_id" property="inventoryUserId" />
+       <association property="inventoryGroups"
+			resultMap="com.labwinner.dao.InventoryGroupsDao.inventoryGroupsMap"></association>
+			
+		<association property="sysUser"
+			resultMap="com.labwinner.dao.SysUserDao.sysUserResultMap"></association>
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.InventoryUser" resultMap="inventoryUserMap">
+		select inventory_user_id,sys_user.realname from inventory_user where group_id = #{id}
+	</select>
+	
+	<delete id="delete" parameterType="Integer">
+	delete from inventory_user where group_id = #{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from inventory_user where group_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.InventoryUser" useGeneratedKeys="true" keyProperty="inventoryUserId">
+	insert into inventory_user (user_id,group_id) value
+	(#{sysUser.userId},#{inventoryGroups.groupId})
+	</insert>
+</mapper>

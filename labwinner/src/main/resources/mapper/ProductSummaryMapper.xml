@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 采购产品-->
+<mapper namespace="com.labwinner.dao.ProductSummaryDao">
+
+	<resultMap id="productSummaryResultMap" type="com.labwinner.domain.ProductSummary">
+		<id property="productSummaryId" column="product_summary_id" />
+		<result property="materialSpecification" column="material_specification" />
+		<result property="price" column="price" />
+		<result property="catalogueCode" column="catalogue_code" />
+		<result property="innerCode" column="inner_code" />
+		<result property="quotedDate" column="quoted_date" />
+		<result property="remark" column="remark" />
+		<result property="productUrl" column="product_url" />
+		 <association property="supplier" javaType="com.labwinner.domain.Supplier">
+            <id property="supId" column="sup_id"/>
+            <result property="suprName" column="supr_name"/>
+       </association>
+       	 <association property="measurement" javaType="com.labwinner.domain.Measurement">
+            <id property="measureUnitId" column="measure_unit_id"/>
+            <result property="measureUnit" column="measure_unit"/>
+       </association>
+        <association property="priceCurrency" javaType="com.labwinner.domain.PriceCurrency">
+            <id property="priCurId" column="pri_cur_id"/>
+            <result property="curType" column="cur_type"/>
+              <result property="curName" column="cur_name"/>
+       </association>
+        <association property="chemicalParameter" javaType="com.labwinner.domain.ChemicalParameter">
+            <id property="chParId" column="ch_par_id"/>
+            <result property="chineseName" column="chinese_name"/>
+             <result property="cas" column="cas"/>
+       </association>
+       	 <association property="packageType" javaType="com.labwinner.domain.PackageType">
+            <id property="packageTypeId" column="package_type_id"/>
+            <result property="packageTypeName" column="package_type_name"/>
+       </association>
+         	 <association property="productType" javaType="com.labwinner.domain.ProductType">
+            <id property="productTypeId" column="product_type_id"/>
+            <result property="productType" column="product_type"/>
+       </association>
+	</resultMap>
+
+	<sql id="columns">product_summary_id, material_specification, price, quoted_date
+	</sql>
+	
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAllProduct" resultMap="productSummaryResultMap">
+		select product_summary.product_summary_id,product_summary.catalogue_code, 
+		c.sup_id,c.supr_name,e.ch_par_id,e.chinese_name
+		from  product_summary	
+		left outer join supplier c on product_summary.supplier_id=c.sup_id
+		left outer join chemical_parameter e  on product_summary.ch_par_id=e.ch_par_id
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="productSummaryResultMap">
+		select
+		a.product_summary_id,a.material_specification,a.price,a.quoted_date,a.remark,a.product_url,b.measure_unit_id,b.measure_unit,
+		c.sup_id,c.supr_name,d.pri_cur_id,d.cur_type,d.cur_name,e.chinese_name,f.package_type_id,f.package_type_name,
+		g.product_type_id,g.product_type
+		from product_summary a
+		left outer join measurement b on  a.measure_unit_id=b.measure_unit_id
+		left outer join price_currency d on a.pri_cur_id=d.pri_cur_id
+		
+		left outer join supplier c on a.supplier_id=c.sup_id
+	    left outer join chemical_parameter e  on a.ch_par_id=e.ch_par_id
+	    
+	    
+	left outer join package_type f on a.package_type_id=f.package_type_id
+		left outer join product_type g on a.product_type_id=g.product_type_id
+	</select>
+	<!-- 获取所有对象列表 -->
+	<select id="getByName" parameterType="String" resultMap="productSummaryResultMap">
+		select
+		a.product_summary_id,a.material_specification,a.price,a.quoted_date,a.remark,a.product_url,b.measure_unit_id,b.measure_unit,
+		c.sup_id,c.supr_name,d.pri_cur_id,d.cur_type,d.cur_name,e.chinese_name,f.package_type_id,f.package_type_name,
+		g.product_type_id,g.product_type
+		from product_summary a
+		left outer join measurement b on  a.measure_unit_id=b.measure_unit_id
+		left outer join price_currency d on a.pri_cur_id=d.pri_cur_id
+		
+		
+		left outer join supplier c on a.supplier_id=c.sup_id
+		left outer join chemical_parameter e  on a.ch_par_id=e.ch_par_id
+		
+		
+	left outer join package_type f on a.package_type_id=f.package_type_id
+		left outer join product_type g on a.product_type_id=g.product_type_id
+		where  e.chinese_name LIKE CONCAT('%',#{keyword},'%')
+	</select>
+	
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="productSummaryResultMap">
+	  select
+		a.product_summary_id,a.material_specification,a.price,a.quoted_date,a.remark,a.product_url,b.measure_unit_id,b.measure_unit,a.inner_code,a.catalogue_code,
+		c.sup_id,c.supr_name,d.pri_cur_id,d.cur_type,d.cur_name,e.ch_par_id,e.chinese_name,f.package_type_id,f.package_type_name,
+		g.product_type_id,g.product_type
+		from product_summary a
+		left outer join measurement b on  a.measure_unit_id=b.measure_unit_id
+		left outer join price_currency d on a.pri_cur_id=d.pri_cur_id
+		
+		left outer join supplier c on a.supplier_id=c.sup_id
+		left outer join chemical_parameter e  on a.ch_par_id=e.ch_par_id
+	
+		left outer join package_type f on a.package_type_id=f.package_type_id
+		left outer join product_type g on a.product_type_id=g.product_type_id
+		where  product_summary_id=#{id}
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getByChParId" parameterType="Integer" resultMap="productSummaryResultMap">
+    	select
+		a.product_summary_id,a.material_specification,a.price,a.quoted_date,a.catalogue_code,a.inner_code,a.remark,a.product_url,b.measure_unit_id,b.measure_unit,
+		c.sup_id,c.supr_name,d.pri_cur_id,d.cur_type,d.cur_name,e.ch_par_id,e.cas,e.chinese_name,f.package_type_id,f.package_type_name,
+		g.product_type_id,g.product_type
+		from product_summary a
+		left outer join measurement b on  a.measure_unit_id=b.measure_unit_id
+		left outer join supplier c on a.supplier_id=c.sup_id
+		left outer join price_currency d on a.pri_cur_id=d.pri_cur_id
+		left outer join chemical_parameter e  on a.ch_par_id=e.ch_par_id
+		left outer join package_type f on a.package_type_id=f.package_type_id
+		left outer join product_type g on a.product_type_id=g.product_type_id
+		where a.supplier_id=#{supId} and a.ch_par_id=#{chParId}
+	</select>
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ProductSummary"
+		useGeneratedKeys="true" keyProperty="productSummaryId">
+		insert into
+		product_summary(
+		material_specification,price,quoted_date,measure_unit_id,supplier_id,pri_cur_id,ch_par_id,remark,inner_code,catalogue_code,product_url,package_type_id,product_type_id
+		)
+		value(
+		#{materialSpecification},
+		#{price},
+		#{quotedDate},
+		#{measurement.measureUnitId},
+		#{supplier.supId},
+		#{priceCurrency.priCurId},
+		#{chemicalParameter.chParId},
+		#{remark},
+		#{innerCode},
+		#{catalogueCode},
+		#{productUrl},
+		#{packageType.packageTypeId},
+		#{productType.productTypeId}
+		)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ProductSummary">
+		update
+		product_summary set
+		material_specification=#{materialSpecification},
+		price=#{price},
+		quoted_date=#{quotedDate},
+		measure_unit_id=#{measurement.measureUnitId},
+		supplier_id=#{supplier.supId},
+		pri_cur_id=#{priceCurrency.priCurId},
+		remark=#{remark},
+		ch_par_id=#{chemicalParameter.chParId},
+		inner_code=#{innerCode},
+		catalogue_code=#{catalogueCode},
+		product_url=#{productUrl},
+		package_type_id=#{packageType.packageTypeId},
+		product_type_id=#{productType.productTypeId}
+		where product_summary_id=#{productSummaryId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from product_summary
+		where
+		product_summary_id=#{productSummaryId}
+	</delete>
+	<!-- 获取所有对象列表 -->
+	<select id="getChemical" parameterType="String" resultType="java.util.Map">
+	<!-- select chinese_name ,ch_par_id from chemical_parameter where chinese_name LIKE CONCAT(#{keyword},'%')  order by LENGTH(chinese_name) 
+select  ch_par_id,chinese_name ,english_name,other_name,molecular_formula from (
+select ch_par_id,chinese_name,ifnull(english_name,"") as english_name,ifnull(other_name,"") as other_name,ifnull(molecular_formula,"") as molecular_formula,MATCH(chinese_name)  AGAINST(CONCAT ('+',#{keyword},'*') in boolean mode  )  as  relevance
+ from chemical_parameter 
+where MATCH(chinese_name) AGAINST(CONCAT ('+',#{keyword},'*') in boolean mode ) ORDER BY relevance desc  limit 5
+) b  --> 
+select * from chemical_parameter where chinese_name LIKE CONCAT(#{keyword},'%') order by chinese_name  limit 5
+	</select>
+		<!-- 获取所有对象列表 -->
+	<select id="getSupplier" parameterType="String" resultType="java.util.Map">
+	select sup_id ,supr_name from supplier where supr_name LIKE CONCAT('%',#{keyword},'%')  order by LENGTH(supr_name)  
+	</select>
+		<!-- 根据主键获取对象 -->
+	<select id="getAllBySupId" parameterType="Integer" resultMap="productSummaryResultMap">
+    	select
+		a.product_summary_id,a.material_specification,a.price,a.quoted_date,a.catalogue_code,a.inner_code,a.remark,a.product_url,b.measure_unit_id,b.measure_unit,
+		c.sup_id,c.supr_name,d.pri_cur_id,d.cur_type,d.cur_name,e.ch_par_id,e.chinese_name,f.package_type_id,f.package_type_name,
+		g.product_type_id,g.product_type
+		from product_summary a
+		left outer join supplier c on a.supplier_id=c.sup_id
+		left outer join measurement b on  a.measure_unit_id=b.measure_unit_id
+		left outer join  price_currency d on a.pri_cur_id=d.pri_cur_id
+    	left outer join chemical_parameter e on a.ch_par_id=e.ch_par_id
+    	left outer join package_type f on a.package_type_id=f.package_type_id
+		left outer join product_type g on a.product_type_id=g.product_type_id
+		where  a.supplier_id=#{id}
+	</select>
+		<!-- 根据主键获取对象 -->
+	<select id="getByNameBySupId"  resultMap="productSummaryResultMap">
+    	select
+		a.product_summary_id,a.material_specification,a.price,a.quoted_date,a.catalogue_code,a.inner_code,a.remark,a.product_url,b.measure_unit_id,b.measure_unit,
+		c.sup_id,c.supr_name,d.pri_cur_id,d.cur_type,d.cur_name,e.ch_par_id,e.chinese_name,f.package_type_id,f.package_type_name,
+		g.product_type_id,g.product_type
+		from product_summary a
+		left outer join supplier c on a.supplier_id=c.sup_id
+		left outer join measurement b on  a.measure_unit_id=b.measure_unit_id
+		left outer join  price_currency d on a.pri_cur_id=d.pri_cur_id
+    	left outer join chemical_parameter e on a.ch_par_id=e.ch_par_id
+    	left outer join package_type f on a.package_type_id=f.package_type_id
+		left outer join product_type g on a.product_type_id=g.product_type_id
+		where  a.supplier_id=#{id} and e.chinese_name LIKE CONCAT('%',#{keyword},'%')
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getBySupId" parameterType="Integer" resultMap="productSummaryResultMap">
+    	select
+		a.product_summary_id,a.material_specification,a.price,a.quoted_date,a.catalogue_code,a.inner_code,a.remark,a.product_url,b.measure_unit_id,b.measure_unit,
+		c.sup_id,c.supr_name,d.pri_cur_id,d.cur_type,d.cur_name,e.ch_par_id,e.chinese_name,f.package_type_id,f.package_type_name,
+		g.product_type_id,g.product_type
+		from product_summary a
+		left outer join supplier c on a.supplier_id=c.sup_id
+		left outer join measurement b on  a.measure_unit_id=b.measure_unit_id
+		left outer join  price_currency d on a.pri_cur_id=d.pri_cur_id
+    	left outer join chemical_parameter e on a.ch_par_id=e.ch_par_id
+    	    	left outer join package_type f on a.package_type_id=f.package_type_id
+		left outer join product_type g on a.product_type_id=g.product_type_id
+		where  sup_id=#{id}
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="findByChemical" parameterType="Integer" resultMap="productSummaryResultMap">
+    	select
+		a.product_summary_id,a.catalogue_code,a.inner_code,
+		c.sup_id,c.supr_name,e.ch_par_id,e.chinese_name,e.cas
+		from product_summary a
+		left outer join supplier c on a.supplier_id=c.sup_id
+   		left outer join chemical_parameter e on a.ch_par_id=e.ch_par_id
+		where  e.ch_par_id = #{id}
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="findByChemicalName" parameterType="string" resultMap="productSummaryResultMap">
+    	select
+		a.product_summary_id,a.catalogue_code,a.inner_code,
+		c.sup_id,c.supr_name,e.ch_par_id,e.chinese_name,e.cas
+		from product_summary a
+		left outer join supplier c on a.supplier_id=c.sup_id
+   		left outer join chemical_parameter e on a.ch_par_id=e.ch_par_id
+		where  e.chinese_name = #{keyword}
+	</select>
+	
+	
+	<select id="findByKeyword" parameterType="string" resultMap="productSummaryResultMap">
+    	select
+		e.ch_par_id,e.chinese_name
+		from product_summary a
+   		left outer join chemical_parameter e on a.ch_par_id=e.ch_par_id
+		where  e.chinese_name LIKE CONCAT('%',#{keyword},'%')
+		group by e.ch_par_id
+	</select>
+	
+	<select id="getProductType" resultType="java.util.Map" >
+    select product_type_id,product_type from product_type 
+	</select>
+	
+</mapper> 

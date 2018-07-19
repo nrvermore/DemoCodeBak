@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.DeviceCollectDao">
+    
+     <resultMap id="deviceCollectMap" type="com.labwinner.domain.DeviceCollect">
+            <id property="deviceCollectId" column="device_collect_id"/>
+            <result property="statusParemeters1" column="status_param1"/>
+            <result property="statusParemeters2" column="status_param2"/>
+            <result property="statusParemeters3" column="status_param3"/>
+            <result property="statusParemeters4" column="status_param4"/>
+            <result property="statusParemeters5" column="status_param5"/>
+            <result property="statusParemeters6" column="status_param6"/>
+            <result property="statusParemeters7" column="status_param7"/>
+            <result property="statusParemeters8" column="status_param8"/>
+            <result property="createDate" column="create_date"/>
+            <result property="uid" column="uid"/>
+      
+       <association property="device" javaType="com.labwinner.domain.Device">
+        <id property="deviceId" column="device_id"/>
+        <result column="device_name" property="deviceName" />
+       </association> 
+    </resultMap>
+    
+   
+    <!-- 获取所有预约设备状态 -->
+	  <select id="getAllScreen" resultType="com.labwinner.domain.DeviceCollect" resultMap="deviceCollectMap">
+		  select device_collect.*,device.device_id,device.device_name
+          from device_collect,device 
+          where device_collect.device_id = device.device_id
+          order by device_collect.create_date
+	</select> 
+	
+	
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.DeviceCollect"
+		useGeneratedKeys="true" keyProperty="appointmentId">
+		insert into
+		device_collect(    
+			device_id,           
+			status_param1,
+			status_param2,     
+			status_param3,    
+			status_param4,           
+			status_param5,              
+			status_param6,          
+			status_param7,           
+			status_param8,              
+			create_date,          
+			uid)
+			value(
+			#{deviceId},
+			#{statusParemeters1}, 
+			#{statusParemeters2}, 
+			#{statusParemeters3},
+			#{statusParemeters4},
+			#{statusParemeters5},
+			#{statusParemeters6},
+	        #{statusParemeters7},
+			#{statusParemeters8},
+			#{createDate},
+			#{uid})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from device_collect where
+		device_collect_id=#{id}
+	</delete>
+
+</mapper> 

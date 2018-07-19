@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.SysDictionaryDao">
+
+	<resultMap id="sysDictionaryResultMap" type="com.labwinner.domain.SysDictionary">
+		<id property="dictId" column="dict_id" />
+		<result property="name" column="name" />
+		<result property="value" column="value" />
+		<result property="dictType" column="dict_type" />
+		<result property="remark" column="remark" />
+	</resultMap>
+
+	<sql id="columns">dict_id, name, value, dict_type, remark
+	</sql>
+
+	<!-- 获取所有对象 -->
+	<select id="getAll" resultMap="sysDictionaryResultMap">
+		select
+		<include refid="columns" />
+		from sys_dictionary
+	</select>
+	
+	<!-- 根据字典类型获取对象 -->
+	<select id="getByDictType" resultMap="sysDictionaryResultMap">
+		select
+		<include refid="columns" />
+		from sys_dictionary 
+		where dict_type = #{dictType}
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Long" resultMap="sysDictionaryResultMap">
+		select
+		<include refid="columns" />
+		from
+		sys_dictionary
+		where dict_id=#{id}
+	</select>
+
+	<!-- 保存对象 -->
+	<insert id="save" parameterType="com.labwinner.domain.SysDictionary"
+		useGeneratedKeys="true" keyProperty="dictId">
+		insert into
+		sys_dictionary(
+		<include refid="columns" />
+		)
+		value(#{dictId}, #{name}, #{value}, #{dictType}, #{remark})
+	</insert>
+
+	<!-- 更新对象 -->
+	<update id="update" parameterType="com.labwinner.domain.SysDictionary">
+		update
+		sys_dictionary set
+		name=#{name},
+		value=#{value},
+		dict_type=#{dictType},
+		remark=#{remark}
+		where dict_id=#{dictId}
+	</update>
+
+	<!-- 删除对象 -->
+	<delete id="delete" parameterType="Long">
+		delete from sys_dictionary
+		where
+		dict_id=#{dictId}
+	</delete>
+
+</mapper> 

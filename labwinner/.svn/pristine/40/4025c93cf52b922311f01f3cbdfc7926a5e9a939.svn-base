@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.SignInDao">
+
+	<resultMap id="signInMap" type="com.labwinner.domain.SignIn">
+		<id column="sign_in_id" property="signInId" />
+		<result column="sign_date" property="signDate" />
+		<result column="sign_latitude" property="signLatitude" />
+		<result column="sign_longitude" property="signLongitude" />
+		<result column="sign_content" property="signContent" />
+		<result column="sign_state" property="signState" />
+		<result column="sign_addr" property="signAddr" />
+		<result column="reserve_field2" property="reserveField2" />
+
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+			<result property="userImage" column="user_image" />
+		</association>
+	</resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.SignIn"
+		resultMap="signInMap">
+		select
+		sign_in_id,sign_date,sign_latitude,sign_longitude,sign_content,sign_addr,sign_state
+		from sign_in,sys_user
+		left outer join sys_user on
+		sign_in.user_id =
+		sys_user.user_id
+		where sign_in.user_id=#{userId}
+		order by sign_date desc limit 0,7
+		<!-- select sign_in_id,sign_date,sign_latitude,sign_longitude,sign_content 
+			from sign_in,sys_user where sign_in.user_id=sign_in.sign_in_id -->
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.SignIn"
+		resultMap="signInMap">
+		select
+		sign_in_id,sign_date,sign_latitude,sign_longitude,sign_content,sign_state,sign_addr,sign_addr
+		from
+		sign_in where sign_in_id=#{id}
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getSignCount" resultType="Integer">
+		SELECT count(*) as signCounts FROM
+		sign_in WHERE DATE_FORMAT(sign_date,'%Y-%m-%d') =
+		DATE_FORMAT(now(),'%Y-%m-%d')
+		and user_id = #{userId}
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getAllByDay" resultType="com.labwinner.domain.SignIn" resultMap="signInMap">
+		select sign_in_id,sign_date,sign_latitude,sign_longitude,sign_content,sign_addr,sign_state,
+		sys_user.user_id,sys_user.username,sys_user.realname,sys_user.user_image
+		from sign_in
+		left outer join sys_user on
+		sign_in.user_id =sys_user.user_id 
+		WHERE DATE_FORMAT(sign_date,'%Y-%m-%d')=DATE_FORMAT(#{date},'%Y-%m-%d')
+		order by sign_date
+	</select>
+
+
+	<!-- 根据主键获取对象 -->
+	<select id="getWeekList" parameterType="Integer"
+		resultType="com.labwinner.domain.SignIn" resultMap="signInMap">
+		SELECT sign_in.*,sys_user.* FROM sign_in,sys_user where
+		sign_in.user_id = sys_user.user_id 
+		and sign_in.user_id = #{userId} 
+    	<![CDATA[   and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= sign_date   ]]>
+		order by sign_date desc
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SignIn"
+		useGeneratedKeys="true" keyProperty="signInId">
+		insert into
+		sign_in(
+		user_id,
+		sign_date,
+		sign_latitude,
+		sign_longitude,
+		sign_content,
+		sign_state,
+		sign_addr,
+		reserve_field2)
+		value(
+		#{sysUser.userId},
+		#{signDate},
+		#{signLatitude},
+		#{signLongitude},
+		#{signContent},
+		#{signState},
+		#{signAddr},
+		#{reserveField2})
+	</insert>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from sign_in
+		where
+		sign_in_id=#{signInId}
+	</delete>
+	<!-- 根据主键获取对象 -->
+	<select id="getSignForFirt" parameterType="Integer"
+		resultType="com.labwinner.domain.SignIn" resultMap="signInMap">
+		select
+		a.sign_date,a.sign_latitude,a.sign_longitude,a.sign_content,a.sign_addr,c.user_id,c.realname,c.user_image
+		from sign_in a,sys_user c
+   		 where  a.user_id=c.user_id
+   		 and to_days(a.sign_date)=to_days(now())
+    	 limit 0,5
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getDayList" resultType="com.labwinner.domain.SignIn" resultMap="signInMap">
+		SELECT sign_in.*,sys_user.* FROM sign_in
+			left outer join sys_user on
+		sign_in.user_id =sys_user.user_id
+		left outer join sys_role on sys_user.role_id=sys_role.role_id
+		where to_days(sign_date) = to_days(now())
+		and sys_role.role_name <![CDATA[ <>  ]]> 'ROLE_TEAM'
+		order by sign_date desc
+	</select>
+	
+			<!-- 根据主键获取对象 -->
+	<select id="getGroupDayList" resultType="com.labwinner.domain.SignIn" resultMap="signInMap">
+	 SELECT sign_in.* FROM sign_in,sign_group	
+		where sign_in.user_id=sign_group.user_id
+  and  to_days(sign_date) = to_days(now())
+	</select>
+	
+	
+	<select id="getExcelList" resultType="com.labwinner.domain.SignIn" resultMap="signInMap">
+	SELECT sign_in.*,sys_user.user_id,sys_user.realname,sys_user.username FROM sign_in,sys_user where
+	sign_in.user_id = sys_user.user_id 
+    and sign_date between #{startDate} and #{endDate}
+    order by sign_date desc
+	</select>
+	
+	
+
+</mapper> 

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.ReactionTestDao">
+
+<resultMap id="reactionTestMap" type="com.labwinner.domain.ReactionTest">
+        <id column="test_id" property="testId" />
+         <result column="test_name" property="testName" />
+         <result column="test_content" property="testContent" />
+         <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+        
+        <association property="creatSysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+		</association>
+        
+        <association property="reaction" javaType="com.labwinner.domain.Reaction">
+			<id column="reaction_id" property="reactionId" />
+			<result column="reaction_name" property="reactionName" />
+			<result column="start_time" property="startTime" />
+			<result column="end_time" property="endTime" />
+			<association property="reactionDesign"
+			javaType="com.labwinner.domain.ReactionDesign">
+			<id column="reaction_design_id" property="reactionDesignId" />
+			<result column="reaction_num" property="reactionNum" />
+			<result column="reaction_group_name" property="reactionGroupName" />
+			</association>
+			<association property="projectBasicInfo"
+			javaType="com.labwinner.domain.ProjectBasicInfo">
+			<id property="proId" column="pro_id" />
+			<result property="proName" column="pro_name" />
+			</association>
+		</association>
+
+		<association property="reactionProcess"
+			javaType="com.labwinner.domain.ReactionProcess">
+			<id column="reaction_process_id" property="reactionProcessId" />
+			<result column="reaction_process" property="reactionProcess" />
+			<result column="process_name" property="processName" />
+			<result column="start_time" property="startTime" />
+			<result column="end_time" property="endTime" />
+		</association>
+		
+		<collection property="testDevices" ofType="com.labwinner.domain.TestDevice">
+			<id column="test_device_id" property="testDeviceId" />
+			 <association property="device" javaType="com.labwinner.domain.Device">
+	        	<id property="deviceId" column="device_id"/>
+	        	<result column="device_name" property="deviceName" />
+        	</association>
+		</collection>
+		
+		<collection property="testAttachments" ofType="com.labwinner.domain.TestAttachment">
+			 <id column="test_attachment_id" property="testAttachmentId" />
+        	<result column="test_attachment_name" property="testAttachmentName" />
+		</collection>
+        
+ </resultMap>
+ 
+ <sql id="columns"> test_id,test_name,test_content,reaction_test.creater,reaction_test.create_date,
+    reaction.reaction_id,reaction_name,sys_user.user_id,sys_user.username,sys_user.realname,
+    reaction_design.reaction_design_id,reaction_design.reaction_group_name,
+    reaction_process.reaction_process_id,reaction_process.process_name
+	</sql>
+
+<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="com.labwinner.domain.ReactionTest" parameterType="Integer" resultMap="reactionTestMap" >
+		select * from reaction_test
+		left outer join reaction on reaction_test.reaction_id =reaction.reaction_id
+		left outer join project_basic_info on project_basic_info.pro_id =reaction.pro_id
+		left outer join reaction_design on reaction.reaction_design_id =reaction_design.reaction_design_id
+		left outer join reaction_process on reaction_test.reaction_process_id =reaction_process.reaction_process_id
+		left outer join test_device on test_device.test_id =reaction_test.test_id
+		left outer join device on device.device_id =test_device.device_id
+		left outer join test_attachment on test_attachment.test_id =reaction_test.test_id
+		where reaction_test.test_id = #{id}
+	</select>
+	
+	<select id="getTestIds" resultType="Integer" parameterType="map">
+		select test_id  from reaction_test where reaction_id = #{id}
+	</select>
+	
+	<select id="getByKeyword" resultType="com.labwinner.domain.ReactionTest" parameterType="string" resultMap="reactionTestMap" >
+		select <include refid="columns" /> 
+		from reaction_test,reaction,reaction_design,reaction_process,sys_user
+		where reaction_test.reaction_id =reaction.reaction_id
+		and reaction.reaction_design_id =reaction_design.reaction_design_id
+		and reaction_test.reaction_process_id =reaction_process.reaction_process_id
+		and sys_user.user_id = reaction_test.creater
+		and test_name LIKE CONCAT('%',#{keyword},'%')
+	</select>
+	
+	<select id="getUserListByKeyword" resultType="com.labwinner.domain.ReactionTest"
+		 resultMap="reactionTestMap">
+		select <include refid="columns" /> 
+		from reaction_test,reaction,project_basic_info, reaction_design,reaction_process,sys_user
+	    where reaction_test.reaction_id =reaction.reaction_id
+	    and reaction.pro_id = project_basic_info.pro_id
+	    and reaction.reaction_design_id =reaction_design.reaction_design_id
+	    and reaction_test.reaction_process_id =reaction_process.reaction_process_id
+	    and sys_user.user_id = reaction_test.creater
+	    and  reaction.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+	  	and test_name LIKE CONCAT('%',#{keyword},'%')
+	  	union 
+	    select <include refid="columns" /> 
+	    from reaction_test,reaction,project_basic_info, reaction_design,reaction_process,sys_user
+	    where reaction_test.reaction_id =reaction.reaction_id
+	    and reaction.pro_id = project_basic_info.pro_id
+	    and reaction.reaction_design_id =reaction_design.reaction_design_id
+	    and reaction_test.reaction_process_id =reaction_process.reaction_process_id
+	    and sys_user.user_id = reaction_test.creater
+	    and reaction_test.creater =#{userId}
+		and test_name LIKE CONCAT('%',#{keyword},'%')
+	</select>
+	
+	<select id="getAll" resultType="com.labwinner.domain.ReactionTest" resultMap="reactionTestMap" >
+		select <include refid="columns" /> 
+		from reaction_test,reaction,reaction_design,reaction_process,sys_user
+		where reaction_test.reaction_id =reaction.reaction_id
+		and reaction.reaction_design_id =reaction_design.reaction_design_id
+		and reaction_test.reaction_process_id =reaction_process.reaction_process_id
+		and sys_user.user_id = reaction_test.creater
+	</select>
+	
+	<select id="getUserList" resultType="com.labwinner.domain.ReactionTest" resultMap="reactionTestMap">
+		select <include refid="columns" />
+		from reaction_test,reaction,project_basic_info, reaction_design,reaction_process,sys_user
+	    where reaction_test.reaction_id =reaction.reaction_id
+	    and reaction.pro_id = project_basic_info.pro_id
+	    and reaction.reaction_design_id =reaction_design.reaction_design_id
+	    and reaction_test.reaction_process_id =reaction_process.reaction_process_id
+	    and sys_user.user_id = reaction_test.creater
+	    and  reaction.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+	  	union 
+	    select <include refid="columns" /> 
+	    from reaction_test,reaction,project_basic_info, reaction_design,reaction_process,sys_user
+	    where reaction_test.reaction_id =reaction.reaction_id
+	    and reaction.pro_id = project_basic_info.pro_id
+	    and reaction.reaction_design_id =reaction_design.reaction_design_id
+	    and reaction_test.reaction_process_id =reaction_process.reaction_process_id
+	    and sys_user.user_id = reaction_test.creater
+	    and reaction_test.creater =#{userId}
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.ReactionTest"
+		useGeneratedKeys="true" keyProperty="testId">
+		insert into
+		reaction_test
+		(test_name,test_content,
+		reaction_process_id,reaction_id,
+		creater,create_date, modifier,modify_date)
+		value(
+		#{testName},
+		#{testContent},
+		#{reactionProcess.reactionProcessId},
+		#{reaction.reactionId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_test where
+		test_id=#{id}
+	</delete>
+	
+	<delete id="deleteByReactionId" parameterType="Integer">
+		delete from reaction_test where
+		reaction_id =#{id}
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.ReactionTest">
+		update reaction_test 
+		set
+		test_name=#{testName},
+		test_content=#{testContent},
+		reaction_process_id=#{reactionProcess.reactionProcessId},
+		reaction_id=#{reaction.reactionId},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where 
+		test_id=#{testId}
+	</update>
+</mapper>

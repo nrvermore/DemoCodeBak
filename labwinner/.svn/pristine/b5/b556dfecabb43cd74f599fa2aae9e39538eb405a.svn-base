@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.AppHomeImageDao">
+
+<resultMap id="appHomeImageMap" type="com.labwinner.domain.AppHomeImage">
+        <id column="home_image_id" property="homeImageId" />
+        <result column="image_name" property="imageName" />
+        <result column="image_url" property="imageUrl" />
+		<result column="show_number" property="showNumber" />
+        
+ </resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getByShowNumber" resultType="com.labwinner.domain.AppHomeImage" resultMap="appHomeImageMap">
+		select * from labwinner_base.app_home_image where show_number = #{showNumber}
+	</select>
+	
+	<select id="getMaxShowNumber" resultType="int">
+		select max(show_number) from labwinner_base.app_home_image
+	</select>
+</mapper> 

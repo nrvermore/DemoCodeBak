@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProjectPlanDao">
+      
+      <resultMap id="proPlanMap" type="com.labwinner.domain.ProjectPlan">
+            <id property="proPlanId" column="pro_plan_id"/>
+            <result property="proPlanName" column="pro_plan_name"/>
+            <result property="proPlanStarttime" column="pro_plan_starttime"/>
+            <result property="proPlanDeadline" column="pro_plan_deadline"/>
+            <result property="stageDes" column="stage_des"/>
+            <result property="stageGoal" column="stage_goal"/>
+            <result property="creater" column="creater" />
+	        <result property="createDate" column="create_date" />
+	        <result property="modifier" column="modifier" />
+	        <result property="modifyDate" column="modify_date" />
+	        
+	        <association property="projectBasicInfo"
+			resultMap="com.labwinner.dao.ProjectBasicInfoDao.proInfoMap"></association>
+			
+			<association property="projectSchedule" javaType="com.labwinner.domain.ProjectSchedule">
+			 <id property="proScheduleId" column="pro_schedule_id"/>
+            <result property="proScheduleName" column="pro_schedule_name"/>
+			</association>
+		
+      </resultMap>
+      
+      <!-- 根据项目id获取该项目的项目计划最小开始时间以及最大结束时间 -->
+	<select id="getProjectPlanTimeByProId" resultType="com.labwinner.domain.ProjectPlan"
+		resultMap="proPlanMap">
+		    select pro_id,min(pro_plan_starttime),max(pro_plan_deadline)
+		    from project_plan where project_plan.pro_id=#{id}
+	</select>
+	
+      
+      
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ProjectPlan" resultMap="proPlanMap">
+		select * from project_plan
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.ProjectPlan"
+		useGeneratedKeys="true" keyProperty="proPlanId">
+		insert into
+		project_plan
+		(pro_plan_name,pro_plan_starttime,
+		pro_plan_deadline,stage_des,stage_goal,pro_id,
+		pro_schedule_id,creater,create_date, modifier,modify_date)
+		value(
+		#{proPlanName},
+		#{proPlanStarttime},
+		#{proPlanDeadline},
+		#{stageDes},
+		#{stageGoal},
+		#{projectBasicInfo.proId},
+		#{projectSchedule.proScheduleId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from project_plan where
+		pro_id=#{proId}
+	</delete>
+	
+	
+	<!-- 根据项目主键查询进度-->
+	<select id="getByProId" resultType="com.labwinner.domain.ProjectPlan" resultMap="proPlanMap">
+		select a.*,b.pro_schedule_name from project_plan a 
+		left outer join  project_schedule b on a.pro_schedule_id=b.pro_schedule_id
+		 where pro_id=#{proId} order by a.pro_plan_starttime
+	</select>
+	
+	
+		<!-- 根据项目主键查询进度-->
+	<select id="getById" resultType="com.labwinner.domain.ProjectPlan" resultMap="proPlanMap">
+		select * from project_plan
+		 where pro_plan_id=#{id} 
+	</select>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.ProjectPlan">
+		update project_plan 
+		set
+		pro_plan_name=#{proPlanName},
+		pro_plan_starttime=#{proPlanStarttime},
+		pro_plan_deadline=#{proPlanDeadline},
+		pro_schedule_id=#{projectSchedule.proScheduleId}
+		where 
+		pro_plan_id=#{proPlanId}
+	</update>
+		<!-- 删除对象方法 -->
+	<delete id="deleteByPlanId" parameterType="Integer">
+		delete from project_plan where
+		pro_plan_id=#{id}
+	</delete>
+	
+</mapper> 

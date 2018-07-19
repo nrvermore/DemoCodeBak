@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.DesignDosageDao">
+   
+   <resultMap id="designDosageMap" type="com.labwinner.domain.DesignDosage">
+        <id column="design_dosage_id" property="designDosageId" />        
+        <result column="reaction_num" property="reactionNum" />
+        <result column="chemical_dosage" property="chemicalDosage" />
+        <result column="percentage" property="percentage" />
+      
+         <association property="reactionDesignChemical"
+			resultMap="com.labwinner.dao.ReactionDesignChemicalDao.reactionDesignChemicalMap">
+		</association>
+	
+        <association property="measurement"
+			resultMap="com.labwinner.dao.MeasurementDao.measurementMap">
+		</association>
+		 
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.DesignDosage" resultMap="designDosageMap">
+		select * from design_dosage,reaction_design_chemical,measurement where
+		 design_dosage.design_chemical_id=reaction_design_chemical.design_chemical_id
+		 and design_dosage.measure_unit_id=measurement.measure_unit_id
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.DesignDosage" resultMap="designDosageMap">
+		select  
+		 design_dosage_id,reaction_design_chemical.*,percentage,reaction_num,chemical_dosage,measurement.*
+		 from design_dosage,reaction_design_chemical,measurement where
+		 design_dosage.design_chemical_id=reaction_design_chemical.design_chemical_id
+		 and design_dosage.measure_unit_id=measurement.measure_unit_id
+		 and design_chemical_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.DesignDosage"
+		useGeneratedKeys="true" keyProperty="designDosageId">
+		insert into
+		design_dosage(
+		    design_chemical_id,
+		    reaction_num,               
+			chemical_dosage,                
+			percentage,                
+			measure_unit_id
+			)
+		value(
+		#{reactionDesignChemical.designChemicalId},
+		#{reactionNum},
+		#{chemicalDosage},
+		#{percentage},
+		#{measurement.measureUnitId}
+		)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.DesignDosage">
+		update
+		design_dosage set
+		design_chemical_id=#{reactionDesignChemical.designChemicalId},
+		reaction_num=#{reactionNum},
+		chemical_dosage=#{chemicalDosage},
+		percentage=#{percentage},
+		measure_unit_id=#{measurement.measureUnitId}
+		where
+		design_dosage_id=#{designDosageId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from design_dosage where
+		design_chemical_id=#{designChemicalId}
+	</delete>
+
+</mapper> 

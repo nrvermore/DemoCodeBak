@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.IndustryReactionTemplateDao">
+
+	<resultMap id="industryReactionTemplateMap" type="com.labwinner.domain.IndustryReactionTemplate">
+		<id column="industry_template_id" property="industryTemplateId" />
+		<result column="version" property="version" />
+		<result column="template_name" property="templateName" />
+		<result column="template_readme" property="templateReadme" />
+		<result column="publish_date" property="publishDate" />
+
+		<association property="industry" javaType="com.labwinner.domain.Industry">
+			<id property="industryId" column="industry_id" />
+			<result property="industryName" column="industry_name" />
+			<result property="industryCode" column="industry_code" />
+		</association>
+
+		<collection property="professionProcesses"
+			ofType="com.labwinner.domain.ProfessionProcess">
+			<id property="processId" column="process_id" />
+			<result property="processName" column="process_name" />
+			<result property="stepNumber" column="step_number" />
+
+			<collection property="industryReactionTemplateParameters"
+				ofType="com.labwinner.domain.IndustryReactionTemplateParameter">
+				<id property="industryTemplateParameterId" column="industry_template_parameter_id" />
+				<result property="referenceValue" column="reference_value" />
+                <result property="reactionParameter" column="reaction_parameter"/>
+				<association property="measurement"
+					resultMap="com.labwinner.dao.MeasurementDao.measurementMap"></association>
+				<!-- <association property="reactionParameter"
+					resultMap="com.labwinner.dao.ReactionParameterDao.reactionParameterMap"></association> -->
+			</collection>
+
+		</collection>
+
+	</resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.IndustryReactionTemplate"
+		resultMap="industryReactionTemplateMap">
+		select
+		industry.*,template_name,template_readme,version,publish_date,profession_process.*,
+		industry_reaction_template_parameter.*,measurement.*,reaction_parameter
+		from
+		industry_reaction_template
+		left outer join industry on
+		industry_reaction_template.industry_id=industry.industry_id
+		left outer join profession_process on
+		profession_process.industry_template_id=industry_reaction_template.industry_template_id
+		left outer join industry_reaction_template_parameter on
+		industry_reaction_template_parameter.process_id=profession_process.process_id
+		left outer join measurement on
+		industry_reaction_template_parameter.measure_unit_id=measurement.measure_unit_id
+		order by step_number
+		
+	</select>
+	<!-- 通过关键字获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.IndustryReactionTemplate"
+		resultMap="industryReactionTemplateMap">
+		select industry_template_id,template_name,template_readme,industry_reaction_template.industry_id 
+		from industry_reaction_template
+		left outer join industry on
+		industry_reaction_template.industry_id=industry.industry_id
+		 where industry_reaction_template.template_name LIKE concat('%',#{keyword},'%')
+		<!-- order by step_number -->
+		
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.IndustryReactionTemplate" resultMap="industryReactionTemplateMap">
+		select
+		industry.*,template_name,template_readme,version,publish_date,profession_process.*,
+		industry_reaction_template_parameter.*,measurement.*,reaction_parameter
+		from
+		industry_reaction_template
+		left outer join industry on
+		industry_reaction_template.industry_id=industry.industry_id
+		left outer join profession_process on
+		profession_process.industry_template_id=industry_reaction_template.industry_template_id
+		left outer join industry_reaction_template_parameter on
+		industry_reaction_template_parameter.process_id=profession_process.process_id 
+		<!-- left outer join reaction_parameter on
+		industry_reaction_template_parameter.reaction_parameter_id=reaction_parameter.reaction_parameter_id -->
+		left outer join measurement on
+		industry_reaction_template_parameter.measure_unit_id=measurement.measure_unit_id
+		where industry_reaction_template.industry_template_id=#{id} order by step_number
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.IndustryReactionTemplate"
+		useGeneratedKeys="true" keyProperty="industryTemplateId">
+		insert into
+		industry_reaction_template(
+		template_name,
+		template_readme,
+		version,
+		publish_date,
+		industry_id
+		)
+		value(
+		#{templateName},
+		#{templateReadme},
+		#{version},
+		#{publishDate},
+		#{industry.industryId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.IndustryReactionTemplate">
+		update
+		industry_reaction_template set
+		template_name=#{templateName},
+		template_readme=#{templateReadme},
+		version=#{version},
+		publish_date=#{publishDate},
+		industry_id=#{industry.industryId}
+		where
+		industry_template_id=#{industryTemplateId}
+
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from
+		industry_reaction_template where
+		industry_template_id=#{industryTemplateId}
+	</delete>
+
+</mapper> 

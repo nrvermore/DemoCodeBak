@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 用户角色 -->
+<mapper namespace="com.labwinner.dao.SysUserRoleDao">
+
+	<resultMap id="sysUserRoleResultMap" type="com.labwinner.domain.SysUserRole">
+		<id property="userRoleId" column="user_role_id" />
+		<result property="remark" column="remark" />
+		<association property="sysRole"
+			resultMap="com.labwinner.dao.SysRoleDao.sysRoleResultMap"></association>
+		<association property="sysUser"
+			resultMap="com.labwinner.dao.SysUserDao.sysUserResultMap"></association>
+	</resultMap>
+
+	<sql id="columns">user_role_id, role_id, user_id, remark
+	</sql>
+	
+	<sql id="columnses">user_role_id,sys_role.role_name,role_desc,sys_user_role.role_id, sys_user_role.user_id, sys_user.realname,sys_user_role.remark
+	</sql>
+
+	<!-- 获取所有对象 -->
+	<select id="getProAll" resultMap="sysUserRoleResultMap">
+		select sys_user.user_id,sys_user.realname from sys_role,sys_user
+		where sys_user.role_id=sys_role.role_id 
+         and sys_user.role_id=12
+	</select>
+
+	<!-- 获取所有对象 -->
+	<select id="getAll" resultMap="sysUserRoleResultMap">
+		select
+		<include refid="columns" />
+		from sys_user_role
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Long" resultMap="sysUserRoleResultMap">
+		select
+		<include refid="columns" />
+		from
+		sys_user_role
+		where role_menu_id=#{id}
+	</select>
+	
+	<select id="getUser" parameterType="Long" resultMap="sysUserRoleResultMap">
+		select
+		sys_user_role.role_id, sys_user.user_id,sys_user.realname,sys_user.username
+		from
+		sys_user_role,sys_user
+		where sys_user.user_id = sys_user_role.user_id
+		and sys_user_role.role_id=#{id}
+	</select>
+
+	<!-- 保存对象  -->
+	<insert id="save" parameterType="com.labwinner.domain.SysUserRole"
+		useGeneratedKeys="true" keyProperty="userRoleId">
+		insert into
+		sys_user_role(
+		<include refid="columns" />
+		)
+		value(#{userRoleId},
+		#{sysRole.roleId},
+		#{sysUser.userId}, #{remark})
+	</insert>
+
+	<!-- 更新对象 -->
+	<update id="update" parameterType="com.labwinner.domain.SysUserRole">
+		update
+		sys_user_role set
+		role_id=#{sysRole.roleId},
+		user_id=#{sysUser.userId},
+		remark=#{remark}
+		where user_role_id=#{userRoleId}
+	</update>
+
+	<!-- 删除对象 -->
+	<delete id="delete" parameterType="Long">
+		delete from sys_user_role
+		where
+		user_role_id=#{userRoleId}
+	</delete>
+
+	<!-- 根据角色主键删除角色菜单 -->
+	<delete id="deleteByRoleId" parameterType="Long">
+		delete from
+		sys_user_role
+		where
+		role_id=#{id}
+	</delete>
+
+	<!-- 根据角色主键获取角色菜单 -->
+	<select id="getByRoleId" resultMap="sysUserRoleResultMap">
+		select
+		a.role_menu_id,
+		a.role_id, a.menu_id, a.remark, b.father_id, b.menu_name
+		from
+		sys_user_role a, sys_menu b
+		where a.menu_id = b.menu_id
+		and
+		role_id=#{id}
+	</select>
+
+</mapper> 

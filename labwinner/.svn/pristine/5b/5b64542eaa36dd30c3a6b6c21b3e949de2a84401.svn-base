@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.PersonalReactionTemplateProcessDao">
+
+	<resultMap id="personalReactionTemplateProcessMap"
+		type="com.labwinner.domain.PersonalReactionTemplateProcess">
+		<id column="personal_process_id" property="personalProcessId" />
+		<result column="personal_process_name" property="personalProcessName" />
+		<result column="personal_step_number" property="personalStepNumber" />
+		<result column="remark" property="remark" />
+		<result column="creater" property="creater" />
+		<result column="create_date" property="createDate" />
+		<result column="modifier" property="modifier" />
+		<result column="modify_date" property="modifyDate" />
+
+		<association property="personalTemplate"
+			resultMap="com.labwinner.dao.PersonalTemplateDao.personalTemplateMap">
+		</association>
+
+	</resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll"
+		resultType="com.labwinner.domain.PersonalReactionTemplateProcess"
+		resultMap="personalReactionTemplateProcessMap">
+		select * from personal_reaction_template_process
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.PersonalReactionTemplateProcess"
+		resultMap="personalReactionTemplateProcessMap">
+		select
+		personal_reaction_template_process.personal_process_id,personal_process_name,remark,
+		personal_step_number,personal_template.personal_template_id,personal_template.template_name,creater,create_date,modifier,modify_date
+		from
+		personal_reaction_template_process,personal_template
+		where
+		personal_reaction_template_process.personal_template_id=personal_template.personal_template_id
+		and personal_reaction_template_process.personal_process_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save"
+		parameterType="com.labwinner.domain.PersonalReactionTemplateProcess"
+		useGeneratedKeys="true" keyProperty="personalProcessId">
+		insert into
+		personal_reaction_template_process(
+		personal_process_name,
+		personal_step_number,
+		personal_template_id,
+		remark,
+		creater,
+		create_date,
+		modifier,
+		modify_date)
+		value(
+		#{personalProcessName},
+		#{personalStepNumber},
+		#{personalTemplate.personalTemplateId},
+		#{remark},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update"
+		parameterType="com.labwinner.domain.PersonalReactionTemplateProcess">
+		update
+		personal_reaction_template_process set
+		personal_process_name=#{personalProcessName},
+		personal_step_number=#{personalStepNumber},
+		personal_template_id=#{personalTemplate.personalTemplateId},
+		remark=#{remark},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where
+		personal_process_id=#{personalProcessId}
+
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from
+		personal_reaction_template_process where
+		personal_process_id=#{personalProcessId}
+	</delete>
+
+</mapper> 

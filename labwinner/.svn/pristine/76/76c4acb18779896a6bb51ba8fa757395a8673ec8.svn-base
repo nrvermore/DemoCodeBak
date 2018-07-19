@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ModuleTypeDao">
+   
+   <resultMap id="moduleTypeMap" type="com.labwinner.domain.ModuleType">
+        <id column="module_type_id" property="moduleTypeId" />        
+        <result column="module_type_name" property="moduleTypeName" />
+        <result column="flag" property="flag" />
+        
+        <collection property="questions" ofType="com.labwinner.domain.Questions">
+	        <id property="questionId" column="question_id"/>
+	        <result property="questionTitle" column="question_title"/>
+	        <result property="details" column="details"/>
+	        <result property="time" column="time"/>
+        </collection>
+
+    </resultMap>
+    
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ModuleType" resultMap="moduleTypeMap">
+		
+		  select module_type_id,module_type_name from module_type
+		 
+	</select>
+	
+	<!-- 获取除了热门标签的所有对象列表 -->
+	<select id="getByType" resultType="com.labwinner.domain.ModuleType" resultMap="moduleTypeMap">
+		
+		  select module_type_id,module_type_name from module_type where flag=0
+		 
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.ModuleType" resultMap="moduleTypeMap">
+		 select * from module_type
+		 where module_type_name LIKE concat('%',#{keyword},'%')	 
+	</select>
+	
+	<!-- 获取所有对象名称 -->
+	<select id="getAllName" resultType="com.labwinner.domain.ModuleType" resultMap="moduleTypeMap">
+		select module_type_name from module_type
+	</select>
+	
+	 
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ModuleType" resultMap="moduleTypeMap">
+		 select module_type.module_type_id,module_type_name,question_id,
+		 questions.module_type_id,question_title,details,time
+		 from module_type
+		 left outer join questions on
+		 questions.module_type_id=module_type.module_type_id
+		 where module_type.module_type_id=#{id}
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getAllByType" parameterType="Integer"
+		resultType="com.labwinner.domain.ModuleType" resultMap="moduleTypeMap">
+		 select module_type.module_type_id,module_type_name,question_id,
+		 questions.module_type_id,question_title,details,time
+		 from module_type
+		 left outer join questions on
+		 questions.module_type_id=module_type.module_type_id
+		 where module_type.module_type_id=#{id}
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<!-- <select id="getByIdAllDesc" parameterType="Integer"
+		resultType="com.labwinner.domain.ModuleType" resultMap="moduleTypeMap">
+		 select module_type.module_type_id,module_type_name,question_id,
+		 questions.module_type_id,question_title,details,time
+		 from module_type
+		 left outer join questions on
+		 questions.module_type_id=module_type.module_type_id
+		 where module_type.module_type_id=#{id}
+		 order by questions.time desc
+	</select>
+ -->
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ModuleType"
+		useGeneratedKeys="true" keyProperty="moduleTypeId">
+		insert into
+		module_type(
+		    module_type_name)
+		value(
+		#{moduleTypeName})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ModuleType">
+		update
+		module_type set
+		module_type_name=#{moduleTypeName}
+		where
+		module_type_id=#{moduleTypeId}
+		
+	</update>
+
+		<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from module_type
+		where
+		module_type_id=#{id}
+	</delete>
+	
+</mapper> 

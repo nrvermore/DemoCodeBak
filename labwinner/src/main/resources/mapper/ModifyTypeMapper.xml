@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.ModifyTypeDao">
+
+<resultMap id="modifyTypeMap" type="com.labwinner.domain.ModifyType">
+        <id column="modify_type_id" property="modifyTypeId" />
+        <result column="modify_type" property="modifyType" />
+        
+         <collection property="inventoryModifies" ofType="com.labwinner.domain.InventoryModify">
+	         <id property="inventoryModifyId" column="inventory_modify_id"/>
+            </collection> 
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ModifyType" resultMap="modifyTypeMap">
+		select modify_type_id,modify_type from modify_type
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ModifyType" resultMap="modifyTypeMap">
+		 select modify_type.modify_type_id,modify_type,inventory_modify.inventory_modify_id from
+		 modify_type
+         left outer join inventory_modify on
+		 inventory_modify.modify_type_id=modify_type.modify_type_id
+		 where modify_type.modify_type_id=#{id}
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.ModifyType" resultMap="modifyTypeMap">
+		 select modify_type_id,modify_type from modify_type
+		 where modify_type LIKE concat('%',#{keyword},'%')
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ModifyType"
+		useGeneratedKeys="true" keyProperty="modifyTypeId">
+		insert into
+		modify_type(
+		    modify_type)
+		value(#{modifyType})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ModifyType">
+		update
+		modify_type set
+		modify_type=#{modifyType}
+		where
+		modify_type_id=#{modifyTypeId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from modify_type where
+		modify_type_id=#{modifyTypeId}
+	</delete>
+	
+	
+</mapper>

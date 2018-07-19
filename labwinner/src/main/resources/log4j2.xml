@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<Configuration status="INFO" monitorInterval="1800">
+	<appenders>
+		<Console name="consolePrint" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" />
+		</Console>
+	</appenders>
+
+	<loggers>
+		<logger name="com.labwinner.dao" level="INFO" additivity="false">
+			<appender-ref ref="consolePrint" />
+		</logger>
+
+		<root level="INFO">
+			<appender-ref ref="consolePrint" />
+		</root>
+	</loggers>
+</Configuration>  

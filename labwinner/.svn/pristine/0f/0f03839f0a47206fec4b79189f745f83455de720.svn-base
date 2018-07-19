@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 批注记录表 -->
+<mapper namespace="com.labwinner.dao.KnowledgePostilDao">
+
+	<resultMap id="knowledgePostilResultMap" type="com.labwinner.domain.KnowledgeClassifyPostil">
+		<id property="knowledgeClassifyPostilId" column="knowledge_classify_postil_id" />
+		<result property="replyContent" column="reply_content" />
+		<result property="replyDate" column="reply_date" />
+		<result property="postilId" column="postil_id" />
+		<result property="replyRecordId" column="reply_record_id" />
+		 <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+             <result property="username" column="username"/>
+             <result property="userImage" column="user_image"/>
+       </association>
+       <association property="knowledgeAcc" javaType="com.labwinner.domain.KnowledgeAcc">
+       <id property="knowledgeAccId" column="knowledge_acc_id"/>
+       <result property="uploadFiles" column="upload_files"/>
+       </association>
+	</resultMap>
+
+	<sql id="columns">user_id, knowledge_acc_id,reply_content,reply_record_id,reply_date,postil_id
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" parameterType="com.labwinner.domain.KnowledgeAcc" resultMap="knowledgePostilResultMap">
+			select
+		a.knowledge_classify_postil_id,b.user_id,b.realname,a.knowledge_acc_id,a.reply_content,a.reply_date,a.reply_record_id,a.postil_id
+		from knowledge_classify_postil a
+		 left outer join sys_user b on a.user_id=b.user_id 
+		where knowledge_acc_id=#{knowledgeAcc.knowledgeAccId}
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="knowledgePostilResultMap">
+		select
+		a.knowledge_classify_postil_id,b.user_id,b.realname,a.knowledge_acc_id,a.reply_content,a.reply_date,a.reply_record_id,a.postil_id,b.user_image
+		from knowledge_classify_postil a
+		 left outer join sys_user b on a.user_id=b.user_id 
+		where  a.knowledge_acc_id=#{id}  order by a.reply_date
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.KnowledgeClassifyPostil"
+		useGeneratedKeys="true" keyProperty="knowledgeClassifyPostilId">
+		insert into
+		knowledge_classify_postil(
+		<include refid="columns" />
+		)
+		value(
+		#{sysUser.userId},
+		#{knowledgeAcc.knowledgeAccId}, 
+		#{replyContent}, #{replyRecordId},
+		#{replyDate},#{postilId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.KnowledgeClassifyPostil">
+		update
+		knowledge_classify_postil set
+		knowledge_acc_id=#{knowledgeAcc.knowledgeAccId},
+		reply_content=#{replyContent},
+		reply_record_id=#{replyRecordId}
+		user_id=#{sysUser.userId}
+		reply_date=#{replyDate}
+		postil_id=#{postilId}
+		where knowledge_classify_postil_id=#{knowledgeClassifyPostilId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from knowledge_classify_postil
+		where
+		knowledge_classify_postil_id=#{id}
+	</delete>
+	
+	
+	<!-- 根据名字获取对象方法
+	<delete id="getByName" parameterType="String">
+		select
+		<include refid="columns" />
+		from
+		knowledge_classify_postil
+		where title=#{name}
+	</delete> -->
+	<!-- 删除对象方法 -->
+	<delete id="deleteByPostileId" parameterType="Integer">
+		delete from knowledge_classify_postil
+		where
+		postil_id=#{id} or knowledge_classify_postil_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByAccId" parameterType="Integer">
+		delete from knowledge_classify_postil
+		where
+		knowledge_acc_id=#{knowledgeAccId}
+	</delete>
+</mapper> 

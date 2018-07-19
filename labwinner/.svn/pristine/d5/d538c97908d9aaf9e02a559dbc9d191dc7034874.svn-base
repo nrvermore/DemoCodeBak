@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labwinner.dao.UserDao">
+    <resultMap id="userMap" type="com.labwinner.security.SysUser">
+        <id property="id" column="ID"/>
+        <result property="username" column="username"/>
+        <result property="password" column="PASSWORD"/>
+        <collection property="roles" ofType="com.labwinner.security.SysRole">
+            <result column="role_name" property="name"/>
+        </collection>
+    </resultMap>
+    <select id="findByUserName" parameterType="String" resultMap="userMap">
+		select u.*, r.role_name
+		from sys_user u left join sys_role r on u.role_id=r.role_id
+        where user_state = 1 and username = #{username} or phone =#{username}
+	</select>
+</mapper>

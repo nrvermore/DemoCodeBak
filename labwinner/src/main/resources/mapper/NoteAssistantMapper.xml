@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.NoteAssistantDao">
+      
+      <resultMap id="noteAssistMap" type="com.labwinner.domain.NoteAssistant">
+            <id property="noteAssistantId" column="note_assistant_id"/>
+            <result property="proNumberId" column="pro_number_id" />
+    <association property="note"
+			resultMap="com.labwinner.dao.NoteDao.noteMap"></association>
+			
+	</resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="com.labwinner.domain.NoteAssistant" resultMap="noteAssistMap">
+		select note_assistant_id,pro_number_id,note.note_id,note.note_content
+		from
+		 note_assistant,note where note.note_id =#{id}
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.NoteAssistant"
+		useGeneratedKeys="true" keyProperty="noteAssistantId">
+		insert into
+		note_assistant
+		(note_id,pro_number_id)
+		value(
+		#{note.noteId},
+		#{proNumberId})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from note_assistant where
+		note_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from note_assistant where note_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.NoteAssistant">
+		update note_assistant 
+		set
+		note_id=#{note.noteId},
+		pro_number_id=#{proNumberId}
+		where 
+		note_assistant_id=#{noteAssistantId}
+	</update>
+</mapper> 

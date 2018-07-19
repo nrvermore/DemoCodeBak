@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.ExecuteSolutionDao">
+
+<resultMap id="executeSolutionMap" type="com.labwinner.domain.ExecuteSolution">
+        <id column="execute_solution_id" property="executeSolutionId" />
+         <result column="solution_dosage" property="solutionDosage" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+        
+        <association property="measurement" javaType="com.labwinner.domain.Measurement">
+					<id property="measureUnitId" column="id2" />
+					<result property="basicUnit" column="basic_unit" />
+					<result property="conversionRelation" column="conversion_relation2" />
+					<result property="measureUnit" column="u2" />
+				<association property="measurementType" javaType="com.labwinner.domain.MeasurementType">
+			  <id column="measure_type" property="measureType" />
+        	  <result column="type_name" property="typeName" />
+        	  <result column="basic_unit" property="basicUnit" />
+        	  <result column="type_sourece" property="typeSource" />
+				</association>
+				</association>
+			
+		<association property="reactionProcess"
+			javaType="com.labwinner.domain.ReactionProcess">
+			<id column="reaction_process_id" property="reactionProcessId" />
+			<result column="process_name" property="processName" />
+		</association>
+			
+		<association property="solution"
+			resultMap="com.labwinner.dao.SolutionDao.solutionMap"></association>
+        
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="com.labwinner.domain.ExecuteSolution" parameterType="Integer" resultMap="executeSolutionMap" >
+		select execute_solution.*,reaction_process.reaction_process_id,reaction_process.process_name,
+		g.measure_unit_id as id2,g.measure_unit as u2,g.conversion_relation as conversion_relation2,measurement_type.*,solution.*
+		from execute_solution
+		left outer join reaction_process on reaction_process.reaction_process_id = execute_solution.reaction_process_id
+		left outer join measurement g on execute_solution.measure_unit_id = g.measure_unit_id
+		left outer join measurement_type on g.measure_type =measurement_type.measure_type
+		left outer join solution on execute_solution.solution_id =solution.solution_id
+		 where execute_solution.reaction_process_id = #{id}
+	</select>
+	
+	<select id="getSolutions" resultType="Integer" parameterType="map">
+		select solution_id from execute_solution
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.ExecuteSolution"
+		useGeneratedKeys="true" keyProperty="executeSolutionId">
+		insert into
+		execute_solution
+		(solution_dosage,solution_id,
+		reaction_process_id,measure_unit_id,
+		creater,create_date, modifier,modify_date)
+		value(
+		#{solutionDosage},
+		#{solution.solutionId},
+		#{reactionProcess.reactionProcessId},
+		#{measurement.measureUnitId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from execute_solution where
+		execute_solution_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByProcessId" parameterType="Integer">
+		delete from execute_solution where
+		reaction_process_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from execute_solution where reaction_process_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.ExecuteSolution">
+		update execute_solution 
+		set
+		solution_dosage=#{solutionDosage},
+		solution_id=#{solution.solutionId},
+		reaction_process_id=#{reactionProcess.reactionProcessId},
+		measure_unit_id=#{measurement.measureUnitId},
+		creater=#{creater}, 
+		create_date=#{createDate}, 
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where 
+		execute_solution_id=#{executeSolutionId}
+	</update>
+</mapper>

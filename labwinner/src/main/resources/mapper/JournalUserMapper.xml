@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.JournalUserDao">
+<resultMap id="journalUserMap" type="com.labwinner.domain.JournalUser">
+        <id column="journal_user_id" property="journalUserId" />
+      <id column="journal_article_id" property="journalArticleId" />
+	<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+       </association>
+       <association property="knowledgeClassify" javaType="com.labwinner.domain.KnowledgeClassify">
+            <id property="knowledgeClassifyId" column="knowledge_classify_id"/>
+       </association>
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.JournalUser" resultMap="journalUserMap">
+		select 
+		a.journal_article_id,journal_user_id,c.user_id,c.realname 
+		from journal_user a
+		left outer join sys_user c on a.user_id=c.user_id
+		where a.journal_article_id = #{id} and knowledge_classify_id=#{classId}
+	</select>
+	
+	<delete id="delete" parameterType="Integer">
+	delete from journal_user where journal_article_id = #{id} and knowledge_classify_id=#{classId}
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.JournalUser" useGeneratedKeys="true" keyProperty="journalUserId">
+	insert into journal_user (user_id,journal_article_id,knowledge_classify_id) value
+	(#{sysUser.userId},#{journalArticleId},#{knowledgeClassify.knowledgeClassifyId})
+	</insert>
+</mapper>

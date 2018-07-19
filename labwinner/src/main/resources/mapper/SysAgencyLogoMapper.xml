@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.SysAgencyLogoDao">
+
+	<resultMap id="sysAgencyLogoResultMap" type="com.labwinner.domain.SysAgencyLogo">
+		<id property="logoId" column="logo_id" />
+		<result property="logoName" column="logo_name" />
+		<association property="sysSigningAgency" javaType="com.labwinner.domain.SysSigningAgency">
+			<id property="agencyId" column="agency_id" />
+			<result property="userName" column="user_name" />
+		</association>
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getById" resultMap="sysAgencyLogoResultMap">
+		select a.*,b.agency_id,b.user_name 
+		from labwinner_base.sys_agency_logo as a,labwinner_base.sys_signing_agency as b
+		where a.agency_id = b.agency_id and a.agency_id = #{agencyId}
+	</select>
+	
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SysAgencyLogo">
+		insert into
+		labwinner_base.sys_agency_logo(logo_name,agency_id)
+		value(#{logoName},
+		#{sysSigningAgency.agencyId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.SysAgencyLogo">
+		update
+		labwinner_base.sys_agency_logo set
+		logo_name=#{logoName},
+		agency_id=#{sysSigningAgency.agencyId}
+		where logo_id=#{logoId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from labwinner_base.sys_agency_logo where
+		logo_id=#{id}
+	</delete>
+
+</mapper> 

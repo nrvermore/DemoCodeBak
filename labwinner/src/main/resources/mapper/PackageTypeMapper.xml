@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 专利 -->
+<mapper namespace="com.labwinner.dao.PackageTypeDao">
+
+	<resultMap id="packageTypeMap" type="com.labwinner.domain.PackageType">
+		<id property="packageTypeId" column="package_type_id" />
+		<result property="packageTypeName" column="package_type_name" />
+		<result property="flag" column="flag" />
+		
+		 <collection property="productSummaries" ofType="com.labwinner.domain.ProductSummary">
+	        <id property="productSummaryId" column="product_summary_id"/>
+	        <result property="price" column="price"/>
+         </collection>
+		
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.PackageType" resultMap="packageTypeMap">
+		select package_type_id,package_type_name from package_type 
+	</select>
+	
+	<!-- 获取所有对象名称 -->
+	<select id="getAllName" resultType="com.labwinner.domain.PackageType" resultMap="packageTypeMap">
+		select package_type_id,package_type_name from package_type 
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	 <select id="getFlagAll" resultType="com.labwinner.domain.PackageType" resultMap="packageTypeMap">
+		select package_type_id,package_type_name from package_type where flag=0
+	</select>
+	
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.PackageType" resultMap="packageTypeMap">
+		select package_type_id,package_type_name from package_type
+		where flag=0 and package_type_name LIKE concat('%',#{keyword},'%')
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.PackageType" resultMap="packageTypeMap">
+		select * from package_type
+		left outer join product_summary on
+		product_summary.package_type_id=package_type.package_type_id
+		where package_type.package_type_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.PackageType"
+		useGeneratedKeys="true" keyProperty="packageTypeId">
+		insert into
+		package_type(
+		package_type_name,
+		flag
+		)
+		value(
+		#{packageTypeName},
+		#{flag})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.PackageType">
+		update
+		package_type set
+		package_type_name=#{packageTypeName}
+		where package_type_id=#{packageTypeId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from package_type
+		where
+		package_type_id=#{id}
+	</delete>
+	
+</mapper> 
+
+

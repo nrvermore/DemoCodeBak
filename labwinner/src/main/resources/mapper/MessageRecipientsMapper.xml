@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.MessageRecipientsDao">
+
+	<resultMap id="recipientsMap" type="com.labwinner.domain.MessageRecipients">
+		<id column="msg_recipients_id" property="msgRecipientsId" />
+		<result column="flag" property="flag" />
+		<association property="message" javaType="com.labwinner.domain.Message">
+			<id column="message_id" property="messageId" />
+			<result column="message_title" property="messageTitle" />
+			<result column="message_date" property="messageDate" />
+			<result column="message_icon" property="messageIcon" />
+			<result column="sender_date" property="senderDate" />
+			<result column="message_content" property="messageContent" />
+			<result column="flag" property="flag" />
+			<result column="agency_id" property="agencyId" />
+			
+			 <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id1" />
+				<result property="realname" column="realname1" />
+				<result property="username" column="username1" />
+				<result property="email" column="email1" />
+				<result property="userImage" column="user_image1" />
+			  </association>
+		     	
+			 <association property="msgDetailtype" javaType="com.labwinner.domain.MsgDetailtype">
+				<id column="msg_detailtype_id" property="msgDetailtypeId" />
+	       		<result column="msg_detailtype" property="msgDetailtype" />
+			</association>
+			
+			<collection property="attachments" ofType="com.labwinner.domain.Attachment">
+			<id column="attachment_id" property="attachmentId" />
+			<result column="attachment_name" property="attachmentName" />
+			<result column="attachment_content" property="attachmentContent" />
+		    </collection> 
+		    
+			  
+			
+		  </association>
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id2" />
+			<result property="realname" column="realname2" />
+			<result property="username" column="username2" />
+			<result property="email" column="email2" />
+			<result property="userImage" column="user_image2" />
+		</association>
+		
+			<association property="msgState" javaType="com.labwinner.domain.MsgState">
+			<id property="msgId" column="msg_id" />
+			<result property="msgState" column="msg_state" />
+		</association>
+
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.MessageRecipients"
+		resultMap="recipientsMap">
+		select * from message_recipients
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getByMsgId" resultType="Integer">
+		select count(msg_recipients_id) from message_recipients 
+		where message_id = #{id} and  flag = 0
+	</select>
+	
+	
+	<!-- 根据用户获取对象-->
+	<select id="getByUserId" resultType="com.labwinner.domain.MessageRecipients"
+		resultMap="recipientsMap">
+		select
+		message.message_id,message.message_title,sender_date,message.message_icon,message.message_content,attachment.*,
+		message.flag,message.msg_detailtype_id,msg_detailtype.msg_detailtype_id,msg_detailtype.msg_detailtype,
+		b.user_id as user_id2,b.username as username2,b.realname as realname2,b.user_image as user_image2,
+		a.user_id as user_id1,a.username as username1,a.realname as realname1,a.user_image as user_image1,
+ 	    message_recipients.msg_recipients_id,message_recipients.msg_id
+		from message 
+		left outer join msg_detailtype on message.msg_detailtype_id = msg_detailtype.msg_detailtype_id 
+		left outer join sys_user a  on message.user_id = a.user_id
+		left outer join message_recipients on message.message_id = message_recipients.message_id
+		left outer join attachment on message.message_id = attachment.message_id
+		left outer join sys_user b on message_recipients.user_id =b.user_id
+		WHERE message_recipients.user_id=#{userId} and
+		message.msg_detailtype_id=2
+		order by sender_date
+	</select>
+	
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByMsgId" parameterType="Integer">
+		delete from message_recipients where
+		message_recipients.message_id=#{id}
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.MessageRecipients"
+		useGeneratedKeys="true" keyProperty="msgRecipientsId">
+		insert into
+		message_recipients
+		(message_id,user_id,flag,msg_id)
+		value(
+		#{message.messageId},
+		#{sysUser.userId},
+		#{flag},
+		#{msgState.msgId})
+	</insert>
+	
+		<insert id="saveBase" parameterType="com.labwinner.domain.MessageRecipients"
+		useGeneratedKeys="true" keyProperty="msgRecipientsId">
+		insert into
+		labwinner_base.message_recipients
+		(message_id,user_id,agency_id,flag,msg_id)
+		value(
+		#{message.messageId},
+		#{sysUser.userId},
+		#{agencyId},
+		#{flag},
+		#{msgState.msgId})
+	</insert>
+	
+	
+	<update id="update" parameterType="com.labwinner.domain.Attachment">
+	update message_recipients 
+		<trim prefix="set" suffixOverrides=",">
+		<if test="message!=null">message_id = #{message.messageId},</if>
+		<if test="sysUser!=null">user_id=#{sysUser.userId},</if>
+		<if test="msgState!=null">msg_id=#{msgState.msgId},</if>
+		</trim>
+		where 
+		msg_recipients_id=#{msgRecipientsId}
+	</update>
+	
+	
+	<update id="updateMsgState" parameterType="com.labwinner.domain.MessageRecipients">
+	    update message_recipients 
+	    set
+	    msg_id=#{msgState.msgId}
+		where 
+		message_recipients.msg_recipients_id =#{msgRecipientsId}
+	</update>
+	
+	<update id="updateMessageByDelete" parameterType="com.labwinner.domain.Attachment">
+	update message_recipients 
+		set
+		flag = #{flag}
+		where 
+		message_id =#{id}
+		and user_id=#{userId}
+	</update>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getRecipientsByBussId" resultType="com.labwinner.domain.MessageRecipients"
+		resultMap="recipientsMap">
+		select message_recipients.* from message_recipients
+		left outer join message on message_recipients.message_id=message.message_id
+		where message.buss_id=#{id} and message.msg_detailtype_id=#{msgDetailtypeId}
+		and message_recipients.user_id=#{userId}
+	</select>
+	
+	<select id="getRecipientsMarketAssist" resultType="com.labwinner.domain.MessageRecipients"
+		resultMap="recipientsMap">
+		select message_recipients.* from labwinner_base.message_recipients
+		left outer join labwinner_base.message on message_recipients.message_id=message.message_id
+		where message.buss_id=#{id} and message.msg_detailtype_id in (12,13,14)
+		and message_recipients.user_id=#{userId}
+		and message_recipients.agency_id=#{agencyId}
+	</select>
+	
+		<update id="updateBase" parameterType="com.labwinner.domain.Attachment">
+	update labwinner_base.message_recipients 
+		<trim prefix="set" suffixOverrides=",">
+		<if test="message!=null">message_id = #{message.messageId},</if>
+		<if test="sysUser!=null">user_id=#{sysUser.userId},</if>
+		<if test="msgState!=null">msg_id=#{msgState.msgId},</if>
+		</trim>
+		where 
+		msg_recipients_id=#{msgRecipientsId}
+	</update>
+	
+	<select id="getByMeeasgeId" resultType="com.labwinner.domain.MessageRecipients"
+		resultMap="recipientsMap">
+		select * from message_recipients where message_id=#{messageId}
+	</select>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from message_recipients where msg_recipients_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteBase" parameterType="Integer">
+		delete from labwinner_base.message_recipients where
+		message_recipients.msg_recipients_id=#{msgRecipientsId}
+	</delete>
+	
+	
+			<!-- 获取所有对象列表 -->
+	<select id="getRecipientsByUserId" resultType="com.labwinner.domain.MessageRecipients"
+		resultMap="recipientsMap">
+		select message_recipients.* from message_recipients
+		left outer join message on message_recipients.message_id=message.message_id
+		where message.buss_id=#{id} and message.msg_detailtype_id=#{msgDetailtypeId}
+		and message.user_id=#{userId}
+	</select>
+	
+	
+			<!-- 获取所有对象列表 -->
+	<select id="getRecipientsByUser" resultType="com.labwinner.domain.MessageRecipients"
+		resultMap="recipientsMap">
+		select message_recipients.* from message_recipients
+		left outer join message on message_recipients.message_id=message.message_id
+		where message.buss_id=#{id} and message.msg_detailtype_id=#{msgDetailtypeId}
+		and message_recipients.user_id=#{userId}
+	</select>
+	
+	
+	
+	
+	
+</mapper>

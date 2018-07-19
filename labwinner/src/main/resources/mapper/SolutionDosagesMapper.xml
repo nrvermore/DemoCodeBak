@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.SolutionDosagesDao">
+     
+      <resultMap id="solutionDosagesMap" type="com.labwinner.domain.SolutionDosages">
+            <id property="dosageId" column="dosage_id"/>
+            <result property="inventoryId" column="inventory_id"/>
+            <result property="dosage" column="dosage"/>
+            <result column="solutionId" property="solution_id" /> 
+             <result column="measureUnitId" property="measure_unit_id" /> 
+      </resultMap>
+     
+	<!-- 获取所有对象列表 -->
+	<select id="getAllInventories" resultType="Integer" parameterType="map">
+		select inventory_id from solution_inventory_dosages
+	</select>
+	
+
+    <select id="getBySolutionId" resultType="com.labwinner.domain.SolutionDosages"
+		resultMap="solutionDosagesMap">
+		select * from solution_inventory_dosages where solution_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SolutionDosages"
+		useGeneratedKeys="true" keyProperty="dosageId">
+		insert into
+		solution_inventory_dosages(     
+	    inventory_id,    
+	    dosage,
+	    solution_id,
+	    measure_unit_id )
+		value(
+		#{inventoryId},
+		#{dosage},
+		#{solutionId},
+		#{measurement.measureUnitId})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from solution_inventory_dosages
+		where
+		solution_id=#{id}
+	</delete>
+</mapper> 

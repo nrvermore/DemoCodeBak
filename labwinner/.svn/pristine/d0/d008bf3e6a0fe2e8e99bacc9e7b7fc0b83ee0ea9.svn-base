@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ShareProjectDao">
+   
+   <resultMap id="shareProjectMap" type="com.labwinner.domain.ShareProject">
+        <id column="share_project_id" property="shareProjectId" />
+               
+        <association property="personalTemplate"
+			resultMap="com.labwinner.dao.PersonalTemplateDao.personalTemplateMap">
+		</association>
+      
+        <association property="projectBasicInfo"
+			resultMap="com.labwinner.dao.ProjectBasicInfoDao.proInfoMap">
+		</association>
+      
+       
+              
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ShareProject" resultMap="shareProjectMap">
+		select * from share_project
+        left outer join project_basic_info on
+		share_project.pro_id=project_basic_info.pro_id
+        left outer join personal_template on
+		share_project.personal_template_id=personal_template.personal_template_id
+        left outer join sys_user on
+		sys_user.user_id=personal_template.user_id
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ShareProject" resultMap="shareProjectMap">
+		select * from share_project
+        left outer join project_basic_info on
+		share_project.pro_id=project_basic_info.pro_id
+        left outer join personal_template on
+		share_project.personal_template_id=personal_template.personal_template_id
+        left outer join sys_user on
+		sys_user.user_id=personal_template.user_id
+		where share_project.share_project_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ShareProject"
+		useGeneratedKeys="true" keyProperty="shareProjectId">
+		insert into
+		share_project(
+		    personal_template_id,
+		    pro_id)
+		value(
+		#{personalTemplate.personalTemplateId},
+		#{projectBasicInfo.proId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ShareProject">
+		update
+		share_project set
+		personal_template_id=#{personalTemplateId},
+		pro_id=#{proId}
+		where
+		share_project_id=#{shareProjectId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from share_project where
+		share_project_id=#{shareProjectId}
+	</delete>
+
+</mapper> 

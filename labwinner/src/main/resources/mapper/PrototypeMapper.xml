@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.PrototypeDao">
+
+<resultMap id="prototypeMap" type="com.labwinner.domain.Prototype">
+        <id column="prototype_id" property="prototypeId" />
+        <id column="prototype_name" property="prototypeName" />
+        <result column="prototype_dosage" property="prototypeDosage" />
+        <result column="bar_code" property="barCode" />
+        <result column="remarks" property="remarks"/>
+        <result column="prototype_num" property="prototypeNum" />
+        <result column="qr_name" property="qrName" />
+        <result column="com_date" property="comDate" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+        
+        <association property="measurement" javaType="com.labwinner.domain.Measurement">
+			<id column="measure_unit_id" property="measureUnitId" />
+	        <result column="basic_unit" property="basicUnit" />
+	        <result column="conversion_relation" property="conversionRelation" />
+	        <result column="measure_unit" property="measureUnit" />
+		</association>
+			
+		<association property="reactionProcess" javaType="com.labwinner.domain.ReactionProcess">
+			 <id column="reaction_process_id" property="reactionProcessId" />
+	         <result column="reaction_process" property="reactionProcess" />
+	         <result column="process_name" property="processName"/>
+	         <association property="reaction" javaType="com.labwinner.domain.Reaction">
+					<id column="reaction_id" property="reactionId" />
+					<result column="reaction_name" property="reactionName" />
+					<association property="projectBasicInfo"
+						javaType="com.labwinner.domain.ProjectBasicInfo">
+						<id property="proId" column="pro_id" />
+						<result property="proName" column="pro_name" />
+					</association>
+				</association>
+		</association>		
+		
+		<association property="inventoryLocation"
+			javaType="com.labwinner.domain.InventoryLocation">
+		<id column="inventory_location_id" property="cid" />
+        <result column="location_name" property="label" />
+        <result column="location_path" property="pid" />
+        <result column="name" property="parentName" /> 
+		</association>
+			
+ </resultMap>
+
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Prototype" parameterType="Integer" resultMap="prototypeMap" >
+		select * from prototype 
+		left outer join reaction_process a on prototype.reaction_process_id = a.reaction_process_id 
+		left outer join measurement b on prototype.measure_unit_id = b.measure_unit_id
+		left outer join inventory_location e on prototype.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		
+		
+	</select>
+	
+	<!-- 获取对象详情 -->
+	<select id="getById" resultType="com.labwinner.domain.Prototype" parameterType="Integer" resultMap="prototypeMap" >
+		select prototype.*,a.*,b.*,c.*,d.*,
+		e.inventory_location_id,e.location_name,e.location_path,f.location_name as name
+		 from prototype 
+		left outer join reaction_process a on prototype.reaction_process_id = a.reaction_process_id 
+		left outer join reaction c on a.reaction_id = c.reaction_id
+		left outer join project_basic_info d on d.pro_id = c.pro_id
+		left outer join measurement b on prototype.measure_unit_id = b.measure_unit_id
+		left outer join inventory_location e on prototype.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		where prototype.prototype_id = #{id}
+	</select>
+	
+	
+	<select id="findByBarCode" resultType="com.labwinner.domain.Prototype" parameterType="String" resultMap="prototypeMap" >
+		select prototype.*,a.*,b.*,c.*,d.*,
+		e.inventory_location_id,e.location_name,e.location_path,f.location_name as name
+		 from prototype 
+		left outer join reaction_process a on prototype.reaction_process_id = a.reaction_process_id 
+		left outer join reaction c on a.reaction_id = c.reaction_id
+		left outer join project_basic_info d on d.pro_id = c.pro_id
+		left outer join measurement b on prototype.measure_unit_id = b.measure_unit_id
+		left outer join inventory_location e on prototype.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		where prototype.bar_code = #{barcode}
+	</select>
+	
+	<!-- 获取对象详情 -->
+	<select id="getKeyWord" resultType="com.labwinner.domain.Prototype" parameterType="string" resultMap="prototypeMap" >
+		select * from prototype 
+		left outer join reaction_process a on prototype.reaction_process_id = a.reaction_process_id 
+		left outer join measurement b on prototype.measure_unit_id = b.measure_unit_id
+		left outer join inventory_location e on prototype.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		where prototype_name Like CONCAT('%',#{keyword},'%')
+	</select>
+	
+	<!-- 获取对象详情 -->
+	<select id="getByProcessId" resultType="com.labwinner.domain.Prototype" parameterType="Integer" resultMap="prototypeMap" >
+		select prototype.*,a.*,b.*,
+		e.inventory_location_id,e.location_name,e.location_path,f.location_name as name
+		from prototype 
+		left outer join reaction_process a on prototype.reaction_process_id = a.reaction_process_id 
+		left outer join measurement b on prototype.measure_unit_id = b.measure_unit_id
+		left outer join inventory_location e on prototype.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		where prototype.reaction_process_id= #{id}
+	</select>
+	
+	<select id="getBarCodes" resultType="string" parameterType="map">
+		select bar_code from prototype
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.Prototype"
+		useGeneratedKeys="true" keyProperty="prototypeId">
+		insert into
+		prototype
+		(prototype_name,bar_code,prototype_num,qr_name,
+		prototype_dosage,remarks,inventory_location_id,
+		reaction_process_id,measure_unit_id,com_date,
+		creater,create_date, modifier,modify_date)
+		value(
+		#{prototypeName},
+		#{barCode},
+		#{prototypeNum},
+		#{qrName},
+		#{prototypeDosage},
+		#{remarks},
+		#{inventoryLocation.cid},
+		#{reactionProcess.reactionProcessId},
+		#{measurement.measureUnitId},
+		#{comDate},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from prototype where
+		prototype_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByProcessId" parameterType="Integer">
+		delete from prototype where
+		reaction_process_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from prototype where reaction_process_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.Prototype">
+		update prototype 
+		set
+		prototype_name=#{prototypeName},
+		prototype_num=#{prototypeNum},
+		prototype_dosage=#{prototypeDosage},
+		remarks=#{remarks},
+		inventory_location_id=#{inventoryLocation.cid},
+		reaction_process_id=#{reactionProcess.reactionProcessId},
+		measure_unit_id=#{measurement.measureUnitId},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where 
+		prototype_id=#{prototypeId}
+	</update>
+</mapper>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.DeviceLocationDao">
+     
+      <resultMap id="deviceLocationMap" type="com.labwinner.domain.DeviceLocation">
+            <id property="deviceLocaId" column="device_loca_id"/>
+            <result property="label" column="device_loca_name"/>
+            <result property="deviceLocaPid" column="device_loca_pid"/>
+            <result column="name" property="parentName" />  
+      </resultMap>
+     
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.DeviceLocation"  resultMap="deviceLocationMap">
+		select a.device_loca_id,a.device_loca_name,a.device_loca_pid,
+		b.device_loca_name as name from device_location a
+		left outer join
+		device_location b on
+		a.device_loca_pid=b.device_loca_id
+		
+	</select>
+	
+	<!-- 获取所有对象分页列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.DeviceLocation"  resultMap="deviceLocationMap">
+		select a.device_loca_id,a.device_loca_name,a.device_loca_pid,
+		b.device_loca_name as name from device_location a
+		left outer join
+		device_location b on
+		a.device_loca_pid=b.device_loca_id
+		where a.device_loca_name LIKE concat('%',#{keyword},'%')
+		
+	</select>
+
+    <select id="getDeviceLocation" resultType="com.labwinner.domain.DeviceLocation"
+		resultMap="deviceLocationMap">
+		select a.device_loca_id,a.device_loca_name,a.device_loca_pid,
+		b.device_loca_name as name from device_location a
+		left outer join
+		device_location b on
+		a.device_loca_pid=b.device_loca_id
+		where
+		a.device_loca_id=#{deviceLocaId}
+	</select>
+
+	<select id="getDeviceLocations" resultType="com.labwinner.domain.DeviceLocation"
+		resultMap="deviceLocationMap">
+		select a.device_loca_id,a.device_loca_name,a.device_loca_pid,
+		b.device_loca_name as name from device_location a
+		left outer join
+		device_location b on
+		a.device_loca_pid=b.device_loca_id
+		where
+		a.device_loca_pid=#{deviceLocaPid}
+		order by device_loca_id
+	</select>
+
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.DeviceLocation" resultMap="deviceLocationMap">
+		select a.device_loca_id,a.device_loca_name,a.device_loca_pid,
+		b.device_loca_name as name from device_location a
+		left outer join
+		device_location b on
+		a.device_loca_pid=b.device_loca_id
+		where a.device_loca_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.DeviceLocation"
+		useGeneratedKeys="true" keyProperty="deviceLocaId">
+		insert into
+		device_location(     
+	    device_loca_name,    
+	    device_loca_pid)
+		value(
+		#{label},
+		#{deviceLocaPid})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.DeviceLocation">
+		update
+		device_location set
+		device_loca_name=#{label},
+		device_loca_pid=#{deviceLocaPid}
+		where
+		device_loca_id=#{deviceLocaId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from device_location where
+		device_loca_id=#{deviceLocaId}
+	</delete>
+	
+	
+	 	<select id="getAllFirst" resultType="com.labwinner.domain.DeviceLocation" resultMap="deviceLocationMap">
+		select
+		a.device_loca_id,a.device_loca_name,a.device_loca_pid
+		 from device_location a
+		where a.device_loca_pid ='0'
+		order by a.device_loca_id 
+	</select>
+	
+	
+	<select id="getAllLocation" resultType="com.labwinner.domain.DeviceLocation"
+		resultMap="deviceLocationMap">
+		select device_loca_id  from device_location where device_loca_id in(
+     select device_loca_id from device_location where device_loca_pid in(
+     select device_loca_id from device_location where device_loca_pid in(
+     select device_loca_id from device_location where (device_loca_id=#{id} or device_loca_pid=#{id}) or device_loca_id=#{id}) or device_loca_id=#{id}) or device_loca_id=#{id})
+	</select>
+
+</mapper> 

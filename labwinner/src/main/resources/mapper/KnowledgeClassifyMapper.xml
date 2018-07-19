@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.KnowledgeClassifyDao">
+     
+      <resultMap id="knowledgeClassifyMap" type="com.labwinner.domain.KnowledgeClassify">
+            <id property="knowledgeClassifyId" column="knowledge_classify_id"/>
+            <result property="knowledgeClassifyName" column="knowledge_classify_name"/>
+                  
+      </resultMap>
+     
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.KnowledgeClassify" resultMap="knowledgeClassifyMap">
+		select * from knowledge_classify
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.KnowledgeClassify">
+		select * from knowledge_classify where knowledge_classify_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.KnowledgeClassify"
+		useGeneratedKeys="true" keyProperty="knowledgeClassifyId">
+		insert into
+		knowledge_classify(knowledge_classify_name)
+		value(#{knowledgeClassifyName})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.KnowledgeClassify">
+		update
+		knowledge_classify set
+		knowledge_classify_name=#{knowledgeClassifyName}
+		where
+		knowledge_classify_id=#{knowledgeClassifyId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from knowledge_classify where
+		knowledge_classify_id=#{knowledgeClassifyId}
+	</delete>
+
+</mapper> 

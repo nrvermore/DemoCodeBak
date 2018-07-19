@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.PriceCurrencyDao">
+
+<resultMap id="priceCurrencyMap" type="com.labwinner.domain.PriceCurrency">
+        <id column="pri_cur_id" property="priCurId" />
+        <result column="cur_type" property="curType" />
+        <result column="cur_name" property="curName" />
+       
+ </resultMap>
+<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.PriceCurrency" resultMap="priceCurrencyMap">
+		select * from price_currency
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.PriceCurrency" resultMap="priceCurrencyMap">
+		 select * from
+		 price_currency
+		 where pri_cur_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.PriceCurrency"
+		useGeneratedKeys="true" keyProperty="priCurId">
+		insert into
+		price_currency(
+		    cur_type)
+		value(
+		#{curType})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.PriceCurrency">
+		update
+		price_currency set
+		cur_type=#{curType}
+		where
+		pri_cur_id=#{priCurId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from price_currency where
+		pri_cur_id=#{priCurId}
+	</delete>
+	
+	
+</mapper>

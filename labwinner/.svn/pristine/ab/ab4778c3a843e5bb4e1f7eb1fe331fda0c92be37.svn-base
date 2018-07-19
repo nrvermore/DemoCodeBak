@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 附件 -->
+<mapper namespace="com.labwinner.dao.SysAttachmentDao">
+
+	<resultMap id="sysAttachmentResultMap" type="com.labwinner.domain.SysAttachment">
+		<id property="attaId" column="atta_id" />
+		<result property="attaName" column="atta_name" />
+		<result property="attaContent" column="atta_content" />
+		<result property="attaPath" column="atta_path" />
+		<result property="remark" column="remark" />
+	</resultMap>
+
+	<sql id="columns">atta_id, atta_name, atta_content, atta_path, remark
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="sysAttachmentResultMap">
+		select
+		<include refid="columns" />
+		from sys_attachment
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Long" resultMap="sysAttachmentResultMap">
+		select
+		<include refid="columns" />
+		from
+		sys_attachment
+		where atta_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SysAttachment"
+		useGeneratedKeys="true" keyProperty="attaId">
+		insert into
+		sys_attachment(
+		atta_name, atta_content, atta_path, remark
+		)
+		value(#{attaName},
+		#{attaContent},
+		#{attaPath},
+		#{remark})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.SysAttachment">
+		update
+		sys_attachment set
+		atta_name=#{attaName},
+		atta_content=#{attaContent},
+		atta_path=#{attaPath},
+		remark=#{remark}
+		where atta_id=#{attaId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Long">
+		delete from sys_attachment
+		where
+		atta_id=#{attaId}
+	</delete>
+
+</mapper> 

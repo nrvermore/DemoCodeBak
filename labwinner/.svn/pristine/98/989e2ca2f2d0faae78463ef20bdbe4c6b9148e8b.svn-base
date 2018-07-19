@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.DeviceStateDao">
+      
+      <resultMap id="deviceStateMap" type="com.labwinner.domain.DeviceState">
+            <id property="stateId" column="state_id"/>
+            <result property="deviceState" column="device_state"/>
+            
+           <collection property="deviceAppointments" ofType="com.labwinner.domain.DeviceAppointment">
+	         <id property="appointmentId" column="appointment_id"/>
+            </collection>         
+      </resultMap>
+      
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.DeviceState" resultMap="deviceStateMap">
+		select state_id,device_state from device_state
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.DeviceState" resultMap="deviceStateMap">
+		select state_id,device_state from device_state
+		where device_state.device_state LIKE concat('%',#{keyword},'%')
+		 
+	</select>
+	
+	
+	 <!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.DeviceState"
+		useGeneratedKeys="true" keyProperty="stateId">
+		insert into
+		device_state(         
+			device_state )
+		value(
+		#{deviceState})
+    </insert>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.DeviceState" resultMap="deviceStateMap">
+		select state_id,device_state,appointment_id
+		 from device_state
+		 left outer join device_appointment on 
+		 device_appointment.state_id = device_state.state_id
+		 where 
+		 state_id=#{id}
+	</select>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.DeviceState">
+		update
+		device_state set
+		device_state=#{deviceState}
+		where state_id=#{stateId}
+	</update>
+ 
+    
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from device_state where
+		state_id=#{stateId}
+	</delete>
+
+</mapper> 

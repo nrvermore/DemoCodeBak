@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.MarketAssistDao">
+
+<resultMap id="marketAssistMap" type="com.labwinner.domain.MarketAssist">
+        <id column="market_assist_id" property="marketAssistId" />
+        <result property="title" column="title" />
+         <result property="assistContent" column="assist_content" />
+        <result property="isSolve" column="is_solve" />
+         <result property="keywordId" column="keyword_id" />
+        <result property="createDate" column="create_date" />
+        
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+			<result property="userImage" column="user_image" />
+		</association>
+		
+		<association property="sysSigningAgency" javaType="com.labwinner.domain.SysSigningAgency">
+			<id property="agencyId" column="agency_id" />
+			<result property="userName" column="user_name" />
+		</association>
+        
+        <association property="marketAssistImages" javaType="com.labwinner.domain.MarketAssistImage">
+			<id property="imageId" column="image_id" />
+			<result property="imageName" column="image_name" />
+		</association>
+        
+ </resultMap>
+ 
+ 	<select id="getAll" resultType="com.labwinner.domain.MarketAssist" resultMap="marketAssistMap">
+		select x.*,labwinner_base.base_user.user_id,labwinner_base.base_user.username,labwinner_base.base_user.realname,labwinner_base.base_user.user_image,
+		labwinner_base.sys_signing_agency.agency_id,labwinner_base.sys_signing_agency.user_name,
+		labwinner_base.market_assist_image.* from 
+		(select labwinner_base.market_assist.* from labwinner_base.market_assist 
+		order by create_date desc limit 0,#{endCount}) as x
+		left outer join labwinner_base.base_user on x.user_id = labwinner_base.base_user.user_id and x.agency_id = labwinner_base.base_user.agency_id
+		left outer join labwinner_base.market_assist_image on x.market_assist_id = labwinner_base.market_assist_image.market_assist_id
+		left outer join labwinner_base.sys_signing_agency on labwinner_base.sys_signing_agency.agency_id = x.agency_id
+		order by x.create_date desc
+	</select>
+	
+	<select id="getbyId" resultType="com.labwinner.domain.MarketAssist" resultMap="marketAssistMap">
+		select x.*,a.user_id,a.username,a.realname,a.user_image,
+		labwinner_base.sys_signing_agency.agency_id,labwinner_base.sys_signing_agency.user_name,
+		labwinner_base.market_assist_image.* from 
+		labwinner_base.market_assist as x
+		left outer join labwinner_base.base_user a on x.user_id = a.user_id and x.agency_id = a.agency_id
+		left outer join labwinner_base.market_assist_image on x.market_assist_id = labwinner_base.market_assist_image.market_assist_id
+		left outer join labwinner_base.sys_signing_agency on labwinner_base.sys_signing_agency.agency_id = x.agency_id
+		where x.market_assist_id = #{id}
+	</select>
+	
+	<select id="getByKeywordId" resultType="com.labwinner.domain.MarketAssist" resultMap="marketAssistMap">
+		select x.*,a.user_id,a.username,a.realname,a.user_image,
+		labwinner_base.sys_signing_agency.agency_id,labwinner_base.sys_signing_agency.user_name,
+		labwinner_base.market_assist_image.* from 
+		(select labwinner_base.market_assist.* from labwinner_base.market_assist 
+		where keyword_id = #{id}
+		order by create_date desc limit 0,#{endCount}) as x
+		left outer join labwinner_base.base_user a on x.user_id = a.user_id and x.agency_id = a.agency_id
+		left outer join labwinner_base.market_assist_image on x.market_assist_id = labwinner_base.market_assist_image.market_assist_id
+		left outer join labwinner_base.sys_signing_agency on labwinner_base.sys_signing_agency.agency_id = x.agency_id
+		order by x.create_date desc 
+	</select>
+	
+	<select id="getUser" resultType="com.labwinner.domain.MarketAssist" resultMap="marketAssistMap">
+		select x.*,a.user_id,a.username,a.realname,a.user_image,
+		labwinner_base.sys_signing_agency.agency_id,labwinner_base.sys_signing_agency.user_name,
+		labwinner_base.market_assist_image.* from 
+		(select labwinner_base.market_assist.* from labwinner_base.market_assist 
+		where user_id = #{userId} and agency_id = #{agencyId}
+		order by create_date desc limit 0,#{endCount}) as x
+		left outer join labwinner_base.base_user a on x.user_id = a.user_id and x.agency_id = a.agency_id
+		left outer join labwinner_base.market_assist_image on x.market_assist_id = labwinner_base.market_assist_image.market_assist_id
+		left outer join labwinner_base.sys_signing_agency on labwinner_base.sys_signing_agency.agency_id = x.agency_id
+		order by x.create_date desc
+		
+	</select>
+	
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.MarketAssist"
+		useGeneratedKeys="true" keyProperty="marketAssistId">
+		insert into
+		labwinner_base.market_assist(title,assist_content,user_id,agency_id,is_solve,keyword_id,create_date)
+		value(
+		#{title},
+		#{assistContent},
+		#{sysUser.userId},
+		#{sysSigningAgency.agencyId},
+		#{isSolve},
+		#{keywordId},
+		#{createDate}
+		)
+	</insert>
+	
+	<update id="update" parameterType="com.labwinner.domain.MarketAssist">
+		update labwinner_base.market_assist
+		set
+		is_solve=#{isSolve}
+		where
+		market_assist_id=#{marketAssistId}
+
+	</update>
+	
+	<delete id="delete" parameterType="Integer">
+	    delete from labwinner_base.market_assist where
+		market_assist_id=#{id}
+	</delete>
+</mapper> 

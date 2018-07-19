@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.SysSigningAgencyDao">
+
+	<resultMap id="sysSigningAgencyResultMap" type="com.labwinner.domain.SysSigningAgency">
+		<id property="agencyId" column="agency_id" />
+		<result property="userName" column="user_name" />
+		<result property="postalAddress" column="postal_address" />
+		<result property="phone" column="phone" />
+		<result property="authType" column="auth_type" />
+		<result property="contactPerson" column="contact_person" />
+		<result property="agencyType" column="agency_type" />
+		<result property="maxUsers" column="max_users" />
+		<result property="signStartDate" column="sign_start_date" />
+		<result property="signDeadline" column="sign_deadline" />
+		<result property="latitudeLongitude" column="latitude_longitude" />
+		<result property="sysSignTime" column="sys_sign_time" />
+		<association property="industry"
+			resultMap="com.labwinner.dao.IndustryDao.industryResultMap"></association>
+	</resultMap>
+
+	<sql id="columns">agency_id, user_name, postal_address, phone, auth_type,
+		contact_person, agency_type, max_users, sign_start_date,
+		sign_deadline, latitude_longitude, industry_id,sys_sign_time
+	</sql>
+
+	<!-- 获取所有对象 -->
+	<select id="getAll" resultMap="sysSigningAgencyResultMap">
+		select
+		<include refid="columns" />
+		from sys_signing_agency
+	</select>
+	
+	<!-- 根据查询条件获取对象 -->
+	<select id="getAllPageable" resultMap="sysSigningAgencyResultMap">
+		select * from sys_signing_agency
+		where user_name like
+		CONCAT('%',#{filter},'%') or postal_address like
+		CONCAT('%',#{filter},'%') or
+		phone like CONCAT('%',#{filter},'%') or
+		auth_type like
+		CONCAT('%',#{filter},'%')
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Long" resultMap="sysSigningAgencyResultMap">
+		select
+		<include refid="columns" />
+		from
+		sys_signing_agency where
+		agency_id=#{id}
+	</select>
+
+	<!-- 保存对象 -->
+	<insert id="save" parameterType="com.labwinner.domain.SysSigningAgency"
+		useGeneratedKeys="true" keyProperty="agencyId">
+		insert into
+		sys_signing_agency(user_name, postal_address, phone, auth_type,
+		contact_person, agency_type, max_users, sign_start_date,
+		sign_deadline, latitude_longitude, industry_id,sys_sign_time)
+		value(#{userName},
+		#{postalAddress},
+		#{phone},
+		#{authType},
+		#{contactPerson},
+		#{agencyType}, #{maxUsers},
+		#{signStartDate},
+		#{signDeadline},
+		#{latitudeLongitude},
+		#{industry.industryId},
+		#{sysSignTime})
+	</insert>
+
+	<!-- 更新对象 -->
+	<update id="update" parameterType="com.labwinner.domain.SysSigningAgency">
+		update
+		sys_signing_agency set
+		user_name=#{userName},
+		postal_address=#{postalAddress},
+		phone=#{phone},
+		auth_type=#{authType},
+		contact_person=#{contactPerson},
+		agency_type=#{agencyType},
+		max_users=#{maxUsers},
+		sign_start_date=#{signStartDate},
+		sign_deadline=#{signDeadline},
+		industry_id=#{industry.industryId},
+		latitude_longitude=#{latitudeLongitude},
+		sys_sign_time=#{sysSignTime}
+		where
+		agency_id=#{agencyId}
+	</update>
+
+	<!-- 删除对象 -->
+	<delete id="delete" parameterType="Long">
+		delete from sys_signing_agency
+		where
+		agency_id=#{agencyid}
+	</delete>
+
+</mapper> 

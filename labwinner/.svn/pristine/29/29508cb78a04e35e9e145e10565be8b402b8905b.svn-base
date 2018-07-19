@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.labwinner.dao.SmsDao">
+	<resultMap id="SmsMap" type="com.labwinner.domain.Sms">
+		<result column="sms_id" property="smsId" />
+		<result column="phone" property="phone" />
+		<result column="verification" property="verification" />
+		<result column="create_date" property="createDate" />
+	</resultMap>
+
+	<select id="findVerByName" resultMap="SmsMap" parameterType="java.lang.String">
+		select * from sms where phone = #{phone}
+	</select>
+		
+		<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Sms"
+		useGeneratedKeys="true" keyProperty="smsId">
+		insert into
+		sms(
+		phone,
+		verification,
+		create_date
+		)
+		value(
+		#{phone},
+		#{verification},
+		#{createDate}
+		)
+	</insert>
+
+	<select id="getSms" resultMap="SmsMap" parameterType="java.lang.String">
+		select * from sms where phone = #{phone} and verification=#{verCode}
+	</select>
+
+</mapper>

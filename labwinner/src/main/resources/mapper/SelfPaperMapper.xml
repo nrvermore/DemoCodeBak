@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 自主论文 -->
+<mapper namespace="com.labwinner.dao.SelfPaperDao">
+
+	<resultMap id="selfPaperResultMap" type="com.labwinner.domain.SelfPaper">
+		<id property="selfPaperId" column="self_paper_id" />
+		<result property="title" column="title" />
+		<result property="publishTime" column="publish_time" />
+		<result property="keyWords" column="key_words" />
+		<result property="abstract_" column="abstract" />
+		<result property="creater" column="creater" />
+		<result property="createDate" column="create_date" />
+		<result property="modifier" column="modifier" />
+		<result property="modifyDate" column="modify_date" />
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+             <result property="username" column="username"/>
+       </association>
+         <association property="knowledgeAcc" javaType="com.labwinner.domain.KnowledgeAcc">
+        <id property="knowledgeAccId" column="knowledge_acc_id"/>
+         <result property="uploadFiles" column="upload_files"/>
+          <result property="pdfCount" column="pdf_count"/>
+         </association>
+         <association property="secureRank" javaType="com.labwinner.domain.SecureRank">
+        <id property="secureRankId" column="secure_rank_id"/>
+         <result property="secureRank" column="secure_rank"/>
+       </association>
+	</resultMap>
+
+	<sql id="columns">self_paper_id, user_id, title, publish_time,key_words,abstract,creater,create_date,modifier,modify_date,knowledge_acc_id,secure_rank_id
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="selfPaperResultMap">
+		select result.* from 	(  
+  		select a.self_paper_id, title, publish_time,key_words,abstract,c.realname as creater,a.create_date,a.modifier,a.modify_date
+   		 ,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files,b.pdf_count,d.secure_rank_id,d.secure_rank
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+		left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+     	where a.secure_rank_id=1
+        UNION ALL
+		select  distinct 
+  		a.self_paper_id, title, publish_time,key_words,abstract,c.realname as creater,a.create_date,a.modifier,a.modify_date
+   		 ,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files,b.pdf_count,d.secure_rank_id,d.secure_rank
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+		left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+     	 left outer join journal_user e on a.self_paper_id=e.journal_article_id and e.knowledge_classify_id=2
+  		where a.secure_rank_id=2  
+   		 <if test="roleName != 'ROLE_TEAM' ">
+    	and (a.user_id=#{id} or e.user_id=#{id})
+    	</if>
+  		)as result
+  		order by result.self_paper_id desc
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getByUserId" resultMap="selfPaperResultMap">
+		select result.* from 	(  
+  		select a.self_paper_id, title, publish_time,key_words,abstract,c.realname as creater,a.create_date,a.modifier,a.modify_date
+   		 ,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files,b.pdf_count,d.secure_rank_id,d.secure_rank
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+		left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+     	where a.secure_rank_id=1
+     	and a.user_id=#{id}
+        UNION ALL
+		select  distinct 
+  		a.self_paper_id, title, publish_time,key_words,abstract,c.realname as creater,a.create_date,a.modifier,a.modify_date
+   		 ,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files,b.pdf_count,d.secure_rank_id,d.secure_rank
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+		left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+     	 left outer join journal_user e on a.self_paper_id=e.journal_article_id and e.knowledge_classify_id=2
+  		where a.secure_rank_id=2  
+  		and a.user_id=#{id}
+   		 <if test="roleName != 'ROLE_TEAM' ">
+    	and (a.user_id=#{userId} or e.user_id=#{userId})
+    	</if>
+  		)as result
+  		order by result.self_paper_id desc
+	</select>
+	
+	
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="selfPaperResultMap">
+			select   
+	a.self_paper_id, title, publish_time,key_words,abstract,a.creater,a.create_date,a.modifier,a.modify_date,
+	a.knowledge_acc_id,b.upload_files ,c.user_id,c.realname,b.pdf_count,a.secure_rank_id
+ 	from self_paper a
+ 	left outer join  sys_user c on c.user_id=a.user_id
+ 	left outer join knowledge_acc b on b.knowledge_acc_id=a.knowledge_acc_id and b.knowledge_classify_id=2  
+ 	left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+ 	  where self_paper_id=#{id}  
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SelfPaper"
+		useGeneratedKeys="true" keyProperty="selfPaperId">
+		insert into
+		self_paper(
+		<include refid="columns" />
+		)
+		value(#{selfPaperId},
+		#{sysUser.userId},
+		#{title}, #{publishTime},
+		#{keyWords}, #{abstract_},
+		#{creater}, #{createDate},
+		#{modifier}, #{modifyDate},
+		#{knowledgeAcc.knowledgeAccId},
+		#{secureRank.secureRankId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.SelfPaper">
+		update
+		self_paper set
+		user_id=#{sysUser.userId},
+		title=#{title},
+		key_words=#{keyWords},
+		publish_time=#{publishTime},
+		abstract=#{abstract_},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate},
+		knowledge_acc_id=#{knowledgeAcc.knowledgeAccId},
+		secure_rank_id=#{secureRank.secureRankId}
+		where self_paper_id=#{selfPaperId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from self_paper
+		where
+		self_paper_id=#{id}
+	</delete>
+	
+	
+	<!-- 根据名字获取对象方法 -->
+	<select id="getByName"  resultMap="selfPaperResultMap">
+		select result.* from 	(  
+  		select a.self_paper_id, title, publish_time,key_words,abstract,c.realname as creater,a.create_date,a.modifier,a.modify_date
+   		 ,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files,b.pdf_count,d.secure_rank_id,d.secure_rank
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+		left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+     	where a.secure_rank_id=1
+     	and a.title like CONCAT('%',#{name},'%')
+        UNION ALL
+		select   distinct
+  		a.self_paper_id, title, publish_time,key_words,abstract,c.realname as creater,a.create_date,a.modifier,a.modify_date
+   		 ,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files,b.pdf_count,d.secure_rank_id,d.secure_rank
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+		left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+     	 left outer join journal_user e on a.self_paper_id=e.journal_article_id and e.knowledge_classify_id=2
+  		where a.secure_rank_id=2  
+   		 <if test="roleName != 'ROLE_TEAM'  ">
+    	and (a.user_id=#{id} or e.user_id=#{id})
+    	</if>
+    	and a.title like CONCAT('%',#{name},'%')
+  		)as result 
+  		order by result.self_paper_id desc
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllForApp" resultMap="selfPaperResultMap">
+		  select   
+	a.self_paper_id, title, publish_time,key_words,abstract,a.creater,a.create_date,a.modifier,a.modify_date,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+    	left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+     	where a.secure_rank_id=1
+      union all
+        select   
+	a.self_paper_id, title, publish_time,key_words,abstract,a.creater,a.create_date,a.modifier,a.modify_date,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+    	left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+      left outer join journal_user e on a.self_paper_id=e.journal_article_id and e.knowledge_classify_id=2
+     	where a.secure_rank_id=2
+      <if test="roleName != 'ROLE_TEAM'  ">
+    	and (a.user_id=#{userId} or e.user_id=#{userId})
+    	</if>
+		LIMIT #{size}
+	</select>
+	<!-- 根据名字获取对象方法 -->
+	<select id="getByNameForApp"  resultMap="selfPaperResultMap">
+	
+	 select   
+	a.self_paper_id, title, publish_time,key_words,abstract,a.creater,a.create_date,a.modifier,a.modify_date,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+    	left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+     	where a.secure_rank_id=1
+     	and a.title like CONCAT('%',#{keyword},'%')
+      union all
+        select   
+	a.self_paper_id, title, publish_time,key_words,abstract,a.creater,a.create_date,a.modifier,a.modify_date,b.knowledge_acc_id,c.user_id,c.realname,b.upload_files
+		from self_paper a
+		left outer join knowledge_acc b on a.knowledge_acc_id=b.knowledge_acc_id
+		left outer join  sys_user c on c.user_id=a.user_id
+    	left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+      left outer join journal_user e on a.self_paper_id=e.journal_article_id and e.knowledge_classify_id=2
+     	where a.secure_rank_id=2
+     	and a.title like CONCAT('%',#{keyword},'%')
+      <if test="roleName != 'ROLE_TEAM' ">
+    	and (a.user_id=#{userId} or e.user_id=#{userId})
+    	</if>
+		LIMIT #{size}
+	</select>
+	
+		<select id="getSelfPaperNum"  resultType="java.lang.Integer">
+    	select count(1) from 
+		(select
+		a.*
+		from self_paper a
+		left outer join sys_user c on a.user_id=c.user_id
+		left outer join secure_rank d on d.secure_rank_id=a.secure_rank_id
+		left outer join knowledge_acc e on e.knowledge_acc_id=a.knowledge_acc_id and e.knowledge_classify_id=2
+    	where a.secure_rank_id=1
+    	UNION ALL
+    	select distinct
+		a.*
+		from self_paper a
+		left outer join sys_user c on a.user_id=c.user_id
+    	left outer join journal_user d on a.self_paper_id=d.journal_article_id and d.knowledge_classify_id=2
+    	left outer join secure_rank e on e.secure_rank_id=a.secure_rank_id
+    	left outer join knowledge_acc f on f.knowledge_acc_id=a.knowledge_acc_id and f.knowledge_classify_id=2
+    	where a.secure_rank_id=2   
+    	<if test="roleName != 'ROLE_TEAM'  ">
+    	and (a.user_id=#{userId} or d.user_id=#{userId})
+    	</if>
+    	)as result
+	</select>
+	
+</mapper> 

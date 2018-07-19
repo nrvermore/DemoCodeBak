@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.DesignTechnologyDosageDao">
+   
+   <resultMap id="designTechnologyDosageMap" type="com.labwinner.domain.DesignTechnologyDosage">
+        <id column="design_technology_dosage_id" property="designTechnologyDosageId" />        
+        <result column="design_technology_dosage" property="designTechnologyDosage" />
+        <result column="design_parameter_name" property="designParameterName" />
+         
+         <association property="designTechnologyProcess" javaType="com.labwinner.domain.DesignTechnologyProcess">
+         <id column="process_id" property="processId" />
+	     <result column="process_number" property="processNumber" />
+         <result column="process_name" property="processName" />
+         <result column="remark" property="remark" />
+         
+             <association property="designTechnology" javaType="com.labwinner.domain.DesignTechnology">
+		     <id column="technology_id" property="technologyId" />
+	         <result column="technology_name" property="technologyName" />
+		     </association>
+         </association>
+         
+         <association property="measurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="measure_unit_id" />
+			<result property="basicUnit" column="basic_unit" />
+			<result property="conversionRelation" column="conversion_relation" />
+			<result property="measureResource" column="measure_resource" />
+			<result property="measureUnit" column="measure_unit" />
+			<result property="flag" column="flag" />
+		</association>
+       
+           
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.DesignTechnologyDosage" resultMap="designTechnologyDosageMap">
+		 select design_technology.technology_id,technology_name,design_technology_process.process_id,
+		 design_technology_process.process_number,design_technology_process.technology_id,
+		 design_technology_process.process_name,design_technology_process.remark,
+		 design_technology_dosage.measure_unit_id,basic_unit,measure_unit,conversion_relation,
+		 measure_resource,flag,process_number,process_name,remark,design_technology_relation.relation_id,
+		 design_technology_relation.technology_id,design_technology_dosage.process_id,
+		 design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+		 design_technology_dosage.design_technology_dosage_id 
+		 from design_technology_dosage
+		 left outer join design_technology_relation on
+		 design_technology.technology_id=design_technology_relation.technology_id
+		 left outer join design_technology on
+		 design_technology_process.technology_id=design_technology.technology_id
+		 left outer join design_technology_process on
+		 design_technology_dosage.process_id=design_technology_process.process_id
+		 left outer join measurement on
+		 design_technology_dosage.measure_unit_id=measurement.measure_unit_id
+		 
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.DesignTechnologyDosage" resultMap="designTechnologyDosageMap">
+		select design_technology.technology_id,technology_name,design_technology_process.process_id,
+		 design_technology_process.process_number,design_technology_process.technology_id,
+		 design_technology_process.process_name,design_technology_process.remark,
+		 design_technology_dosage.measure_unit_id,basic_unit,measure_unit,conversion_relation,
+		 measure_resource,flag,design_technology_relation.relation_id,
+		 design_technology_relation.technology_id,design_technology_dosage.process_id,
+		 design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+		 design_technology_dosage.design_technology_dosage_id 
+		 from design_technology_dosage
+		 left outer join design_technology_relation on
+		 design_technology.technology_id=design_technology_relation.technology_id
+		 left outer join design_technology on
+		 design_technology_process.technology_id=design_technology.technology_id
+		 left outer join design_technology_process on
+		 design_technology_dosage.process_id=design_technology_process.process_id
+		 left outer join measurement on
+		 design_technology_dosage.measure_unit_id=measurement.measure_unit_id
+		 where design_technology.technology_name LIKE concat('%',#{keyword},'%')
+		 
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.DesignTechnologyDosage" resultMap="designTechnologyDosageMap">
+		 select design_technology.technology_id,technology_name,design_technology_process.process_id,
+		 design_technology_process.process_number,design_technology_process.technology_id,
+		 design_technology_process.process_name,design_technology_process.remark,
+		 design_technology_dosage.measure_unit_id,basic_unit,measure_unit,conversion_relation,
+		 measure_resource,flag,design_technology_relation.relation_id,
+		 design_technology_relation.technology_id,design_technology_dosage.process_id,
+		 design_technology_dosage.design_parameter_name,design_technology_dosage.design_technology_dosage,
+		 design_technology_dosage.design_technology_dosage_id 
+		 from design_technology_dosage
+		 left outer join design_technology_relation on
+		 design_technology.technology_id=design_technology_relation.technology_id
+		 left outer join design_technology on
+		 design_technology_process.technology_id=design_technology.technology_id
+		 left outer join design_technology_process on
+		 design_technology_dosage.process_id=design_technology_process.process_id
+		 left outer join measurement on
+		 design_technology_dosage.measure_unit_id=measurement.measure_unit_id
+		 where design_technology_dosage.technology_id=#{id}
+	</select>
+	
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.DesignTechnologyDosage"
+		useGeneratedKeys="true" keyProperty="designTechnologyDosageId">
+		insert into
+		design_technology_dosage(
+		    design_technology_dosage,
+		    process_id,
+		    design_parameter_name,               
+			measure_unit_id)
+		value(
+		#{designTechnologyDosage},
+		#{designTechnologyProcess.processId},
+		#{designParameterName},
+		#{measurement.measureUnitId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.DesignTechnologyDosage">
+		update
+		design_technology_dosage
+		<trim prefix="set" suffixOverrides=",">
+		<if test="designTechnologyDosage!=null">design_technology_dosage=#{designTechnologyDosage},</if>
+		<if test="designTechnologyProcess.processId!=null">process_id=#{designTechnologyProcess.processId},</if>
+		<if test="designParameterName!=null">design_parameter_name,=#{designParameterName},</if>
+		<if test="measurement.measureUnitId!=null">measure_unit_id=#{measurement.measureUnitId},</if>
+		</trim>
+		where
+		design_technology_dosage_id=#{designTechnologyDosageId}
+		
+	</update>
+
+		<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from design_technology_dosage
+		where
+		process_id=#{id}
+	</delete>
+
+</mapper> 

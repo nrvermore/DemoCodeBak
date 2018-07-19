@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.TestAttachmentDao">
+
+<resultMap id="testAttachmentMap" type="com.labwinner.domain.TestAttachment">
+        <id column="test_attachment_id" property="testAttachmentId" />
+        <result column="test_attachment_name" property="testAttachmentName" />
+        <result column="test_attachment_content" property="testAttachmentContent" />
+        <result column="test_attachment" property="testAttachment" />
+       <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" /> 
+        
+        <association property="reactionTest"
+			resultMap="com.labwinner.dao.ReactionTestDao.reactionTestMap"></association>
+ </resultMap>
+ 	<select id="getById" resultType="com.labwinner.domain.TestAttachment" parameterType="Integer" resultMap="testAttachmentMap" >
+		select test_attachment_id,test_attachment_name,test_attachment_content,test_attachment,
+		reaction_test.test_id,reaction_test.test_name
+		from test_attachment,reaction_test where test_attachment.test_id = #{id}
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.TestAttachment"
+		useGeneratedKeys="true" keyProperty="testAttachmentId">
+		insert into
+		test_attachment
+		(test_attachment_name,
+		test_attachment_content,test_attachment,test_id,
+		creater,create_date, modifier,modify_date)
+		value(
+		#{testAttachmentName},
+		#{testAttachmentContent},
+		#{testAttachment},
+		#{reactionTest.testId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from test_attachment where
+		test_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByUrl" parameterType="string">
+		delete from test_attachment where
+		test_attachment_name=#{filename}
+	</delete>
+	
+	<delete id="batchRemove" parameterType="java.util.List">
+		delete from test_attachment where test_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.TestAttachment">
+		update test_attachment 
+		set
+		test_attachement_name=#{testAttachmentName},
+		test_attachment_content=#{testAttachmentContent},
+		test_attachment=#{testAttachment},
+		test_id=#{reactionTest.testId},
+		creater=#{creater}, 
+		create_date=#{createDate}, 
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where 
+		test_attachment_id=#{testAttachmentId}
+	</update>
+
+</mapper>

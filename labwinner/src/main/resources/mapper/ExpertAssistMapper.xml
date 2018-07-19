@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ExpertAssistDao">
+   
+   <resultMap id="expertAssistMap" type="com.labwinner.domain.ExpertAssist">
+        <id column="expert_assist_id" property="expertAssistId" />        
+        <result column="expert_content" property="expertContent" />
+        <result column="reply_date" property="replyDate" />
+        <result column="assist_date" property="assistDate" />
+        <result column="url" property="url" />
+        <result column="is_read" property="isRead" />
+        <result column="isExpert" property="isExpert" />
+        <result column="delete_type" property="deleteType" />
+          <result column="delete_man" property="deleteMan" />
+             <result column="read_man" property="readMan" />
+              <result column="target_id" property="targetId" />
+               <result column="target_agency_id" property="targetAgencyId" />
+                <result column="msg_delete" property="msgDelete" />
+       <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="userImage" column="user_image" />
+		</association>
+		 <association property="sysUser1" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id1" />
+			<result property="realname" column="realname1" />
+			<result property="userImage" column="user_image1" />
+		</association>
+		 <association property="expert" javaType="com.labwinner.domain.Expert">
+			<id property="expertId" column="expert_id" />
+			<result property="expertNameCh" column="expert_name_ch" />
+			<result property="expertNameEn" column="expert_name_en" />
+				<result property="imgUrl" column="img_url" />
+		</association>
+		 <association property="expert1" javaType="com.labwinner.domain.Expert">
+			<id property="expertId" column="expert_id1" />
+			<result property="expertNameCh" column="expert_name_ch1" />
+			<result property="expertNameEn" column="expert_name_en1" />
+				<result property="imgUrl" column="img_url1" />
+		</association>
+       <association property="sysSigningAgency" javaType="com.labwinner.domain.SysSigningAgency">
+			<id property="agencyId" column="agency_id" />
+		</association>
+		   <association property="sysSigningAgency1" javaType="com.labwinner.domain.SysSigningAgency">
+			<id property="agencyId" column="agency_id1" />
+		</association>
+      
+    </resultMap>
+    
+	
+ 
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ExpertAssist"
+		useGeneratedKeys="true" keyProperty="expertAssistId">
+		insert into
+		labwinner_base.expert_assist(
+		    expert_content,               
+			reply_date,                
+			assist_date,       
+			reply_content,        
+			flag,  
+			type,              
+			user_id,
+			expert_id,              
+			agency_id,
+			url,
+			is_read,
+			delete_type,
+			expert_id1,
+			user_id1,
+			agency_id1 
+			)
+		value(
+		#{expertContent},
+		#{replyDate},
+		#{assistDate},
+		#{replyContent},
+		#{flag},
+		#{type},
+		#{sysUser.userId},
+		#{expert.expertId},
+		#{sysSigningAgency.agencyId},
+		#{url},
+		#{isRead},0,
+		#{expert1.expertId},
+		#{sysUser1.userId},
+		#{sysSigningAgency1.agencyId}
+		)
+		
+	</insert>
+
+		<!-- 保存对象方法 -->
+	<!-- 更新对象方法 -->
+	<update id="updateIsRead" parameterType="com.labwinner.domain.ExpertAssist">
+		update
+		labwinner_base.expert_assist set read_man=#{readMan}
+		where 
+		(user_id=#{userId}
+		and agency_id=#{agencyId}
+		and user_id1=#{userId1}
+		and agency_id1=#{agencyId1}
+		<if test="readMan != 'all' ">
+    	and read_man is null
+    	</if>
+		)
+		or(
+		user_id=#{userId1}
+		and agency_id=#{agencyId1}
+		and user_id1=#{userId}
+		and agency_id1=#{agencyId}
+		<if test="readMan != 'all' ">
+    	and read_man is null
+    	</if>
+		)
+	</update>
+		<!-- 更新对象方法 -->
+	<update id="updateDelete" parameterType="com.labwinner.domain.ExpertAssist">
+		update
+		labwinner_base.expert_assist set delete_man=#{deleteMan}
+		where 
+		(user_id=#{userId}
+		and agency_id=#{agencyId}
+		and user_id1=#{userId1}
+		and agency_id1=#{agencyId1})
+		or(
+		user_id=#{userId1}
+		and agency_id=#{agencyId1}
+		and user_id1=#{userId}
+		and agency_id1=#{agencyId}
+		)
+	</update>
+	
+	<update id="updateMessageDelete" parameterType="com.labwinner.domain.ExpertAssist">
+		update
+		labwinner_base.expert_assist set msg_delete=#{deleteMan}
+		where 
+		(user_id=#{userId}
+		and agency_id=#{agencyId}
+		and user_id1=#{userId2}
+		and agency_id1=#{agencyId2})
+		or(
+		user_id=#{userId2}
+		and agency_id=#{agencyId2}
+		and user_id1=#{userId}
+		and agency_id1=#{agencyId}
+		)
+	</update>
+	
+	
+
+	<!-- 更新对象方法 -->
+	<update id="updateByExpert" parameterType="com.labwinner.domain.ExpertAssist">
+		update
+		labwinner_base.expert_assist set delete_type=#{deleteType}
+		where 
+		user_id=#{userId}
+		and expert_id=#{expertId}
+		and agency_id=#{agencyId}
+		and delete_type=0
+	</update>
+	
+	
+		<!-- 删除对象方法 -->
+	<delete id="deleteByExpert" parameterType="Integer">
+		delete from labwinner_base.expert_assist
+		where
+		user_id=#{userId}
+		and expert_id=#{expertId}
+		and agency_id=#{agencyId}
+		and delete_type=#{deleteType}
+	</delete>
+
+		<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from labwinner_base.expert_assist
+		where
+		expert_assist_id=#{id}
+	</delete>
+	
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getByExpertAndUser" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+	select a.*,b.user_image,b.realname,c.expert_name_ch,c.expert_name_en,c.img_url 
+	from labwinner_base.expert_assist a 
+	left outer join labwinner_base.base_user b on a.user_id=b.user_id and a.agency_id=b.agency_id
+	left outer join labwinner_base.expert c on a.expert_id=c.expert_id
+	where a.user_id=#{userId} 
+	and a.expert_id=#{expertId}
+	and a.agency_id=#{agencyId}
+	and a.delete_type in (0,#{deleteType})
+	order by a.expert_assist_id 
+	</select>
+	
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllContentList" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+	select result.* from (select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 
+	from labwinner_base.expert_assist a 
+	left outer join labwinner_base.base_user b on a.user_id=b.user_id and a.agency_id=b.agency_id
+	left outer join labwinner_base.base_user c on a.user_id=c.user_id and a.agency_id=c.agency_id
+	where a.user_id=#{userId} 
+	and a.agency_id=#{agencyId}
+	and a.user_id1=#{userId1} 
+	and a.agency_id1=#{agencyId1}
+	and ifnull(a.delete_man,"") !=#{deleteMan}
+	union all 
+	select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 
+	from labwinner_base.expert_assist a 
+	left outer join labwinner_base.base_user b on a.user_id=b.user_id and a.agency_id=b.agency_id
+	left outer join labwinner_base.base_user c on a.user_id1=c.user_id and a.agency_id1=c.agency_id
+	where a.user_id=#{userId1} 
+	and a.agency_id=#{agencyId1}
+	and a.user_id1=#{userId} 
+	and a.agency_id1=#{agencyId}
+	and ifnull(a.delete_man,"") !=#{deleteMan}) as result 
+	order by result.expert_assist_id 
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllMessageContentList" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+	select result.* from (select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 
+	from labwinner_base.expert_assist a 
+	left outer join labwinner_base.base_user b on a.user_id=b.user_id and a.agency_id=b.agency_id
+	left outer join labwinner_base.base_user c on a.user_id=c.user_id and a.agency_id=c.agency_id
+	where a.user_id=#{userId} 
+	and a.agency_id=#{agencyId}
+	and a.user_id1=#{userId2} 
+	and a.agency_id1=#{agencyId2}
+	and ifnull(a.delete_man,"") !=#{deleteMan}
+	union all 
+	select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 
+	from labwinner_base.expert_assist a 
+	left outer join labwinner_base.base_user b on a.user_id=b.user_id and a.agency_id=b.agency_id
+	left outer join labwinner_base.base_user c on a.user_id1=c.user_id and a.agency_id1=c.agency_id
+	where a.user_id=#{userId2} 
+	and a.agency_id=#{agencyId2}
+	and a.user_id1=#{userId} 
+	and a.agency_id1=#{agencyId}
+	and ifnull(a.delete_man,"") !=#{deleteMan}
+	) as result 
+	order by result.expert_assist_id 
+	</select>
+	
+	
+	
+	
+		<select id="getAllAssistList" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+  select  f.* from 
+( 
+ select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 , 
+ a.user_id1 as target_id , a.agency_id1 as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+( select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id=#{userId}
+    and agency_id=#{agencyId}
+ and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+ and ifnull(a.delete_man,"") !=#{deleteMan}
+  union all
+   select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 ,
+    a.user_id as target_id , a.agency_id as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+(select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id1=#{userId}
+    and agency_id1=#{agencyId}
+   and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+    and ifnull(a.delete_man,"") !=#{deleteMan}) f 
+    
+,   
+ 
+ (
+ select target_id,target_agency_id ,max(assist_date) as assist_date from (
+ select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 , 
+ a.user_id1 as target_id , a.agency_id1 as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+( select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id=#{userId}
+    and agency_id=#{agencyId}
+ and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+ and ifnull(a.delete_man,"") !=#{deleteMan}
+  union all
+   select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 ,
+    a.user_id as target_id , a.agency_id as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+(select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id1=#{userId}
+    and agency_id1=#{agencyId}
+   and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+    and ifnull(a.delete_man,"") !=#{deleteMan}) templist 
+
+group by target_id,target_agency_id
+) g 
+
+
+where f.target_id=g.target_id 
+and f.target_agency_id=g.target_agency_id
+and f.assist_date=g.assist_date
+	</select>
+	
+		<select id="getAllMessageAssistList" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+  select  f.* from 
+( 
+ select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 , 
+ a.user_id1 as target_id , a.agency_id1 as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+( select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id=#{userId}
+    and agency_id=#{agencyId}
+ and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+ and ifnull(a.delete_man,"") !=#{deleteMan}
+  union all
+   select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 ,
+    a.user_id as target_id , a.agency_id as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+(select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id1=#{userId}
+    and agency_id1=#{agencyId}
+   and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+    and ifnull(a.delete_man,"") !=#{deleteMan} )
+,   
+ 
+ (
+ select target_id,target_agency_id ,max(assist_date) as assist_date from (
+ select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 , 
+ a.user_id1 as target_id , a.agency_id1 as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+( select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id=#{userId}
+    and agency_id=#{agencyId}
+ and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+ and ifnull(a.delete_man,"") !=#{deleteMan}
+  union all
+   select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 ,
+    a.user_id as target_id , a.agency_id as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+(select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id1=#{userId}
+    and agency_id1=#{agencyId}
+   and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+    and ifnull(a.delete_man,"") !=#{deleteMan}
+) templist 
+
+group by target_id,target_agency_id
+) g 
+
+
+where f.target_id=g.target_id 
+and f.target_agency_id=g.target_agency_id
+and f.assist_date=g.assist_date
+	</select>
+	
+		<select id="getNewAssistList" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+  select  f.* from 
+( 
+ select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 , 
+ a.user_id1 as target_id , a.agency_id1 as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+( select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id=#{userId}
+    and agency_id=#{agencyId}
+ and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+ and ifnull(a.delete_man,"") !=#{deleteMan}
+  union all
+   select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 ,
+    a.user_id as target_id , a.agency_id as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+(select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id1=#{userId}
+    and agency_id1=#{agencyId}
+   and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+    and ifnull(a.delete_man,"") !=#{deleteMan}) f 
+    
+,   
+ 
+ (
+ select target_id,target_agency_id ,max(assist_date) as assist_date from (
+ select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 , 
+ a.user_id1 as target_id , a.agency_id1 as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+( select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id=#{userId}
+    and agency_id=#{agencyId}
+ and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+ and ifnull(a.delete_man,"") !=#{deleteMan}
+  union all
+   select a.*,b.user_image as user_image,b.realname as realname,c.user_image as user_image1,c.realname as realname1 ,
+    a.user_id as target_id , a.agency_id as target_agency_id
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.base_user c,
+(select MAX(assist_date) as assist_date,user_id,agency_id,user_id1,agency_id1
+	from labwinner_base.expert_assist  
+	where  user_id1=#{userId}
+    and agency_id1=#{agencyId}
+   and ifnull(delete_man,"") !=#{deleteMan}
+ group by user_id,agency_id,user_id1,agency_id1) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+ and  a.user_id1=c.user_id and a.agency_id1=c.agency_id
+ and  a.user_id=d.user_id
+ and a.agency_id=d.agency_id
+  and  a.user_id1=d.user_id1
+ and a.agency_id1=d.agency_id1
+and a.assist_date=d.assist_date 
+    and ifnull(a.delete_man,"") !=#{deleteMan}) templist 
+
+group by target_id,target_agency_id
+) g 
+
+
+where f.target_id=g.target_id 
+and f.target_agency_id=g.target_agency_id
+and f.assist_date=g.assist_date
+order by f.assist_date desc limit 1
+	</select>
+	
+	
+	
+	<select id="getDeleteType" parameterType="Integer" resultType="Integer">
+		 select max(delete_type) from labwinner_base.expert_assist a
+		 where a.user_id=#{userId} 
+			and a.expert_id=#{expertId}
+			and a.agency_id=#{agencyId}
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getExpertContent" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+ select distinct a.user_id,ifnull(a.reply_date,a.assist_date) as assist_date,a.expert_content,a.expert_id,a.agency_id,a.url,a.type,a.is_read,a.flag,b.user_image,b.realname,c.expert_name_ch,c.expert_name_en,c.img_url,1 as isExpert 
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.expert c,
+( select MAX(ifnull(reply_date,assist_date)) as reply_date,user_id,expert_id,agency_id
+	from labwinner_base.expert_assist  
+	where  expert_id=#{expertId}
+    and delete_type in (0,1)
+ group by expert_id,user_id,agency_id) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+and  a.expert_id=c.expert_id
+ and  a.user_id=d.user_id
+ and a.expert_id=d.expert_id
+ and a.agency_id=d.agency_id
+ and ifnull(a.reply_date,a.assist_date)=d.reply_date 
+  and a.delete_type in (0,1)
+  union all
+   select distinct a.user_id,ifnull(a.reply_date,a.assist_date) as assist_date,a.expert_content,a.expert_id,a.agency_id,a.url,a.type,a.is_read,a.flag,b.user_image,b.realname,c.expert_name_ch,c.expert_name_en,c.img_url,1 as isExpert 
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.expert c,
+( select MAX(ifnull(reply_date,assist_date)) as reply_date,user_id,expert_id,agency_id
+	from labwinner_base.expert_assist  
+	where  user_id=#{userId}
+	 and agency_id=#{agencyId}
+  and type=1
+  and flag=0
+ group by expert_id,user_id,agency_id) as d
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+and  a.expert_id=c.expert_id
+ and  a.user_id=d.user_id
+ and a.expert_id=d.expert_id
+ and a.agency_id=d.agency_id
+ and ifnull(a.reply_date,a.assist_date)=d.reply_date 
+  and a.delete_type in (0,2)
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getUserContent" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+  select a.reply_date as assist_date,a.expert_content,a.url,a.user_id,a.expert_id,a.agency_id,a.type,b.user_image,b.realname,c.expert_name_ch,c.expert_name_en,c.img_url,0 as isExpert 
+	from labwinner_base.expert_assist a 
+	left outer join labwinner_base.base_user b on a.user_id=b.user_id and a.agency_id=b.agency_id
+	left outer join labwinner_base.expert c on a.expert_id=c.expert_id
+	where  a.user_id=#{userId}
+	 and a.agency_id=#{agencyId}
+	 and a.expert_id=#{expertId}
+  and a.type=0
+   and a.delete_type in (0,2)
+  order by a.reply_date desc limit 1
+	</select>
+	
+			<!-- 获取所有对象列表 -->
+	<select id="getAllAssist" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+  select *
+	from labwinner_base.expert_assist a 
+	where  a.user_id=#{userId}
+	 and a.agency_id=#{agencyId}
+	 and a.expert_id=#{expertId}
+	</select>
+	
+	<select id="getUnReadNumber"  resultType="java.lang.Integer">
+		select count(*) as number from 
+	(
+ 	select * from labwinner_base.expert_assist where user_id1=#{userId} and agency_id1=#{agencyId} and read_man !='all' and read_man !=#{readMan} 
+ 	union all 
+  	select * from labwinner_base.expert_assist where user_id1=#{userId} and agency_id1=#{agencyId} and read_man is null) as a
+	</select>
+	
+		<select id="getUnRead"  resultType="java.lang.Integer">
+		select count(*) as number from 
+	(
+ 	select * from labwinner_base.expert_assist 
+ 	where user_id1=#{userId} and agency_id1=#{agencyId} 
+ 	and user_id=#{userId1} and agency_id=#{agencyId1}  
+ 	and read_man !='all' and read_man !=#{readMan} 
+ 	union all 
+  	select * from labwinner_base.expert_assist 
+  	where user_id1=#{userId} and agency_id1=#{agencyId} 
+  	and user_id=#{userId1} and agency_id=#{agencyId1}  
+  	and read_man is null) as a
+	</select>
+	
+		
+	
+	
+	
+			<!-- 获取所有对象列表 -->
+	<select id="getAllUserContent" resultType="com.labwinner.domain.ExpertAssist" resultMap="expertAssistMap">
+    select ifnull(a.reply_date,a.assist_date) as assist_date,a.expert_content,a.url,a.type,a.user_id,a.expert_id,a.agency_id,a.is_read,a.flag,b.user_image,b.realname,c.expert_name_ch,c.expert_name_en,c.img_url,0 as isExpert 
+	from labwinner_base.expert_assist a ,labwinner_base.base_user b,labwinner_base.expert c,
+(
+   select MAX(ifnull(reply_date,assist_date)) as reply_date,user_id,expert_id,agency_id
+	from labwinner_base.expert_assist  
+	where  user_id=#{userId}
+	 and agency_id=#{agencyId}
+  and type=0
+ group by expert_id,user_id,agency_id) as d 
+ where a.user_id=b.user_id and a.agency_id=b.agency_id
+and  a.expert_id=c.expert_id
+ and  a.user_id=d.user_id
+ and a.expert_id=d.expert_id
+ and a.agency_id=d.agency_id
+ and ifnull(a.reply_date,a.assist_date)=d.reply_date 
+  and a.delete_type in (0,2)
+	</select>
+
+	
+	
+	
+</mapper> 

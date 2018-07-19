@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.ReactionStatusDao">
+
+<resultMap id="reactionStatusMap" type="com.labwinner.domain.ReactionStatus">
+        <id column="reaction_status_id" property="reactionStatusId" />
+         <result column="reaction_status" property="reactionStatus" />
+          <result column="status_type" property="statusType" />
+      
+ </resultMap>
+		 <select id="getAll" resultMap="reactionStatusMap">
+		 select * from reaction_status 
+		 </select>
+		 
+		 <select id="getByType" resultType="com.labwinner.domain.ReactionStatus" parameterType="Integer" resultMap="reactionStatusMap">
+		 select * from reaction_status where status_type = #{id}
+		 </select>
+		 
+		 <!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionStatus" resultMap="reactionStatusMap">
+		 select * from
+		 reaction_status
+		 where reaction_status_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ReactionStatus"
+		useGeneratedKeys="true" keyProperty="reactionStatusId">
+		insert into
+		reaction_status(
+		    reaction_status,
+		    status_type)
+		value(
+		#{reactionStatus},
+		#{statusType})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ReactionStatus">
+		update
+		reaction_status set
+		reaction_status=#{reactionStatus}
+		status_type=#{statusType}
+		where
+		reaction_status_id=#{reactionStatusId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_status where
+		reaction_status_id=#{reactionStatusId}
+	</delete>
+</mapper>

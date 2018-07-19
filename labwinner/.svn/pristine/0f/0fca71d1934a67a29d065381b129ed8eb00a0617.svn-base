@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 知识附件 -->
+<mapper namespace="com.labwinner.dao.KnowledgeAssistDao">
+
+	<resultMap id="knowledgeAssistResultMap" type="com.labwinner.domain.KnowledgeAssist">
+		<id property="knowledgeAssistId" column="knowledge_assist_id" />
+		<result property="assistName" column="assist_name" />
+		<result property="author" column="author" />
+		<result property="assistContent" column="assist_content" />
+		<result property="magazineName" column="magazine_name" />
+		<result property="readFlag" column="read_flag" />
+		<result property="createDate" column="create_date" />
+		<result property="replyContent" column="reply_content" />
+		<result property="agencyName" column="agency_name" />
+		<result property="fileName" column="file_name" />
+		<result property="finishFlag" column="finish_flag" />
+		<result property="replyDate" column="reply_date" />
+		 <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="userImage" column="user_image" />
+			 <association property="sysSigningAgency" javaType="com.labwinner.domain.SysSigningAgency">
+			<id property="agencyId" column="agency_id" />
+		</association>
+		</association>
+			<collection property="knowledgeAttachments" ofType="com.labwinner.domain.KnowledgeAttachment">
+			<id column="knowledge_attachment_id" property="knowledgeAttachmentId" />
+			<result column="attachment_name" property="attachmentName" />
+			<result column="size" property="size" />
+			<result column="file_type" property="fileType" />
+		</collection>  
+	</resultMap>
+
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAllKnowledgeAssist" resultType="com.labwinner.domain.KnowledgeAssist" resultMap="knowledgeAssistResultMap">
+		select a.* from labwinner_base.knowledge_assist a where a.user_id=#{userId} and a.agency_id=#{agencyId}
+		order by a.create_date desc limit #{size}
+		
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.KnowledgeAssist"
+		useGeneratedKeys="true" keyProperty="knowledgeAssistId">
+		insert into
+		labwinner_base.knowledge_assist
+		(assist_name,author,assist_content,user_id,agency_id,create_date,reply_content,agency_name,file_name,finish_flag,magazine_name)
+		value(
+		#{assistName},
+		#{author},
+		#{assistContent},
+		#{sysUser.userId},
+		#{sysUser.sysSigningAgency.agencyId},
+		#{createDate},
+		#{replyContent},
+		#{agencyName},
+		#{fileName},
+		#{finishFlag},
+		#{magazineName})
+	</insert>
+	
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="com.labwinner.domain.KnowledgeAssist" resultMap="knowledgeAssistResultMap">
+		select a.*,b.* from labwinner_base.knowledge_assist a 
+		left outer join labwinner_base.knowledge_attachment b on a.knowledge_assist_id=b.knowledge_assist_id 
+		where a.user_id=#{userId} and a.agency_id=#{agencyId}
+		and a.knowledge_assist_id=#{knowledgeAssistId}
+	</select>
+	
+	<update id="updateReadFlag" parameterType="Integer">
+		update labwinner_base.knowledge_assist
+		set read_flag=1 where knowledge_assist_id=#{knowledgeAssistId}		
+	</update>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from labwinner_base.knowledge_assist where
+		knowledge_assist_id=#{id}
+	</delete>
+
+</mapper> 

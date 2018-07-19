@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.MaterialTypeDao">
+
+<resultMap id="materialTypeMap" type="com.labwinner.domain.MaterialType">
+        <id column="material_type_id" property="materialTypeId" />
+        <result column="material_type" property="label" />
+        <result column="material_type_code" property="materialTypeCodeId" />
+        <result column="material_category" property="materialCategoryId" />       
+        <result column="name" property="parentName" />
+       
+       <collection property="inventories" ofType="com.labwinner.domain.Inventory">
+			<id column="inventory_id" property="inventoryId" />
+		</collection>
+       
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.MaterialType" resultMap="materialTypeMap">
+		select a.material_type_id,a.material_type,a.material_type_code,a.material_category,
+		b.material_type as name from material_type a
+		left outer join
+		material_type b on
+		a.material_category=b.material_type_code
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.MaterialType" resultMap="materialTypeMap">
+		 select  a.material_type_id,a.material_type,a.material_type_code,a.material_category,
+		b.material_type as name from material_type a
+		left outer join
+		material_type b on
+		a.material_category=b.material_type_code
+		 where a.material_type_id=#{id}
+	</select>
+
+     <select id="getMaterialType" resultType="com.labwinner.domain.MaterialType"
+		resultMap="materialTypeMap">
+		 select a.material_type_id,a.material_type,a.material_type_code,a.material_category,
+		b.material_type as name from material_type a
+		left outer join
+		material_type b on
+		a.material_category=b.material_type_code
+		where a.material_type_code=#{materialCategoryId}
+	</select>
+
+	<select id="getMaterialTypes" resultType="com.labwinner.domain.MaterialType"
+		resultMap="materialTypeMap">
+		select a.material_type_id,a.material_type,a.material_type_code,a.material_category,
+		b.material_type as name from material_type a
+		left outer join
+		material_type b on
+		a.material_category=b.material_type_code
+		where
+		a.material_category=#{materialTypeCodeId}
+	</select>
+	
+	<select id="getAllPageable" resultType="com.labwinner.domain.MaterialType"
+		resultMap="materialTypeMap">
+		select a.material_type_id,a.material_type,a.material_type_code,a.material_category,
+		b.material_type as name from material_type a
+		left outer join
+		material_type b on
+		a.material_category=b.material_type_code
+		where a.material_type LIKE concat('%',#{keyword},'%')
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.MaterialType"
+		useGeneratedKeys="true" keyProperty="materialTypeId">
+		insert into
+		material_type(
+		    material_type,
+		    material_type_code,
+		    material_category)
+		value(
+		#{label},
+		#{materialTypeCodeId},
+		#{materialCategoryId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.MaterialType">
+		update
+		material_type set
+		material_type=#{label}
+		material_type_code=#{materialTypeCodeId}
+		material_category=#{materialCategoryId}
+		where
+		material_type_id=#{materialTypeId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from material_type where
+		material_type_id=#{materialTypeId}
+	</delete>
+	
+</mapper>

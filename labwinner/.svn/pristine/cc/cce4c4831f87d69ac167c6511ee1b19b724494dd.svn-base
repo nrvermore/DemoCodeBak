@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.MolecularImageDao">
+
+<resultMap id="molecularImageMap" type="com.labwinner.domain.MolecularImage">
+        <id column="molecular_image_id" property="molecularImageId" />
+        <result column="image_name" property="imageName" />
+        <result column="image" property="image" />
+        
+        <association property="chemicalParameter"
+			resultMap="com.labwinner.dao.AnalyticsDao.chemicalParameterMap"></association>
+ </resultMap>
+ 	<select id="getById" resultType="com.labwinner.domain.MolecularImage" parameterType="Integer" resultMap="molecularImageMap" >
+		select molecular_image_id ,image_name
+		from molecular_image where molecular_image_id = #{id}
+	</select>
+
+	<insert id="save" parameterType="com.labwinner.domain.MolecularImage"
+		useGeneratedKeys="true" keyProperty="molecularImageId">
+		insert into
+		molecular_image
+		(image_name,ch_par_id)
+		value(
+		#{imageName},
+		#{chemicalParameter.chParId})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from molecular_image where
+		molecular_image_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByUrl" parameterType="String">
+		delete from molecular_image where
+		image_name=#{url}
+	</delete>
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.MolecularImage">
+		update molecular_image 
+		set
+		image_name=#{imageName},
+		ch_par_id=#{chemicalParameter.chParId}
+		where 
+		molecular_image_id=#{molecularImageId}
+	</update>
+ 
+</mapper>

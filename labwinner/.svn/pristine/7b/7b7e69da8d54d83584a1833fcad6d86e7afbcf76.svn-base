@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+    <style>
+      .main-wrap {
+        padding: 20px;
+      }
+      .item-wrap {
+        margin-bottom: 20px;
+      }
+      .temp-title {
+        padding-bottom: 5px;
+        border-bottom: 1px dashed #000;
+      }
+      .temp-cont {
+        padding: 15px 0 0 120px;
+      }
+      table {
+        width: 100%;
+      }
+      thead tr {
+        background: #999;
+        font-weight: bold;
+      }
+      thead tr>td>span:first-child {
+        padding-left: 5px;
+        border-left: 1px solid #000;
+      }
+      table tr>td:first-child {
+        padding-left: 15px;
+      }
+    </style>
+  </head>
+  <body style = "font-family: Microsoft YaHei; " >
+	<div class="main-wrap" >
+	    <div class="item-wrap" >
+	      <div class="temp-title" style="text-align: center; font-size :40px;background:#0AB799;" >
+	        <span style="color:#FFFFFF">${reactionName}</span>
+	      </div>
+	      <div >
+	       <div>
+	          <span >
+	            ${signAngency}
+	          </span>
+	        </div>
+	         <div>
+	          <span >
+	            <font face="arial" >执行人：${responPeople}</font>
+	          </span>
+	        </div>
+	         <div>
+	          <span>
+	            <font face="arial" >所属项目：${proName}</font>
+	          </span>
+	        </div>
+	         <div>
+	          <span>
+	            <font face="arial" >报告日期：${reportDate}</font>
+	          </span>
+	        </div>
+	      </div>
+	    </div>
+	
+	    <div class="item-wrap" style="background:#F5F5F5;">
+	      <div class="temp-title">
+	        <span class="reporttext1" style="color:
+#0AB799"><font size="5" face="arial" >一、试验原料</font></span>
+	      </div>
+	      <div class="temp-title">
+	        <span class="reporttext1" ><font size="5" face="arial" >试验原料表：</font></span>
+	      </div>
+	      <div>
+	        <table cellspacing="0" width="100%" >
+	          <thead>
+	           <tr style="background:#D4EFEA">
+	              <td style="width: 30%">
+	                <span translate="reactionDesigns.sampleName"> 
+	                 原料名称             
+	                </span>
+	              </td>
+	              <td style="width:15%">
+	                <span translate="reactionDesigns.sampleNum">重量</span>
+	              </td>
+	              <td style="width:15%">
+	                <span translate="reactionDesigns.sampleNum">单位</span>
+	              </td>
+	              <td style="width:40%">
+	                <span translate="reactionDesigns.sampleNum">库存位置</span>
+	              </td>
+	            </tr>
+	          </thead>
+	          <#list chemicalList as chemical>
+	          <tbody>
+	            <tr>
+	              <td> 
+	                 <span class="contents" > ${chemical.name} </span>
+	              </td>
+	              <td> 
+	                 <span class="contents" > ${chemical.count} </span>
+	              </td>
+	              <td> 
+	                 <span class="contents" > ${chemical.processName} </span>
+	              </td>
+	               <td> 
+	                 <span class="contents" > ${chemical.inventory} </span>
+	              </td>
+	            </tr>
+	          </tbody>
+	          </#list>
+	        </table>
+	      </div>
+	    </div>
+	  
+	    <div class="item-wrap" style="background:#F5F5F5;"> 
+	      <div class="temp-title"  >
+	        <span><font size="5" face="arial" style="color:
+#0AB799">二、试验过程</font></span>
+	      </div>  
+	      <div class="item-wrap">  
+	        <div class="temp-title">
+	          <span><font size="5" face="arial" >试验综述：</font></span>
+	        </div>  
+	        <table cellspacing="0">
+	          <thead>
+	           <tr style="background:#D4EFEA">
+	              <td style="width: 25%">
+	                <span translate="reactionDesigns.weight">步骤名称</span>            
+	              </td>
+	              <td style="width:30%">
+	                <span translate="reactionDesigns.sampleNum">开始时间</span>
+	              </td>
+	              <td style="width:30%">
+	                <span translate="reactionDesigns.sampleNum">结束时间</span>
+	              </td>
+	              <td style="width:15%">
+	                <span translate="reactionDesigns.sampleNum">步骤状态</span>
+	              </td>
+	            </tr>
+	          </thead>
+	          <#list processList as process>
+	          <tbody>
+	            <tr>
+	              <td> 
+	                 <span class="contents"
+	                > ${process.name} </span>
+	              </td>
+	              <td> 
+	                 <span class="contents"
+	                > ${process.start} </span>
+	              </td>
+	              <td> 
+	                 <span class="contents"
+	                > ${process.end} </span>
+	              </td>
+	              <td> 
+	                 <span class="contents"
+	                > ${process.status} </span>
+	              </td>
+	            </tr>
+	          </tbody>
+	         </#list>
+	        </table>
+	      </div>
+	     <div class="item-wrap" style="border-top: 1px dashed #000;"> 
+      <div>
+        <span >
+          <font face="arial" >引用文献</font>
+        </span>
+      </div>
+      <#list knowledgeList as knowledge>
+      <div style="width: 500px;">
+        <span style="word-wrap: break-word;white-space: pre-wrap;">
+          ${knowledge.number}${knowledge.title} ${knowledge.author} ${knowledge.createDate}
+        </span>
+      </div>
+      </#list>
+    </div>
+	    </div>
+</div>
+
+<div class="main-wrap">
+
+    <div class="item-wrap" style="background:#F5F5F5;">
+      <div class="temp-title">
+        <span><font size="5" face="arial" style="color:
+#0AB799">三、步骤详情：</font></span>
+      </div>
+       <#list processList as process>
+      <div class="temp-title">
+        <span><font size="5" face="arial" style="color:
+#0AB799">步骤${process.number}</font></span>
+      </div>
+      <div>
+        <div>
+          <span>
+            <font face="arial" >步骤名称：${process.name}</font>
+          </span>
+        </div>
+        <div>
+          <span>
+            <font face="arial" >开始时间：${process.start}</font>
+          </span>
+        </div>
+        <div>
+          <span>
+            <font face="arial" >结束时间：${process.end}</font>
+          </span>
+        </div>
+      </div>
+    <div class="item-wrap">
+      <div class="temp-title">
+        <span><font size="5" face="arial" >参数表：</font></span>
+      </div>
+      <div>
+        <table cellspacing="0">
+          <thead>
+            <tr style="background:#D4EFEA">
+              <td style="width: 40%">
+                <span translate="reactionDesigns.sampleName"> 
+                 参数名称             
+                </span>
+              </td>
+              <td style="width: 30%">
+                <span translate="reactionDesigns.weight">参数单位</span>            
+              </td>
+              <td >
+                <span translate="reactionDesigns.sampleNum">参数值</span>
+              </td>
+            </tr>
+          </thead>
+          <#list process.paramter as paramter>
+          <tbody>
+            <tr>
+              <td> 
+                 <span class="contents"
+                > ${paramter.name} </span>
+              </td>
+              <td> 
+                 <span class="contents"
+                > ${paramter.unit} </span>
+              </td>
+              <td> 
+                 <span class="contents"
+                > ${paramter.count} </span>
+              </td>
+             
+            </tr>
+          </tbody>
+          </#list>
+        </table>
+      </div>
+    </div>
+   
+    <div class="item-wrap">
+      <div class="temp-title">
+        <span><font size="5" face="arial" >设备管理：</font></span>
+      </div>
+      <div>
+        <table cellspacing="0">
+          <thead>
+            <tr style="background:#D4EFEA">
+              <td style="width: 40%">
+                <span translate="reactionDesigns.sampleName"> 
+                 设备名称            
+                </span>
+              </td>
+              <td>
+                <span translate="reactionDesigns.weight">设备位置</span>            
+              </td>
+            </tr>
+          </thead>
+          <#list process.device as device>
+          <tbody>
+            <tr>
+              <td> 
+                 <span class="contents"
+                > ${device.name} </span>
+              </td>
+              <td> 
+                 <span class="contents"
+                > ${device.location} </span>
+              </td>
+            </tr>
+          </tbody>
+		  </#list>
+        </table>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="temp-title">
+        <span class="reporttext1"><font size="5" face="arial" >产出物：</font></span>
+      </div>
+      <div>
+       <table cellspacing="0">
+          <thead>
+            <tr style="background:#D4EFEA">
+              <td style="width:15%">
+                <span translate="reactionDesigns.sampleName"> 
+                 样品名称            
+                </span>
+              </td>
+              <td style="width:13%">
+                <span translate="reactionDesigns.weight">单位</span>            
+              </td>
+              <td style="width:13%">
+                <span translate="reactionDesigns.sampleNum">重量</span>
+              </td>
+              <td style="width:15%">
+                <span translate="reactionDesigns.sampleNum">样品数量</span>
+              </td>
+              <td style="width:15%">
+                <span translate="reactionDesigns.sampleNum">样品编码</span>
+              </td>
+              <td>
+                <span translate="reactionDesigns.sampleNum">样品位置</span>
+              </td>
+            </tr>
+          </thead>
+          <#list process.proto as proto>
+          <tbody>
+            <tr>
+              <td> 
+                 <span class="contents"
+                > ${proto.name} </span>
+              </td>
+              <td> 
+                 <span class="contents"
+                > ${proto.dosage} </span>
+              </td>
+              <td> 
+                 <span class="contents"
+                > ${proto.count} </span>
+              </td>
+              <td> 
+                 <span class="contents"
+                > ${proto.barCode} </span>
+              </td>
+               <td> 
+                 <span class="contents"
+                > ${proto.location} </span>
+              </td>
+            </tr>
+          </tbody>
+		  </#list>
+        </table>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="temp-title">
+        <span>
+          <font size="5" face="arial" >试验记录：</font>
+        </span>
+      </div>
+      <#list process.record as record>
+      <div>
+        <div>
+          <span>
+            <font face="arial" >试验记录内容：${record.content}</font>
+          </span>
+        </div>
+      </div>
+      </#list>
+    </div>
+
+    <div class="item-wrap">
+      <div class="temp-title">
+        <span><font size="5" face="arial" >性能测试：</font></span>
+      </div>
+      <#list process.test as test>
+      <div>
+        <div>
+          <span>
+            <font face="arial" >性能测试名称：${test.name}</font>
+          </span>
+        </div>
+        <div>
+          <span>
+            <font face="arial" >性能测试内容：${test.content}</font>
+          </span>
+        </div>
+      </div>
+	  </#list>
+    </div>
+
+    <div class="item-wrap">
+      <div class="temp-title">
+        <span><font size="5" face="arial" >表征分析：</font></span>
+      </div>
+      <#list process.analytices as analytics>
+      <div>
+        <div>
+          <span>
+            <font face="arial" >表征分析名称：${analytics.name}</font>
+          </span>
+        </div>
+        <div>
+          <span>
+            <font face="arial" >表征分析内容：${analytics.content}</font>
+          </span>
+        </div>
+      </div>
+      </#list>
+    </div>
+  
+    <div class="item-wrap">
+      <div class="temp-title">
+        <span>
+          <font size="5" face="arial" >步骤备注：</font>
+        </span>
+      </div>
+      <div>
+        <span>
+        ${process.remark}
+        </span>
+      </div>
+    </div>
+  </#list>
+  </div>
+  </div>
+  </body>
+  </html>

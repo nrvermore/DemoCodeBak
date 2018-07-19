@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.AttachmentDao">
+
+	<resultMap id="attachmentMap" type="com.labwinner.domain.Attachment">
+		<id column="attachment_id" property="attachmentId" />
+		<result column="attachment_name" property="attachmentName" />
+		<result column="attachment_content" property="attachmentContent" />
+		<result property="conversionCount" column="conversion_count" />
+		<result property="pdfCount" column="pdf_count" />
+		<result property="pdfUrl" column="pdf_url" />
+		<!-- 消息 -->
+		<association property="message" javaType="com.labwinner.domain.Message">
+			<id column="message_id" property="messageId" />
+			<result column="message_title" property="messageTitle" />
+			<result column="message_date" property="messageDate" />
+			<result column="message_icon" property="messageIcon" />
+			<result column="sender_date" property="senderDate" />
+			<result column="message_content" property="messageContent" />
+		</association>
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Attachment"
+		resultMap="attachmentMap">
+		select * from attachment
+	</select>
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getById" resultType="com.labwinner.domain.Attachment"
+		resultMap="attachmentMap">
+		select * from attachment where attachment_id=#{id}
+	</select>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByMsgId" parameterType="Integer">
+		delete from attachment where
+		attachment.message_id=#{id}
+	</delete>
+	
+	<insert id="save" parameterType="com.labwinner.domain.Attachment"
+		useGeneratedKeys="true" keyProperty="attachmentId">
+		insert into
+		attachment
+		(attachment_name,attachment_content,message_id,conversion_count,pdf_count,pdf_url)
+		value(
+		#{attachmentName},
+		#{attachmentContent},
+		#{message.messageId},
+		#{conversionCount},
+		#{pdfCount},
+		#{pdfUrl})
+	</insert>
+	
+	<update id="update" parameterType="com.labwinner.domain.Attachment">
+	update attachment 
+		set
+		attachment_name = #{attachmentName},
+		attachment_content=#{attachmentContent},
+		message_id=#{message.messageId},
+		conversion_count=#{conversionCount},
+		pdf_count=#{pdfCount},
+		pdf_url=#{pdfUrl}
+		where 
+		attachment_id=#{attachmentId}
+	</update>
+	
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllConversion" resultType="com.labwinner.domain.Attachment" resultMap="attachmentMap">
+		select  * from attachment where pdf_count=0 and conversion_count<![CDATA[<   ]]>5
+		order by attachment_id
+	</select>
+	
+	<update id="updatePdfCount" parameterType="Integer">
+	update attachment set pdf_count=1 where attachment_id=#{attachmentId}
+	</update>
+		
+	<select id="getByMessageId" resultType="com.labwinner.domain.Attachment" resultMap="attachmentMap">
+		select  * from attachment where message_id=#{messageId} order by attachment_id
+	</select>
+	
+	
+</mapper>

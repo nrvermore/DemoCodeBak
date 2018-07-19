@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.PersonalReactionTemplateParameterDao">
+   
+   <resultMap id="personalReactionTemplateParameterMap" type="com.labwinner.domain.PersonalReactionTemplateParameter">
+        <id column="pers_reac_temp_para_id" property="persReacTempParaId" />      
+        <result column="reference_value" property="referenceValue" />
+        <result column="reaction_parameter" property="reactionParameter" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+      
+        <!-- <association property="reactionParameter"
+			resultMap="com.labwinner.dao.ReactionParameterDao.reactionParameterMap">
+		</association> -->
+       
+        <association property="personalReactionTemplateProcess"
+			resultMap="com.labwinner.dao.PersonalReactionTemplateProcessDao.personalReactionTemplateProcessMap">
+		</association>
+		  
+        <association property="measurement"
+			resultMap="com.labwinner.dao.MeasurementDao.measurementMap">
+		</association>
+		  
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.PersonalReactionTemplateParameter" resultMap="personalReactionTemplateParameterMap">
+		select * from personal_reaction_template_parameter
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.PersonalReactionTemplateParameter" resultMap="personalReactionTemplateParameterMap">
+		select  
+		 personal_reaction_template_parameter.pers_reac_temp_para_id,reference_value,personal_reaction_template_process.*,
+		 reaction_parameter,measurement.*,creater,create_date,modifier,modify_date 
+		 from
+		 personal_reaction_template_parameter,personal_reaction_template_process,reaction_parameter,measurement where 
+		 and personal_reaction_template_parameter.personal_process_id=personal_reaction_template_process.personal_process_id
+		 and personal_reaction_template_parameter.measure_unit_id=measurement.measure_unit_id
+		 and personal_reaction_template_parameter.pers_reac_temp_para_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.PersonalReactionTemplateParameter"
+		useGeneratedKeys="true" keyProperty="persReacTempParaId">
+		insert into
+		personal_reaction_template_parameter(
+		    reference_value,               
+			reaction_parameter,                
+			measure_unit_id,
+			personal_process_id,       
+			creater,              
+			create_date,         
+			modifier,            
+			modify_date)
+		value(
+		#{referenceValue},
+		#{reactionParameter},
+		#{measurement.measureUnitId},
+		#{personalReactionTemplateProcess.personalProcessId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.PersonalReactionTemplateParameter">
+		update
+		personal_reaction_template_parameter set
+		reference_value=#{referenceValue},
+		reaction_parameter=#{reactionParameter},
+		measure_unit_id=#{measurement.measureUnitId},
+		personal_process_id=#{personalReactionTemplateProcess.personalProcessId},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where
+		pers_reac_temp_para_id=#{persReacTempParaId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from personal_reaction_template_parameter where
+		pers_reac_temp_para_id=#{persReacTempParaId}
+	</delete>
+
+</mapper> 

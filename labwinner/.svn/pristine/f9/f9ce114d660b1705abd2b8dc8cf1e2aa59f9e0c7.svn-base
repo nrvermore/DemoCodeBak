@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 知识附件 -->
+<mapper namespace="com.labwinner.dao.KnowledgeAccDao">
+
+	<resultMap id="knowledgeAccResultMap" type="com.labwinner.domain.KnowledgeAcc">
+		<id property="knowledgeAccId" column="knowledge_acc_id" />
+		<result property="image" column="image" />
+		<result property="uploadFiles" column="upload_files" />
+		<result property="knowledgeId" column="knowledge_id" />
+		<result property="pdfCount" column="pdf_count" />
+		<result property="pdfUrl" column="pdf_url" />
+		<result property="source" column="source" />
+		<result property="conversionCount" column="conversion_count" />
+		<association property="knowledgeClassify" javaType="com.labwinner.domain.KnowledgeClassify">
+            <id property="knowledgeClassifyId" column="knowledge_classify_id"/>
+            <result property="knowledgeClassifyName" column="knowledge_classify_name"/>
+       </association>
+	</resultMap>
+
+	<sql id="columns"> image, upload_files,knowledge_id,knowledge_classify_id,pdf_count,pdf_url,conversion_count
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="knowledgeAccResultMap">
+		select
+		knowledge_acc_id,image, upload_files,knowledge_id,knowledge_classify_id,pdf_count,pdf_url,conversion_count
+		from knowledge_acc
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="knowledgeAccResultMap">
+		select
+		knowledge_acc_id,image, upload_files,knowledge_id,knowledge_classify_id,pdf_count,pdf_url,conversion_count,source
+		from
+		knowledge_acc
+		where knowledge_acc_id=#{id}
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getKnowledgeAcc" resultMap="knowledgeAccResultMap">
+		select
+		knowledge_acc_id, upload_files,pdf_count,knowledge_classify_id,knowledge_id,pdf_url,conversion_count
+		from
+		knowledge_acc
+		where knowledge_id=#{knowledgeId} and knowledge_classify_id = #{classifyId} 
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.KnowledgeAcc"
+		useGeneratedKeys="true" keyProperty="knowledgeAccId">
+		insert into
+		knowledge_acc(
+		<include refid="columns" />
+		)
+		value(
+		#{image}, #{uploadFiles},
+		#{knowledgeId},#{knowledgeClassify.knowledgeClassifyId},#{pdfCount},#{pdfUrl},0)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.KnowledgeAcc">
+		update
+		knowledge_acc set
+		image=#{image},
+		upload_files=#{uploadFiles},
+		knowledge_id=#{knowledgeId},
+		knowledge_classify_id=#{knowledgeClassify.knowledgeClassifyId},
+		pdf_count=#{pdfCount},
+		pdf_url=#{pdfUrl},
+		conversion_count=#{conversionCount}
+		where knowledge_acc_id=#{knowledgeAccId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from knowledge_acc
+		where
+		knowledge_acc_id=#{id}
+	</delete>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAllConversion" resultMap="knowledgeAccResultMap">
+		select
+		knowledge_acc_id, upload_files,knowledge_id,knowledge_classify_id,pdf_count,pdf_url,conversion_count
+		from knowledge_acc where pdf_count=0 and conversion_count<![CDATA[<   ]]>5
+		order by knowledge_acc_id
+	</select>
+
+
+</mapper> 

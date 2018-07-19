@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 专利 -->
+<mapper namespace="com.labwinner.dao.ApprovelRefuseDao">
+
+	<resultMap id="approvelRefuseMap" type="com.labwinner.domain.ApprovelRefuse">
+		<id property="refuseId" column="refuse_id" />
+		<result property="refuseMemu" column="refuse_memu" />
+		<result property="refuseReason" column="refuse_reason" />
+		<result property="flag" column="flag" />
+		
+		 <collection property="approvels" ofType="com.labwinner.domain.Approvel">
+	        <id column="approve_id" property="approveId" />
+         </collection>  
+		
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ApprovelRefuse" resultMap="approvelRefuseMap">
+		select * from approvel_refuse order by locate(4,refuse_id)
+	</select>
+	
+	<!-- 获取所有对象名称 -->
+	<select id="getAllName" resultType="com.labwinner.domain.ApprovelRefuse" resultMap="approvelRefuseMap">
+		select refuse_id,refuse_memu from approvel_refuse 
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	 <select id="getFlagAll" resultType="com.labwinner.domain.ApprovelRefuse" resultMap="approvelRefuseMap">
+		select * from approvel_refuse where flag=0
+	</select>
+	
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.ApprovelRefuse" resultMap="approvelRefuseMap">
+		select * from approvel_refuse
+		where flag=0 and refuse_memu LIKE concat('%',#{keyword},'%')
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultType="com.labwinner.domain.ApprovelRefuse" resultMap="approvelRefuseMap">
+		select * from approvel_refuse
+		left outer join approvel on
+		approvel.refuse_id=approvel_refuse.refuse_id
+		where approvel_refuse.refuse_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ApprovelRefuse"
+		useGeneratedKeys="true" keyProperty="refuseId">
+		insert into
+		approvel_refuse(
+		refuse_memu
+		)
+		value(
+		#{refuseMemu})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ApprovelRefuse">
+		update
+		approvel_refuse set
+		refuse_memu=#{refuseMemu}
+		where refuse_id=#{refuseId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from approvel_refuse
+		where
+		refuse_id=#{id}
+	</delete>
+	
+</mapper> 
+
+

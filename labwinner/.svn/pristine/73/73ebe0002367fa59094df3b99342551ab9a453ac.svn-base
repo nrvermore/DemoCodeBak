@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.ExecuteChemicalGroupDao">
+
+<resultMap id="executeChemicalGroupMap" type="com.labwinner.domain.ExecuteChemicalGroup">
+        <id column="chemical_group_id" property="chemicalGroupId" />
+        <result column="group_dosage" property="groupDosage" />
+        <association property="inventoryGroups" javaType="com.labwinner.domain.InventoryGroups">
+             <id column="group_id" property="groupId" />
+			<result column="inventory_name" property="inventoryName" />
+			<result column="inventory_num" property="inventoryNumber" />
+			<result column="batch_number" property="batchNumber" />
+			<result column="total_wei" property="totalWei" />
+		</association>
+			
+		<association property="reactionProcess"
+			javaType="com.labwinner.domain.ReactionProcess">
+			<id column="reaction_process_id" property="reactionProcessId" />
+			<result column="process_name" property="processName" />
+		</association>
+			
+        
+ </resultMap>
+
+<!-- 获取所有对象列表 -->
+	<select id="getByProcessId" resultType="com.labwinner.domain.ExecuteChemicalGroup" parameterType="Integer" resultMap="executeChemicalGroupMap" >
+		select execute_chemical_group.*,reaction_process.reaction_process_id,reaction_process.process_name,group_dosage,
+		inventory_groups.*
+		from execute_chemical_group
+		left outer join reaction_process on reaction_process.reaction_process_id = execute_chemical_group.reaction_process_id
+		left outer join inventory_groups on execute_chemical_group.group_id =inventory_groups.group_id
+		 where execute_chemical_group.reaction_process_id = #{id}
+	</select>
+	
+	<select id="getById" resultType="com.labwinner.domain.ExecuteChemicalGroup" parameterType="Integer" resultMap="executeChemicalGroupMap" >
+		select execute_chemical_group.*,reaction_process.reaction_process_id,reaction_process.process_name,group_dosage,
+		inventory_groups.*
+		from execute_chemical_group
+		left outer join reaction_process on reaction_process.reaction_process_id = execute_chemical_group.reaction_process_id
+		left outer join inventory_groups on execute_chemical_group.group_id =inventory_groups.group_id
+		 where execute_chemical_group.chemical_group_id = #{id}
+	</select>
+	
+	
+	<select id="getGroups" resultType="Integer" parameterType="map" >
+		select group_id from execute_chemical_group
+	</select>
+	
+	
+	<insert id="save" parameterType="com.labwinner.domain.ExecuteChemicalGroup"
+		useGeneratedKeys="true" keyProperty="chemicalGroupId">
+		insert into
+		execute_chemical_group
+		(reaction_process_id,group_id,group_dosage)
+		value(
+		#{reactionProcess.reactionProcessId},
+		#{inventoryGroups.groupId},
+		#{groupDosage})
+	</insert>
+	
+	<insert id="saveOlder" parameterType="com.labwinner.domain.ExecuteChemicalGroup">
+		insert into
+		execute_chemical_group
+		(chemical_group_id,reaction_process_id,group_id,group_dosage)
+		value(
+		#{chemicalGroupId},
+		#{reactionProcess.reactionProcessId},
+		#{inventoryGroups.groupId},
+		#{groupDosage})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from execute_chemical_group where
+		chemical_group_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByProcessId" parameterType="Integer">
+		delete from execute_chemical_group where
+		reaction_process_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+<!-- 	<delete id="batchRemove" parameterType="java.util.List">
+		delete from execute_solution where reaction_process_id in
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete> -->
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.ExecuteChemicalGroup">
+		update execute_chemical_group 
+		<trim prefix="set" suffixOverrides=",">
+		<if test="inventoryGroups!=null">group_id=#{inventoryGroups.groupId},</if>
+		<if test="groupDosage!=null">group_dosage = #{groupDosage},</if>
+		<if test="reactionProcess!=null">reaction_process_id=#{reactionProcess.reactionProcessId},</if>
+		</trim>
+		where 
+		chemical_group_id=#{chemicalGroupId}
+	</update>
+</mapper>

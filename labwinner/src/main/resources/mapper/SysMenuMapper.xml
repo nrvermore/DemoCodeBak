@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 菜单 -->
+<mapper namespace="com.labwinner.dao.SysMenuDao">
+
+	<resultMap id="sysMenuResultMap" type="com.labwinner.domain.SysMenu">
+		<id property="menuId" column="menu_id" />
+		<result property="menuName" column="menu_name" />
+		<result property="menuDesc" column="menu_desc" />
+		<result property="fatherId" column="father_id" />
+		<result property="remark" column="remark" />
+		<result property="menuNameEn" column="menu_name_en" />
+		<result property="fatherName" column="father_name" />
+		<result property="flag" column="flag" />
+	</resultMap>
+
+	<sql id="columns">a.menu_id, a.menu_name, a.menu_desc, a.father_id,a.flag, a.remark,a.menu_name_en,b.menu_name as father_name
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="sysMenuResultMap">
+		select
+		<include refid="columns" />
+		from sys_menu a ,sys_menu b where a.father_id = b.menu_id and a.flag = 0
+	</select>
+	
+	<!-- 根据查询条件获取对象 -->
+	<select id="getAllPageable" resultMap="sysMenuResultMap">
+		select <include refid="columns" /> from
+		sys_menu a ,sys_menu b where a.father_id = b.menu_id
+		where a.father_id like
+		CONCAT('%',#{filter},'%') or a.menu_name like
+		CONCAT('%',#{filter},'%') or
+		a.menu_desc like CONCAT('%',#{filter},'%') or
+		a.remark like
+		CONCAT('%',#{filter},'%') and a.flag = 0
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Long" resultMap="sysMenuResultMap">
+		select
+		<include refid="columns" />
+		from
+		sys_menu a ,sys_menu b where a.father_id = b.menu_id
+		and a.menu_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SysMenu"
+		useGeneratedKeys="true" keyProperty="menuId">
+		insert into
+		sys_menu(
+		<include refid="columns" />
+		)
+		value(#{menuId},
+		#{menuName},
+		#{menuDesc}, #{fatherId},#{flag}, #{remark})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.SysMenu">
+		update
+		sys_menu set
+		menu_name=#{menuName},
+		menu_desc=#{menuDesc},
+		father_id=#{fatherId},
+		remark=#{remark}
+		where menu_id=#{menuId}
+	</update>
+	
+	<!-- 更新对象方法 -->
+	<update id="updateFlag" parameterType="com.labwinner.domain.SysMenu">
+		update
+		sys_menu set
+		flag=#{flag}
+		where menu_id=#{id}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Long">
+		delete from sys_menu where
+		menu_id=#{menuId}
+	</delete>
+	
+	
+		<!-- 获取所有对象列表 -->
+	<select id="getAllFirst" resultMap="sysMenuResultMap">
+			select
+		a.menu_id, a.menu_name, a.menu_desc, a.father_id, a.remark,a.menu_name_en
+		from sys_menu a where  a.father_id is null and a.flag = 0
+	</select>
+	
+	   <select id="getSysMenu" resultType="com.labwinner.domain.SysMenu"
+		resultMap="sysMenuResultMap">
+		select
+		<include refid="columns" />
+		from sys_menu a 
+    	left outer join sys_menu b on a.father_id = b.menu_id
+		where  a.menu_id=#{menuId} and a.flag =0
+	</select>
+
+	<select id="getSysMenus" resultType="com.labwinner.domain.SysMenu"
+		resultMap="sysMenuResultMap">
+		select
+		<include refid="columns" />
+		from sys_menu a ,sys_menu b where a.father_id = b.menu_id
+		and a.father_id=#{menuId} and a.flag = 0
+	</select>
+
+</mapper> 

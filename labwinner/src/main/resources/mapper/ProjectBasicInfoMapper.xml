@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProjectBasicInfoDao">
+
+	<resultMap id="proInfoMap" type="com.labwinner.domain.ProjectBasicInfo">
+		<id property="proId" column="pro_id" />
+		<result property="proName" column="pro_name" />
+		<result property="proNumber" column="pro_number" />
+		<result property="proStartTime" column="pro_start_time" />
+		<result property="proDeadline" column="pro_deadline" />
+		<result property="proIntroduce" column="pro_introduce" />
+		<result property="createDate" column="create_date" />
+		
+		    <association property="projectSchedule" javaType="com.labwinner.domain.ProjectSchedule">
+			 <id property="proScheduleId" column="psd1"/>
+            <result property="proScheduleName" column="psn1"/>
+			</association>
+		
+		<association property="creater" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="uid3" />
+				<result property="realname" column="realname3" />
+		</association>	
+			
+		<association property="projectType"
+			resultMap="com.labwinner.dao.ProjectTypeDao.proTypeMap"></association>
+
+		 <collection property="reactions" ofType="com.labwinner.domain.Reaction">
+			<id column="reaction_id" property="reactionId" />
+			<result column="reaction_name" property="reactionName" />
+			<result column="start_time" property="startTime" />
+			<result column="end_time" property="endTime" />
+			<association property="reactionDesign"
+			javaType="com.labwinner.domain.ReactionDesign">
+			<id column="reaction_design_id" property="reactionDesignId" />
+			<result column="reaction_group_name" property="reactionGroupName" />
+			</association>
+			
+		    <association property="projectNumber" javaType="com.labwinner.domain.ProjectNumber">
+			<id property="proNumberId" column="pid1"/>
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="uid1" />
+				<result property="realname" column="realname1" />
+			</association>
+			<association property="projectRole" javaType="com.labwinner.domain.ProjectRole">
+				<id property="proRoleId" column="rid1"/>
+            <result property="proRoleType" column="p1"/>
+			</association>
+		    </association>
+		</collection> 
+		
+	    <collection property="projectPlans"
+			ofType="com.labwinner.domain.ProjectPlan">
+			<id column="pro_plan_id" property="proPlanId" />
+			<result column="pro_plan_name" property="proPlanName" />
+		    <result column="pro_plan_starttime" property="proPlanStarttime"/>
+			<result column="pro_plan_deadline" property="proPlanDeadline" />
+			<result column="stage_des" property="stageDes" />
+			<result column="stage_goal" property="stageGoal" />
+			
+			<association property="projectSchedule" javaType="com.labwinner.domain.ProjectSchedule">
+			 <id property="proScheduleId" column="psd2"/>
+            <result property="proScheduleName" column="psn2"/>
+			</association>
+		</collection>
+		
+	    <collection property="projectDocumentses"
+			ofType="com.labwinner.domain.ProjectDocuments">
+			<id column="pro_doc_id" property="proDocId" />
+			<result column="pro_document" property="proDocument" />
+		    <result column="document_name" property="documentName"/>
+			<result column="document_description" property="documentDescription" />
+			<result column="attachment_content" property="attachmentContent" />
+			<result column="pdf_count" property="pdfCount" />
+			<result column="pdf_url" property="pdfUrl" />
+			<result column="conversion_count" property="conversionCount"  />
+		</collection>
+		
+	    <collection property="projectNumbers"
+			ofType="com.labwinner.domain.ProjectNumber">
+			<id column="pid2" property="proNumberId" />
+			<result column="flag2" property="flag"  />
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="uid2"/>
+            <result property="realname" column="realname2" />
+			</association>
+			
+			<association property="projectRole" javaType="com.labwinner.domain.ProjectRole">
+			 <id property="proRoleId" column="rid2"/>
+            <result property="proRoleType" column="p2"/>
+			</association>
+			
+		</collection>
+		
+		<collection property="reactionDesigns" ofType="com.labwinner.domain.ReactionDesign">
+			<id property="reactionDesignId" column="reaction_design_id" />
+			<result property="reactionGroupName" column="reaction_group_name" />
+		</collection>
+			
+			
+		
+		<collection property="knowledgeProRelas"
+			ofType="com.labwinner.domain.KnowledgeProRela">
+			 <id column="knowledge_pro_rela_id" property="knowledgeProRelaId" />
+			 <result column="mapping_knowledge_idl" property="mappingKnowledgeIdl"/>
+			 
+			<association property="knowledgeClassify" javaType="com.labwinner.domain.KnowledgeClassify">
+			 <id property="knowledgeClassifyId" column="knowledge_classify_id"/>
+            <result property="knowledgeClassifyName" column="knowledge_classify_name"/>
+			
+			<!-- <collection property="knowledgeAccs" ofType="com.labwinner.domain.KnowledgeAcc">
+			<id property="knowledgeAccId" column="knowledge_acc_id" />
+			<result property="image" column="image" />
+			<result property="uploadFiles" column="upload_files" />
+			<result property="knowledgeId" column="knowledge_id" />
+		    </collection>
+		 -->
+			</association>
+			
+			<association property="creater" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="uid4" />
+				<result property="realname" column="realname4" />
+		    </association>
+			
+			
+		</collection>
+		
+		<!-- <collection property="shareProjects"
+			ofType="com.labwinner.domain.ShareProject">
+			<id column="share_project_id" property="shareProjectId" />
+		</collection> -->
+		
+		<!-- <collection property="projectMomentsRelations"
+			ofType="com.labwinner.domain.ProjectMomentsRelation">
+			<id column="relation_id" property="relationId" />	
+			<association property="projectMoments"
+			resultMap="com.labwinner.dao.ProjectMomentsDao.projectMomentsMap">
+			</association> 
+		</collection>-->
+		
+		<collection property="projectPictures"
+			ofType="com.labwinner.domain.ProjectPicture">
+			<id column="project_picture_id" property="projectPictureId" />
+			<result column="project_picture_name" property="projectPictureName" />
+		</collection>
+		
+	</resultMap>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		select a.*,b.user_id as uid2 ,d.realname  as realname2, c.pro_schedule_id as psd1,
+	       c.pro_schedule_name as psn1
+        from 
+         project_basic_info a,
+         project_number b,
+         project_schedule c,
+         sys_user d
+         where 
+         a.pro_id=b.pro_id
+         and a.pro_schedule_id=c.pro_schedule_id
+         and b.user_id=d.user_id
+         and b.pro_role_id=1  and b.flag=0
+         <if test="roleName!='ROLE_TEAM'">
+         and a.pro_id in (select pro_id from project_number where user_id =#{userId} and flag=0)
+         </if> 
+         order by a.pro_id desc
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getUserList" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		select a.*,b.user_id as uid2 ,d.realname  as realname2, c.pro_schedule_id as psd1,
+	       c.pro_schedule_name as psn1
+        from 
+         project_basic_info a,
+         project_number b,
+         project_schedule c,
+         sys_user d
+         where 
+         a.pro_id=b.pro_id
+         and a.pro_schedule_id=c.pro_schedule_id
+         and b.user_id=d.user_id and b.flag=0
+         and b.pro_role_id=1
+         <if test="roleName!='ROLE_TEAM'">
+         and a.pro_id in (select pro_id from project_number where user_id =#{userId} and flag=0)
+         </if> 
+         order by a.pro_id desc
+         limit 0,#{endCount}
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getProNameAll" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		select pro_id,pro_name from project_basic_info
+	</select>
+	
+	<!-- 获取共享项目对象列表 -->
+	<select id="getShareProject" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		select project_basic_info.pro_id,project_basic_info.pro_name,project_number.user_id from reaction_design
+		left outer join project_basic_info on
+		reaction_design.pro_id = project_basic_info.pro_id
+		left outer join project_number on
+		project_number.pro_id = project_basic_info.pro_id
+		left outer join sys_user as b on
+		project_number.user_id = b.user_id and b.flag=0
+		where project_number.user_id =#{userId} and project_number.flag=0
+	</select>
+	
+	<!-- 获取项目计划最大时间和最小时间 -->
+	<select id="getProDate" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		select pro_id,min(pro_plan_starttime),max(pro_plan_deadline) from project_plan where project_plan.pro_id=#{id}
+	</select>
+	
+	<!-- 根据关键字查询 -->
+	<select id="getAllPageable" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		select a.*,b.user_id as uid2 ,d.realname  as realname2,c.pro_schedule_id as psd1,
+	       c.pro_schedule_name as psn1
+        from 
+         project_basic_info a,
+         project_number b,
+         project_schedule c,
+         sys_user d
+         where 
+         a.pro_id=b.pro_id
+         and a.pro_schedule_id=c.pro_schedule_id
+         and b.user_id=d.user_id and b.flag=0
+         and b.pro_role_id=1
+         <if test="roleName!='ROLE_TEAM'">
+         and a.pro_id in (select pro_id from project_number where user_id =#{userId} and flag=0)
+         </if> 
+          and a.pro_name LIKE concat('%',#{keyword},'%')
+          order by a.pro_id desc
+	</select>
+	
+	<!-- 根据关键字查询 -->
+	<select id="getBykeyword" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		select a.*,b.user_id as uid2 ,d.realname  as realname2,c.pro_schedule_id as psd1,
+	       c.pro_schedule_name as psn1
+        from 
+         project_basic_info a,
+         project_number b,
+         project_schedule c,
+         sys_user d
+         where 
+         a.pro_id=b.pro_id
+         and a.pro_schedule_id=c.pro_schedule_id
+         and b.user_id=d.user_id and b.flag=0
+         and b.pro_role_id=1
+         <if test="roleName!='ROLE_TEAM'">
+         and a.pro_id in (select pro_id from project_number where user_id =#{userId} and flag=0)
+         </if> 
+          and a.pro_name LIKE concat('%',#{keyword},'%')
+          order by a.pro_id desc
+          limit 0,#{endCount}
+	</select>
+	
+	<!--根据项目主键查询文献 -->
+	<select id="getArticleById" parameterType="Integer" resultType="java.util.Map">
+	select a.pro_id,a.creater as uid4,a.knowledge_classify_id,
+  case
+when knowledge_classify_id=1 then (select b.journal_article_id from journal_article b where a.mapping_knowledge_idl=b.journal_article_id)
+when knowledge_classify_id=2 then (select c.self_paper_id from self_paper c where a.mapping_knowledge_idl=c.self_paper_id)
+when knowledge_classify_id=4 then (select d.patent_id from patent d where a.mapping_knowledge_idl=d.patent_id)
+ end as knowledgeId,
+case
+when knowledge_classify_id=1 then (select b.title from journal_article b where a.mapping_knowledge_idl=b.journal_article_id)
+when knowledge_classify_id=2 then (select c.title from self_paper c where a.mapping_knowledge_idl=c.self_paper_id)
+when knowledge_classify_id=4 then (select d.patent_name from patent d where a.mapping_knowledge_idl=d.patent_id)
+ end as title,
+ case
+when knowledge_classify_id=1 then (select b.author from journal_article b where a.mapping_knowledge_idl=b.journal_article_id)
+when knowledge_classify_id=2 then (select e.realname from sys_user e where e.user_id =(select c.user_id from self_paper c where a.mapping_knowledge_idl=c.self_paper_id))
+when knowledge_classify_id=4 then (select d.applicant from patent d where a.mapping_knowledge_idl=d.patent_id)
+ end as author,
+ case
+when knowledge_classify_id=1 then (select e.en_name from magazine e where e.magazine_id =(select b.magazine_id from journal_article b where a.mapping_knowledge_idl=b.journal_article_id))
+when knowledge_classify_id=2 then (select c.key_words from self_paper c where a.mapping_knowledge_idl=c.self_paper_id)
+when knowledge_classify_id=4 then (select d.application_number from patent d where a.mapping_knowledge_idl=d.patent_id)
+ end as name,
+ case
+when knowledge_classify_id=1 then (select b.write_date from journal_article b where a.mapping_knowledge_idl=b.journal_article_id)
+when knowledge_classify_id=2 then (select c.publish_time from self_paper c where a.mapping_knowledge_idl=c.self_paper_id)
+when knowledge_classify_id=4 then (select d.publication_date from patent d where a.mapping_knowledge_idl=d.patent_id)
+ end as dateTime
+from knowledge_pro_rela a where a.pro_id=#{id}
+	</select>
+	
+	<select id="getById" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		select * from project_basic_info
+		left outer join reaction on
+		reaction.pro_id = project_basic_info.pro_id
+		left outer join reaction_design on reaction_design.reaction_design_id = reaction.reaction_design_id
+		left outer join project_schedule on
+		project_basic_info.pro_schedule_id = project_schedule.pro_schedule_id
+		left outer join project_type on
+		project_basic_info.project_type_id = project_type.project_type_id		
+		left outer join project_plan on
+		project_plan.pro_id = project_basic_info.pro_id
+		left outer join project_documents on
+		project_documents.pro_id = project_basic_info.pro_id
+		left outer join project_number on
+		project_number.pro_id = project_basic_info.pro_id
+		left outer join project_role on
+		project_number.pro_role_id = project_role.pro_role_id
+		left outer join sys_user as b on
+		project_number.user_id = b.user_id
+		where project_basic_info.pro_id = #{id}
+	</select>
+	
+	<select id="getProById" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		  select project_basic_info.pro_id,pro_name,pro_start_time,pro_deadline,pro_number,project_basic_info.creater as uid3,s.realname as realname3,
+		    e.pro_number_id as pid2, e.flag as flag2,b.user_id as uid2,b.realname as realname2,
+		    g.pro_schedule_id as psd1,g.pro_schedule_name as psn1,knowledge_pro_rela.creater as uid4,w.realname as realname4,
+		    h.pro_plan_id,h.pro_plan_name,h.pro_plan_starttime,h.pro_plan_deadline,h.stage_des,
+		    h.stage_goal,project_documents.*,pro_introduce,f.pro_schedule_id as psd2,
+		    f.pro_schedule_name as psn2,reaction.reaction_id,
+		    reaction.reaction_name,reaction.pro_number_id as pid1,d.user_id as uid1,
+		    a.realname as realname1,project_role.pro_role_id as rid2,
+		    project_role.pro_role_type as p2,a.realname as realname1,reaction.start_time,
+		    reaction.end_time,knowledge_pro_rela.knowledge_pro_rela_id,knowledge_pro_rela.mapping_knowledge_idl,
+		    knowledge_pro_rela.knowledge_classify_id,knowledge_classify.knowledge_classify_id,
+		    knowledge_classify.knowledge_classify_name,project_picture.*
+		    from project_basic_info
+		   	left outer join reaction on
+			reaction.pro_id = project_basic_info.pro_id
+		    left outer join project_number as d on
+		    reaction.pro_number_id = d.pro_number_id
+		    left outer join sys_user as a on
+		    d.user_id = a.user_id
+		    left outer join project_type on
+		    project_basic_info.project_type_id = project_type.project_type_id 
+		    left outer join project_plan as h on
+		    h.pro_id = project_basic_info.pro_id
+		    left outer join project_schedule as f on
+		    h.pro_schedule_id = f.pro_schedule_id
+		    left outer join project_schedule as g on
+		    project_basic_info.pro_schedule_id = g.pro_schedule_id
+		    left outer join project_documents on
+		    project_documents.pro_id = project_basic_info.pro_id
+		    left outer join project_number as e on
+		    e.pro_id = project_basic_info.pro_id
+		    left outer join project_role on
+		    e.pro_role_id = project_role.pro_role_id
+		    left outer join sys_user as b on
+		    e.user_id = b.user_id
+		    left outer join knowledge_pro_rela on
+		    knowledge_pro_rela.pro_id = project_basic_info.pro_id
+		    left outer join knowledge_classify on
+		    knowledge_pro_rela.knowledge_classify_id = knowledge_classify.knowledge_classify_id
+		    left outer join project_picture on
+		    project_picture.pro_id = project_basic_info.pro_id
+		    left outer join sys_user s on
+		    project_basic_info.creater = s.user_id
+		    left outer join sys_user w on
+		    knowledge_pro_rela.creater = w.user_id
+		    where project_basic_info.pro_id =#{id}
+		    order by h.pro_plan_starttime
+	</select>
+	
+	<!-- 根据项目id获取该项目的项目计划开始时间已经结束时间 -->
+	<select id="getProjectPlanTime" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		    select project_basic_info.pro_id,pro_name,project_plan.pro_id,
+		    project_plan.pro_plan_id,pro_plan_starttime,pro_plan_deadline
+		    from project_basic_info
+		    left outer join project_plan on
+		    project_plan.pro_id=project_basic_info.pro_id
+		    where project_plan.pro_id=#{id}
+	</select>
+	
+	
+	<select id="getNumbers" resultType="com.labwinner.domain.ProjectBasicInfo"
+		resultMap="proInfoMap">
+		select 
+        project_basic_info.pro_id,pro_name,pro_start_time,pro_deadline,pro_number,project_basic_info.creater as uid3,s.realname as realname3,
+		    e.pro_number_id as pid2, e.flag as flag2,b.user_id as uid2,b.realname as realname2,
+		    g.pro_schedule_id as psd1,g.pro_schedule_name as psn1,
+		    h.pro_plan_id,h.pro_plan_name,h.pro_plan_starttime,h.pro_plan_deadline,h.stage_des,
+		    h.stage_goal,project_documents.*,pro_introduce,f.pro_schedule_id as psd2,
+		    f.pro_schedule_name as psn2,
+		    project_role.pro_role_id as rid2,
+		    project_role.pro_role_type as p2,project_picture.*
+		    from project_basic_info
+		    left outer join project_plan as h on   h.pro_id = project_basic_info.pro_id
+		    left outer join project_schedule as f on h.pro_schedule_id = f.pro_schedule_id
+		    left outer join project_schedule as g on project_basic_info.pro_schedule_id = g.pro_schedule_id
+		    left outer join project_documents on  project_documents.pro_id = project_basic_info.pro_id
+		    left outer join project_number as e on  e.pro_id = project_basic_info.pro_id
+		    left outer join project_role on  e.pro_role_id = project_role.pro_role_id
+		    left outer join sys_user as b on  e.user_id = b.user_id
+		    left outer join project_picture on  project_picture.pro_id = project_basic_info.pro_id
+		    left outer join sys_user s on project_basic_info.creater = s.user_id
+		    where project_basic_info.pro_id =#{id}
+		    and e.flag=0
+		    order by h.pro_plan_starttime
+	</select>
+	
+
+	<insert id="save" parameterType="com.labwinner.domain.ProjectBasicInfo"
+		useGeneratedKeys="true" keyProperty="proId">
+		insert into
+		project_basic_info
+		(pro_name,pro_number,
+		pro_start_time,pro_deadline,pro_introduce,
+		pro_schedule_id,project_type_id,
+		creater,create_date,
+		modifier,modify_date)
+		value(
+		#{proName},
+		#{proNumber},
+		#{proStartTime},
+		#{proDeadline},
+		#{proIntroduce},
+		#{projectSchedule.proScheduleId},
+		#{projectType.projectTypeId},
+		#{creater.userId},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from project_basic_info
+		where
+		pro_id=#{id}
+	</delete>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ProjectBasicInfo">
+		update project_basic_info
+		set
+		pro_name=#{proName},
+		pro_number=#{proNumber},
+		pro_start_time=#{proStartTime},
+		pro_deadline=#{proDeadline},
+		pro_introduce=#{proIntroduce},
+		pro_schedule_id=#{projectSchedule.proScheduleId},
+		project_type_id=#{projectType.projectTypeId},
+		creater=#{creater.userId},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where
+		pro_id=#{proId}
+	</update>
+	<!-- 更新对象方法 -->
+	<update id="updateProStatus" parameterType="com.labwinner.domain.ProjectBasicInfo">
+		update project_basic_info
+		set
+		pro_schedule_id=#{projectSchedule.proScheduleId}
+		where
+		pro_id=#{proId}
+	</update>
+	
+	<!-- 更新对象方法 -->
+	<update id="updateProName" parameterType="com.labwinner.domain.ProjectBasicInfo">
+		update project_basic_info
+		set
+		pro_name=#{proName},
+		pro_start_time=#{proStartTime},
+		pro_deadline=#{proDeadline},
+		pro_number=#{proNumber},
+		pro_schedule_id=#{projectSchedule.proScheduleId}
+		where
+		pro_id=#{proId}
+	</update>
+	
+	<!-- 更新对象方法 -->
+	<update id="updateProInt" parameterType="com.labwinner.domain.ProjectBasicInfo">
+		update project_basic_info
+		set
+		pro_introduce=#{proIntroduce}
+		where
+		pro_id=#{proId}
+	</update>
+	<select id="getProAndReacALL" parameterType="String" resultType="com.labwinner.vo.HomePageProVo">
+select distinct x.* from (
+    select a.pro_id as proId ,a.pro_name as proName ,a.pro_start_time as proStartTime ,a.pro_deadline as proDeadline ,
+	count(distinct(b.reaction_id)) as proNum ,COUNT(distinct(c.knowledge_pro_rela_id)) as artNum ,d.realname as username from project_basic_info a 
+	left outer join reaction_design  on a.pro_id=reaction_design.pro_id
+  left outer join reaction b on reaction_design.reaction_design_id=b.reaction_design_id
+	left outer join knowledge_pro_rela c on a.pro_id=c.pro_id
+	left outer join (select e.pro_id ,e.pro_role_id,f.realname from project_number e left outer join sys_user f on e.user_id=f.user_id) d on a.pro_id=d.pro_id and d.pro_role_id=1
+	left outer join project_number g  on a.pro_id=g.pro_id 
+  	<if test="roleName!='ROLE_TEAM' ">
+	where g.user_id=#{id}
+	</if>
+		group by proId,proName,proStartTime,proDeadline,username) as x
+	    having x.proNum>0 order by proNum 
+	</select>
+	<select id="getProAndReacByNum"  resultType="com.labwinner.vo.HomePageProVo">
+	select a.pro_id as proId ,a.pro_name as proName ,a.pro_start_time as proStartTime ,a.pro_deadline as proDeadline ,
+	count(distinct(b.reaction_id)) as proNum ,COUNT(distinct(c.knowledge_pro_rela_id)) as artNum ,d.realname as username from project_basic_info a 
+	left outer join reaction b on a.pro_id=b.pro_id
+	left outer join knowledge_pro_rela c on a.pro_id=c.pro_id
+	left outer join (select e.pro_id ,e.pro_role_id,f.realname from project_number e left outer join sys_user f on e.user_id=f.user_id) d on a.pro_id=d.pro_id and d.pro_role_id=1
+	left outer join project_number g  on a.pro_id=g.pro_id 
+	where a.pro_id=#{proId}
+	<if test="roleName!='ROLE_TEAM' ">
+	 and g.user_id=#{userId}
+	</if>
+	group by proId,proName,proStartTime,proDeadline,username
+	</select>
+	
+	
+	  <!-- 删除对象方法 -->
+  <delete id="deleteKno" parameterType="Integer">
+    delete from knowledge_pro_rela
+    where
+    pro_id=#{proId} and knowledge_classify_id=#{classId} and mapping_knowledge_idl=#{knowId} 
+  </delete>
+  
+  	<!-- 更新对象方法 -->
+	<update id="updateProjectIntroduce" parameterType="com.labwinner.domain.ProjectBasicInfo">
+		update project_basic_info
+		set
+		pro_introduce=#{projectIntroduce}
+		where
+		pro_id=#{proId}
+	</update>
+  
+  
+  <select id="getCreaterIdByProId"  resultType="java.lang.Integer">
+	select creater from project_basic_info where pro_id=#{proId}
+	</select>
+  
+  
+</mapper> 

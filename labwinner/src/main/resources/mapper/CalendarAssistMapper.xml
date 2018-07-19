@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 日程管理 -->
+<mapper namespace="com.labwinner.dao.CalendarAssistDao">
+
+	<resultMap id="calendarAssistResultMap" type="com.labwinner.domain.CalendarAssist">
+		<id property="calendarAssistId" column="calendar_assist_id" />
+		 <result column="execute_record" property="executeRecord" />
+        <result column="allocate_record" property="allocateRecord" />
+		 <association property="assistStatus" javaType="com.labwinner.domain.AssistStatus">
+            <id property="assistStatusId" column="assist_status_id"/>
+            <result property="assistStatus" column="assist_status"/>
+       </association>
+		 <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+            <id property="userId" column="user_id"/>
+            <result property="realname" column="realname"/>
+       </association>
+           <association property="calendars" javaType="com.labwinner.domain.Calendars">
+            <id property="calendarId" column="calendar_id"/>
+            <result property="title" column="calendar_title"/>
+       </association>
+	</resultMap>
+
+
+
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="calendarAssistResultMap">
+		select * from calendar_assist 
+		left outer join sys_user on calendar_assist.user_id=sys_user.user_id
+		left outer join assist_status on assist_status.assist_status_id=calendar_assist.assist_status_id
+		left outer join calendars on calendar_assist.calendar_id=calendars.calendar_id
+		where calendar_assist_id=#{id}
+	</select>
+
+	
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.CalendarAssist"
+		useGeneratedKeys="true" keyProperty="calendarAssistId">
+		insert into
+		calendar_assist(
+		calendar_id,user_id,assist_status_id,execute_record,allocate_record
+		)
+		value(#{calendars.calendarId},
+		#{sysUser.userId},
+		#{assistStatus.assistStatusId},
+		#{executeRecord},
+		#{allocateRecord}
+		)
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.CalendarAssist">
+		update
+		calendar_assist set
+		calendar_id=#{calendars.calendarId},
+		user_id=#{sysUser.userId},
+		assist_status_id=#{assistStatus.assistStatusId},
+		execute_record=#{executeRecord},
+		allocate_record=#{allocateRecord}
+		where calendar_assist_id=#{calendarAssistId}
+	</update>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByCalendarId" parameterType="Integer">
+		delete from calendar_assist where
+		calendar_id=#{id} and assist_status_id=1
+	</delete>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getByCalendarId" parameterType="Integer" resultMap="calendarAssistResultMap">
+		select calendar_assist.*,sys_user.realname,assist_status.assist_status from calendar_assist 
+		left outer join sys_user on calendar_assist.user_id=sys_user.user_id
+		left outer join assist_status on assist_status.assist_status_id=calendar_assist.assist_status_id
+		left outer join calendars on calendar_assist.calendar_id=calendars.calendar_id
+		where calendar_assist.calendar_id=#{id}
+	</select>
+	
+		
+	<!-- 根据主键获取对象 -->
+	<select id="getAllUnFinish"  resultMap="calendarAssistResultMap">
+		select calendar_assist.*,sys_user.realname,assist_status.assist_status,calendars.calendar_title from calendar_assist 
+		left outer join sys_user on calendar_assist.user_id=sys_user.user_id
+		left outer join assist_status on assist_status.assist_status_id=calendar_assist.assist_status_id
+		left outer join calendars on calendar_assist.calendar_id=calendars.calendar_id
+		where curdate()  between DATE_FORMAT(calendar_start,'%Y-%m-%d 00:00:00') and DATE_FORMAT(calendar_end,'%Y-%m-%d 23:59:59')
+		and calendar_assist.assist_status_id=1
+	</select>
+	
+	<select id="getFinishCount" resultType="Integer">
+	select count(*) from calendar_assist where calendar_id=#{id} and assist_status_id=2 
+	</select>
+	
+	
+
+
+</mapper> 

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ReactionRecordDao">
+   
+   <resultMap id="reactionRecordMap" type="com.labwinner.domain.ReactionRecord">
+        <id column="reaction_record_id" property="reactionRecordId" />        
+        <result column="reaction_num" property="reactionNum" />
+        <result column="reaction_name" property="reactionName" />
+        <result column="execute" property="execute" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+      
+         <association property="reactionDesign"
+			resultMap="com.labwinner.dao.ReactionDesignDao.reactionDesignMap">	
+		</association>
+      
+    </resultMap>
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.ReactionRecord" resultMap="reactionRecordMap">
+		select * from reaction_record,reaction_design where
+		 reaction_record.reaction_design_id=reaction_design.reaction_design_id
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionRecord" resultMap="reactionRecordMap">
+		select reaction_record.reaction_record_id,reaction_record.reaction_design_id,
+		reaction_name,reaction_record.reaction_num,execute
+		from reaction_record
+		left outer join reaction_design on 
+		reaction_design.reaction_design_id=reaction_record.reaction_design_id
+		where reaction_record.reaction_design_id=#{id}
+	</select>
+	
+	<!-- 根据主键获取对象 -->
+	<select id="getByDesignId" parameterType="Integer"
+		resultType="com.labwinner.domain.ReactionRecord" resultMap="reactionRecordMap">
+		select * from reaction_record where reaction_design_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.ReactionRecord"
+		useGeneratedKeys="true" keyProperty="reactionRecordId">
+		insert into
+		reaction_record(
+		    reaction_design_id,
+		    reaction_num,
+		    reaction_name,               
+			execute,                
+			creater,              
+			create_date,         
+			modifier,            
+			modify_date)
+		value(
+		#{reactionDesign.reactionDesignId},
+		#{reactionNum},
+		#{reactionName},
+		#{execute},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.ReactionRecord">
+		update
+		reaction_record set
+		reaction_design_id=#{reactionDesign.reactionDesignId},
+		reaction_num=#{reactionNum},
+		reaction_name=#{reactionName},
+		execute=#{execute},
+		creater=#{creater},
+		create_date=#{createDate},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where
+		reaction_record_id=#{reactionRecordId}
+		
+	</update>
+	
+	<!-- 更新对象方法 -->
+	<update id="updateRecord" parameterType="com.labwinner.domain.ReactionRecord">
+		update
+		reaction_record set
+		execute=#{execute},
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where
+		reaction_record_id=#{reactionRecordId}
+		
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from reaction_record where
+		reaction_design_id=#{reactionDesignId}
+	</delete>
+
+</mapper> 

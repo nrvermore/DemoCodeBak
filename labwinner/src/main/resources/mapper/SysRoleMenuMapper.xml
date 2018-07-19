@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 角色菜单 -->
+<mapper namespace="com.labwinner.dao.SysRoleMenuDao">
+
+	<resultMap id="sysRoleMenuResultMap" type="com.labwinner.domain.SysRoleMenu">
+		<id property="roleMenuId" column="role_menu_id" />
+		<result property="remark" column="remark" />
+		<association property="sysRole"
+			resultMap="com.labwinner.dao.SysRoleDao.sysRoleResultMap"></association>
+		<association property="sysMenu"
+			resultMap="com.labwinner.dao.SysMenuDao.sysMenuResultMap"></association>
+	</resultMap>
+
+	<sql id="columns">role_menu_id, role_id, menu_id, remark
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="sysRoleMenuResultMap">
+		select
+		<include refid="columns" />
+		from sys_role_menu
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Long" resultMap="sysRoleMenuResultMap">
+		select
+		<include refid="columns" />
+		from
+		sys_role_menu
+		where role_menu_id=#{id}
+	</select>
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.SysRoleMenu"
+		useGeneratedKeys="true" keyProperty="roleMenuId">
+		insert into
+		sys_role_menu(
+		<include refid="columns" />
+		)
+		value(#{roleMenuId},
+		#{sysRole.roleId},
+		#{sysMenu.menuId}, #{remark})
+	</insert>
+
+	<!-- 更新对象 -->
+	<update id="update" parameterType="com.labwinner.domain.SysRoleMenu">
+		update
+		sys_role_menu set
+		role_id=#{sysRole.roleId},
+		menu_id=#{sysMenu.menuId},
+		remark=#{remark}
+		where role_menu_id=#{roleMenuId}
+	</update>
+
+	<!-- 删除对象 -->
+	<delete id="delete" parameterType="Long">
+		delete from sys_role_menu
+		where
+		role_menu_id=#{roleMenuId}
+	</delete>
+
+	<!-- 根据角色主键删除角色菜单 -->
+	<delete id="deleteByRoleId" parameterType="Long">
+		delete from
+		sys_role_menu
+		where
+		role_id=#{id}
+	</delete>
+
+	<!-- 根据角色主键获取角色菜单 -->
+	<select id="getByRoleId" resultMap="sysRoleMenuResultMap">
+		select
+		a.role_menu_id,
+		a.role_id, a.menu_id, a.remark, b.father_id, b.menu_name
+		from
+		sys_role_menu a, sys_menu b
+		where a.menu_id = b.menu_id
+		and
+		role_id=#{id}
+	</select>
+
+</mapper> 

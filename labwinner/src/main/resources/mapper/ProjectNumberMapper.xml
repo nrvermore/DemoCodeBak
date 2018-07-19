@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.ProjectNumberDao">
+
+	<resultMap id="proNumberMap" type="com.labwinner.domain.ProjectNumber">
+		<id property="proNumberId" column="pro_number_id1" />
+		<result property="flag" column="flag" />
+		 <association property="projectBasicInfo"
+			javaType="com.labwinner.domain.ProjectBasicInfo">
+			<id property="proId" column="pro_id" />
+			<result property="proName" column="pro_name" />
+			<result property="proNumber" column="pro_number" />
+			<result property="proStartTime" column="pro_start_time" />
+			<result property="proDeadline" column="pro_deadline" />
+			<result property="proIntroduce" column="pro_introduce" />
+			<result property="proLogo" column="pro_logo" />
+
+			<collection property="projectNumbers" ofType="com.labwinner.domain.ProjectNumber">
+				<id column="pro_number_id2" property="proNumberId" />
+
+				<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+					<id property="userId" column="user_id2" />
+					<result property="realname" column="realname2" />
+					<result property="username" column="username2" />
+				</association>
+			</collection>
+		</association>
+		
+		<association property="projectRole"
+			resultMap="com.labwinner.dao.ProjectRoleDao.proRoleMap"></association>
+
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id1" />
+			<result property="realname" column="realname1" />
+			<result property="username" column="username1" />
+			<result property="userImage" column="user_image" />
+		</association>
+		
+		</resultMap>
+		<sql id="columns">a.pro_number_id as pro_number_id1 ,b.pro_number_id as pro_number_id2,
+		project_basic_info.pro_id,project_basic_info.pro_name,project_role.*,
+		c.user_id as user_id2,c.username as username2,c.realname as realname2,
+		d.user_id as user_id1,d.username as username1,d.realname as realname1
+		</sql>
+		<!-- 获取所有对象列表 -->
+		<select id="getAll" resultType="com.labwinner.domain.ProjectNumber"
+			resultMap="proNumberMap">
+			select
+			<include refid="columns" />
+			from project_number a 
+			left outer join project_basic_info on project_basic_info.pro_id = a.pro_id
+			left outer join project_number b on project_basic_info.pro_id = b.pro_id
+			left outer join sys_user c on b.user_id = c.user_id
+			left outer join project_role on project_role.pro_role_id = a.pro_role_id
+			left outer join sys_user d on a.user_id = d.user_id
+			where
+			a.user_id=#{userId} and a.pro_role_id  =1 and a.flag= 0 and b.flag = 0
+      		union all
+			select
+			<include refid="columns" />
+			from project_number a 
+			left outer join project_basic_info on project_basic_info.pro_id = a.pro_id
+			left outer join project_number b on project_basic_info.pro_id = b.pro_id
+			left outer join sys_user c on b.user_id = c.user_id
+			left outer join project_role on project_role.pro_role_id = a.pro_role_id
+			left outer join sys_user d on a.user_id = d.user_id
+			where
+			a.user_id=#{userId} and a.pro_role_id  =2
+      		and b.user_id =#{userId} and b.pro_role_id = 2
+      		and a.flag= 0 and b.flag = 0
+		</select>
+		
+		<!-- 团队负责人获取所有对象列表 -->
+		<select id="getAllProjects" resultType="com.labwinner.domain.ProjectNumber"
+			resultMap="proNumberMap">
+			select
+			<include refid="columns" />
+			from project_number a 
+			left outer join project_basic_info on project_basic_info.pro_id = a.pro_id
+			left outer join project_number b on project_basic_info.pro_id = b.pro_id
+			left outer join sys_user c on b.user_id = c.user_id
+			left outer join project_role on project_role.pro_role_id = a.pro_role_id
+			left outer join sys_user d on a.user_id = d.user_id
+			where
+			a.pro_number_id in (select min(pro_number_id) from project_number where flag = 0 group by pro_id)
+			and b.flag = 0
+		</select>
+		
+		<!-- 获取所有对象列表 -->
+		<select id="getProjects" resultType="com.labwinner.domain.ProjectNumber"
+			resultMap="proNumberMap">
+			select
+			a.pro_number_id as pro_number_id1 ,project_basic_info.pro_id,project_basic_info.pro_name,
+			d.user_id as user_id1,d.username as username1,d.realname as realname1
+			from project_number a 
+			left outer join project_basic_info on project_basic_info.pro_id = a.pro_id
+			left outer join sys_user d on a.user_id = d.user_id
+			where
+			a.user_id=#{id} 
+			and a.flag = 0
+		</select>
+		
+		<!-- 获取所有对象列表 -->
+		<select id="getProjectNumber" resultType="com.labwinner.domain.ProjectNumber" resultMap="proNumberMap">
+			select
+			project_number.pro_number_id as pro_number_id1,flag,project_role.*,
+			project_basic_info.pro_id,project_basic_info.pro_name,
+			sys_user.user_id as user_id1,sys_user.username as username1,sys_user.realname as realname1
+			from project_number,sys_user,project_role,project_basic_info
+			where project_number.user_id =  sys_user.user_id
+			and project_number.pro_role_id = project_role.pro_role_id
+			and project_number.pro_id = project_basic_info.pro_id
+			and project_number.pro_role_id = #{roleId}
+			and project_number.user_id = #{userId}
+			and flag = #{flag}
+			and project_number.pro_id = #{proId}
+		</select>
+		
+		<!-- 获取所有负责人列表 -->
+		<select id="getPrincipals" resultType="com.labwinner.domain.ProjectNumber"
+			resultMap="proNumberMap">
+			select 
+			distinct d.user_id as user_id1,d.username as username1,d.realname as realname1
+			from  
+     		project_number a 
+			left outer join project_basic_info on project_basic_info.pro_id = a.pro_id
+			left outer join sys_user d on a.user_id = d.user_id
+ 			where project_basic_info.pro_id in
+	   		(select project_number.pro_id from project_number where project_number.user_id =#{id} and project_number.flag = 0)		
+		</select>
+
+		<select id="getByProId" resultType="com.labwinner.domain.ProjectNumber"
+			resultMap="proNumberMap">
+			select
+			<include refid="columns" />
+			from project_number a 
+			left outer join project_basic_info on project_basic_info.pro_id = a.pro_id
+			left outer join project_number b on project_basic_info.pro_id = b.pro_id
+			left outer join sys_user c on b.user_id = c.user_id
+			left outer join project_role on project_role.pro_role_id = a.pro_role_id
+			left outer join sys_user d on a.user_id = d.user_id
+			where a.pro_id = #{id} and a.flag = 0 
+			and b.flag = 0
+		</select>
+
+		<!-- 删除对象方法 -->
+		<delete id="delete" parameterType="Integer">
+			delete from project_number where
+			pro_id=#{proId}
+		</delete>
+		
+		<!-- 删除对象方法 -->
+		<delete id="deleteById" parameterType="Integer">
+			delete from project_number where
+			pro_number_id=#{id}
+		</delete>
+
+		<insert id="save" parameterType="com.labwinner.domain.ProjectNumber"
+			useGeneratedKeys="true" keyProperty="proNumberId">
+			insert into
+			project_number
+			(pro_id,user_id,
+			pro_role_id,flag)
+			value(
+			#{projectBasicInfo.proId},
+			#{sysUser.userId},
+			#{projectRole.proRoleId},
+			#{flag})
+		</insert>
+
+
+		<!-- 更新对象方法 -->
+		<update id="update" parameterType="com.labwinner.domain.ProjectNumber">
+			update project_number
+			set
+			flag = #{flag}
+			where
+			pro_number_id=#{proNumberId}
+		</update>
+		
+		<!-- 更新对象方法 -->
+		<update id="updateByDelete" parameterType="com.labwinner.domain.ProjectNumber">
+			update project_number
+			set
+			flag = #{flag},
+			pro_role_id=#{roleId}
+			where
+			pro_number_id=#{proNumberId}
+		</update>
+		
+		<select id="getAllNumberByProId" resultType="com.labwinner.domain.ProjectNumber"
+			resultMap="proNumberMap">
+			select
+			a.pro_id,c.pro_name,b.user_id as user_id1,b.realname as realname1,b.user_image 
+			from project_number a ,sys_user b,project_basic_info c
+			where 
+			a.user_id=b.user_id
+			and a.pro_id=c.pro_id
+			and a.pro_id = #{projectId} and a.flag = 0 
+		</select>
+		
+		
+		<select id="getById" resultType="com.labwinner.domain.ProjectNumber"
+			resultMap="proNumberMap">
+			select
+			a.* ,a.user_id as user_id1
+			from project_number a 
+			where a.pro_number_id = #{id} and a.flag = 0 
+			
+		</select>
+		
+			<select id="getByUser" resultType="com.labwinner.domain.ProjectNumber"
+			resultMap="proNumberMap">
+			select
+			a.* ,a.pro_number_id as pro_number_id1,a.user_id as user_id1
+			from project_number  a
+			where a.user_id = #{managerId} and a.pro_id=#{proId} and a.flag = 0 
+		</select>
+		
+		
+		
+</mapper> 

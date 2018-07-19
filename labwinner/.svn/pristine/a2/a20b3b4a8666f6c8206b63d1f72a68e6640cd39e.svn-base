@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                                    
+<mapper namespace="com.labwinner.dao.NoteDao">
+
+<resultMap id="noteMap" type="com.labwinner.domain.Note">
+        <id column="note_id" property="noteId" />
+         <result column="note_name" property="noteName" />
+         <result column="note_content" property="noteContent" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+        
+        <association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+			<result property="username" column="username" />
+		</association>
+		
+		<association property="projectBasicInfo" javaType="com.labwinner.domain.ProjectBasicInfo">
+			<id property="proId" column="pro_id" />
+		<result property="proName" column="pro_name" />
+		<result property="proNumber" column="pro_number" />
+		<result property="proStartTime" column="pro_start_time" />
+		<result property="proDeadline" column="pro_deadline" />
+		<result property="proIntroduce" column="pro_introduce" />
+		<result property="proLogo" column="pro_logo" />
+		</association>
+		
+		<association property="reaction" javaType="com.labwinner.domain.Reaction">
+			 <id column="reaction_id" property="reactionId" />
+         <result column="reaction_name" property="reactionName" />
+         <result column="start_time" property="startTime" />
+         <result column="end_time" property="endTime" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+		</association>
+		
+		<association property="reactionProcess" javaType="com.labwinner.domain.ReactionProcess">
+			<id column="reaction_process_id" property="reactionProcessId" />
+         <result column="reaction_process" property="reactionProcess" />
+         <result column="process_name" property="processName"/>
+         <result column="start_time" property="startTime" />
+         <result column="end_time" property="endTime" />
+        <result column="creater" property="creater" />
+        <result column="create_date" property="createDate" />
+        <result column="modifier" property="modifier" />
+        <result column="modify_date" property="modifyDate" />
+		</association>
+        <!--  <association property="sysUser"
+			resultMap="com.labwinner.dao.SysUserDao.sysUserResultMap"></association> 
+			
+		 <association property="reactionProcess"
+			resultMap="com.labwinner.dao.ReactionProcessDao.reactionProcessMap"></association>
+		 <association property="reaction"
+			resultMap="com.labwinner.dao.ReactionDao.reactionMap"></association>
+		 <association property="projectBasicInfo"
+			resultMap="com.labwinner.dao.ProjectBasicInfoDao.proInfoMap"></association>-->
+			
+		<collection property="reactionImages" ofType="com.labwinner.domain.ReactionImage">
+			<id column="reaction_image_id" property="reactionImageId" />
+			<result column="reaction_image" property="reactionImage" />
+		</collection>
+ </resultMap>
+ <sql id="columns">note.note_id,note_name,note_content,note.create_date,
+		sys_user.user_id,sys_user.realname,reaction_process.reaction_process_id,reaction_process.process_name,
+		reaction.reaction_id,reaction.reaction_name,project_basic_info.pro_id,project_basic_info.pro_name
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultType="com.labwinner.domain.Note"  resultMap="noteMap" >
+		select note_id,note_name,note.create_date,note_content,sys_user.user_id,sys_user.realname
+		from note
+		left outer join sys_user on note.user_id = sys_user.user_id 
+		where sys_user.user_id = #{id}
+	    order by note.create_date desc
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getByName" resultType="com.labwinner.domain.Note"  resultMap="noteMap" >
+		select note_id,note_name,note.create_date,note_content,sys_user.user_id,sys_user.realname
+		from note
+		left outer join sys_user on note.user_id = sys_user.user_id 
+		where sys_user.user_id = #{id}
+		and note_name=#{keyword}
+	    order by note.create_date desc
+	</select>
+	
+	<!-- 根据实验id获取对象列表 -->
+	<select id="getByReactionId" resultType="com.labwinner.domain.Note"  resultMap="noteMap" >
+		select note_id,note_name,note.create_date,note_content
+		from note
+		left outer join reaction on note.reaction_id = reaction.reaction_id 
+		where note.reaction_id = #{id}
+	    order by note.create_date desc
+	</select>
+	
+	<!-- 根据实验步骤id获取对象列表 -->
+	<select id="getByProcessId" resultType="com.labwinner.domain.Note"  resultMap="noteMap" >
+		select note_id,note_name,note.create_date,note_content
+		from note
+		left outer join reaction_process on note.reaction_process_id = reaction_process.reaction_process_id 
+		where note.reaction_process_id = #{id}
+	    order by note.create_date desc
+	</select>
+	
+	<select id="getByReactionIdList" resultType="Integer" parameterType="map">
+		select note_id from note where reaction_id = #{id}
+	</select>
+	
+	<select id="getById" resultType="com.labwinner.domain.Note" parameterType="Integer" resultMap="noteMap" >
+		select note.note_id,note_name,note_content,note.create_date,reaction_image.reaction_image_id,reaction_image.reaction_image,
+		sys_user.user_id,sys_user.realname,reaction_process.reaction_process_id,reaction_process.process_name,
+		reaction.reaction_id,reaction.reaction_name,project_basic_info.pro_id,project_basic_info.pro_name
+		from note
+		left outer join reaction on note.reaction_id = reaction.reaction_id
+		left outer join reaction_process on reaction_process.reaction_process_id = note.reaction_process_id
+		left outer join sys_user on note.user_id = sys_user.user_id 
+		left outer join project_basic_info on note.pro_id = project_basic_info.pro_id
+		left outer join reaction_image on note.note_id = reaction_image.note_id 
+		where note.note_id = #{id}
+	</select>
+	
+	<insert id="save" parameterType="com.labwinner.domain.Note"
+		useGeneratedKeys="true" keyProperty="noteId">
+		insert into
+		note
+		(note_name,note_content,user_id,pro_id,reaction_id,
+		reaction_process_id,
+		creater,create_date, modifier,modify_date)
+		value(
+		#{noteName},
+		#{noteContent},
+		#{sysUser.userId},
+		#{projectBasicInfo.proId},
+		#{reaction.reactionId},
+		#{reactionProcess.reactionProcessId},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+	</insert>
+	
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from note where
+		note_id=#{id}
+	</delete>
+	
+	<!-- 删除对象方法 -->
+	<delete id="deleteByReactionId" parameterType="Integer">
+		delete from note where reaction_id = #{id}
+	</delete>
+	
+	
+	<!-- 更新对象方法 -->
+	 <update id="update" parameterType="com.labwinner.domain.Note">
+		update note 
+		set
+		note_name = #{noteName},
+		note_content=#{noteContent},
+		user_id=#{sysUser.userId},
+		pro_id=#{projectBasicInfo.proId},
+		reaction_id=#{reaction.reactionId},
+		reaction_process_id=#{reactionProcess.reactionProcessId},
+		creater=#{creater}, 
+		create_date=#{createDate}, 
+		modifier=#{modifier},
+		modify_date=#{modifyDate}
+		where 
+		note_id=#{noteId}
+	</update>
+</mapper>

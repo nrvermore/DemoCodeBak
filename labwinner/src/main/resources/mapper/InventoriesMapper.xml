@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.labwinner.dao.InventoriesDao">
+
+	<resultMap id="inventoriesMap" type="com.labwinner.domain.Inventories">
+		<id column="inventory_id" property="inventoryId" />
+		<result column="act_ava_wei" property="actAvaWei" />
+		<result column="maturity_date" property="maturityDate" />
+		<result column="com_date" property="comDate" />
+		<result column="bar_code" property="barCode" />
+		<result column="price1" property="price" />
+		<result column="creater" property="creater" />
+		<result column="create_date" property="createDate" />
+		<result column="modifier" property="modifier" />
+		<result column="modify_date" property="modifyDate" />
+		<result column="inventoryName" property="inventoryName" />
+		<result column="measure_unit_id" property="measurement.measureUnitId" />
+		
+		<association property="priceCurrency" javaType="com.labwinner.domain.PriceCurrency">
+			<id property="priCurId" column="pri_cur_id1" />
+			<result property="curType" column="cur_type" />
+			<result property="curName" column="cur_name" />
+		</association>
+
+		<association property="inventoryGroups"
+			javaType="com.labwinner.domain.InventoryGroups">
+			<id property="groupId" column="group_id" />
+			<result column="inventory_num" property="inventoryNumber" />
+			<result column="batch_number" property="batchNumber" />
+			<result column="total_wei" property="totalWei" />
+			<result column="description" property="description" />
+			<result column="density_variation" property="densityVariation" />
+			<result column="con_pur" property="conPur" />
+
+		<association property="supplier" javaType="com.labwinner.domain.Supplier">
+			<id property="supId" column="sup_id" />
+			<result property="suprName" column="suprName" />
+		</association>
+		
+		<association property="materialType" javaType="com.labwinner.domain.MaterialType">
+			<id column="material_type_id" property="materialTypeId" />
+			<result column="material_type" property="label" />
+			<result column="material_type_code" property="materialTypeCodeId" />
+			<result column="material_category" property="materialCategoryId" />
+			<result column="name2" property="parentName" />
+		</association>
+
+		<association property="conPurMeasurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id2" />
+			<result property="basicUnit" column="basic_unit" />
+			<result property="conversionRelation" column="conversion_relation2" />
+			<result property="measureUnit" column="u2" />
+		</association>
+		
+		<association property="secureRank" javaType="com.labwinner.domain.SecureRank">
+			<id property="secureRankId" column="secure_rank_id" />
+			<result property="secureRank" column="secure_rank" />
+		</association>
+		
+		<association property="chemicalParameter"
+			javaType="com.labwinner.domain.ChemicalParameter">
+			<id property="chParId" column="ch_par_id" />
+			<result property="winId" column="win_d" />
+			<result property="chineseName" column="chinese_name" />
+		</association>
+		
+		<collection property="chemicalImages" ofType="com.labwinner.domain.ChemicalImage">
+			<id property="chemicalImageId" column="chemical_image_id" />
+			<result property="dissolvantImage" column="dissolvant_image" />
+			<result property="dissolvantDescribe" column="dissolvant_describe" />
+		</collection>
+		
+		<collection property="inventoryUsers" ofType="com.labwinner.domain.InventoryUser">
+			<id property="inventoryUserId" column="inventory_user_id" />
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+				<id property="userId" column="user_id2" />
+				<result property="realname" column="realname2" />
+				<result property="username" column="username" />
+			</association>
+
+		</collection>
+		</association>
+
+		<association property="measurement" javaType="com.labwinner.domain.Measurement">
+			<id property="measureUnitId" column="id1" />
+			<result property="basicUnit" column="basic_unit" />
+			<result property="conversionRelation" column="conversion_relation1" />
+			<result property="measureUnit" column="u1" />
+			<association property="measurementType" javaType="com.labwinner.domain.MeasurementType">
+			  <id column="measure_type" property="measureType" />
+        	  <result column="type_name" property="typeName" />
+        	  <result column="basic_unit" property="basicUnit" />
+        	  <result column="type_sourece" property="typeSource" />
+				</association>
+		</association>
+		
+		<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id1" />
+			<result property="realname" column="realname1" />
+			<result property="username" column="username1" />
+		</association>
+
+ 		<association property="qrInfo" javaType="com.labwinner.domain.QrInfo">
+			<id column="qr_id" property="qrId" />
+			<result column="qr_name" property="qrName" />
+			<result column="qr_path" property="qrPath" />
+			<result column="qr" property="qr" />
+		</association>
+
+		<association property="inventoryLocation"
+			javaType="com.labwinner.domain.InventoryLocation">
+			<id column="inventory_location_id" property="cid" />
+			<result column="location_name" property="label" />
+			<result column="location_path" property="pid" />
+			<result column="name" property="parentName" />
+		</association>
+
+		<collection property="inventoryModifies" ofType="com.labwinner.domain.InventoryModify">
+			<id property="inventoryModifyId" column="inventory_modify_id" />
+			<result property="changeDate" column="change_date" />
+			<result property="modifyAfter" column="modify_after" />
+		</collection>
+
+		<collection property="executeChemicals" ofType="com.labwinner.domain.ExecuteChemical">
+			<id column="execute_chemical_id" property="executeChemicalId" />
+			<result column="chemical_dosage" property="chemicalDosage" />
+			<association property="executeChemicalGroup" javaType="com.labwinner.domain.ExecuteChemicalGroup">
+        	<id column="chemical_group_id" property="chemicalGroupId" />
+        	<result column="group_dosage" property="groupDosage" />
+			<association property="reactionProcess"
+				javaType="com.labwinner.domain.ReactionProcess">
+				<id column="reaction_process_id1" property="reactionProcessId" />
+				<result column="process_name" property="processName" />
+				<association property="reaction" javaType="com.labwinner.domain.Reaction">
+					<id column="reaction_id" property="reactionId" />
+					<result column="reaction_name" property="reactionName" />
+					<result column="start_time" property="startTime" />
+					<result column="end_time" property="endTime" />
+					<association property="reactionDesign"
+						javaType="com.labwinner.domain.ReactionDesign">
+						<id column="reaction_design_id" property="reactionDesignId" />
+						<result column="type" property="type" />
+						<result column="reaction_group_name" property="reactionGroupName" />
+						<result column="execute" property="execute" />
+						<association property="projectBasicInfo"
+						javaType="com.labwinner.domain.ProjectBasicInfo">
+						<id property="proId" column="pro_id" />
+						<result property="proName" column="pro_name" />
+						</association>
+					</association>
+		
+					<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+						<id property="userId" column="user_id3" />
+						<result property="realname" column="realname3" />
+						<result property="username" column="username3" />
+					</association>
+				</association>
+			</association>
+			</association>
+		</collection>
+
+		<collection property="reactionDesignChemicals"
+			ofType="com.labwinner.domain.ReactionDesignChemical">
+			 <id column="design_chemical_id" property="designChemicalId" />        
+       		 <result column="changeable" property="changeable" />
+		</collection>
+
+	</resultMap>
+	<sql id="columns">inventories.inventory_id,inventories.act_ava_wei,inventories.inventory_name as inventoryName,
+		inventory_groups.group_id,product_summary.catalogue_code as batch_number,
+		e.inventory_location_id,e.location_name,e.location_path,
+		f.location_name as name,com_date,maturity_date,
+		supplier.sup_id,supplier.supr_name as suprName,
+		secure_rank.secure_rank_id,secure_rank.secure_rank,
+		a.user_id as
+		user_id1,a.realname as realname1,
+		b.measure_unit_id as id1,
+		b.measure_unit as u1,
+		chemical_parameter.ch_par_id,chemical_parameter.chinese_name
+	</sql>
+	
+	<select id="getReactions" parameterType="Integer"
+		resultType="com.labwinner.domain.Inventories" resultMap="inventoriesMap">
+		select inventories.inventory_id,execute_chemical.*,execute_chemical_group.*,
+		reaction_process.reaction_process_id as reaction_process_id1,reaction_process.process_name,reaction.reaction_id,reaction.reaction_name,
+		sys_user.user_id as user_id3,sys_user.realname as realname3,
+		reaction_design.reaction_design_id,reaction_design.reaction_group_name,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name
+		from inventories 
+		left outer join execute_chemical on execute_chemical.inventory_id =inventories.inventory_id 
+		left outer join execute_chemical_group on execute_chemical.chemical_group_id = execute_chemical_group.chemical_group_id
+		left outer join reaction_process on execute_chemical_group.reaction_process_id = reaction_process.reaction_process_id
+		left outer join reaction_status on reaction_status.reaction_status_id = reaction_process.reaction_status_id
+		left outer join reaction on reaction_process.reaction_id = reaction.reaction_id
+		left outer join sys_user on reaction.user_id =sys_user.user_id 
+		left outer join reaction_design on reaction.reaction_design_id = reaction_design.reaction_design_id
+		left outer join project_basic_info on reaction_design.pro_id = project_basic_info.pro_id
+		where inventories.inventory_id = #{id} 
+		and reaction_process.reaction_status_id !=5
+		order by reaction_process.reaction_process_id
+		
+	</select>
+	
+	<select id="getUserReactions" parameterType="Integer"
+		resultType="com.labwinner.domain.Inventories" resultMap="inventoriesMap">
+		select inventories.inventory_id,execute_chemical.*,execute_chemical_group.*,
+		reaction_process.reaction_process_id as reaction_process_id1,reaction_process.process_name,reaction.reaction_id,reaction.reaction_name,
+		sys_user.user_id as user_id3,sys_user.realname as realname3,
+		reaction_design.reaction_design_id,reaction_design.reaction_group_name,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name
+		from inventories 
+		left outer join execute_chemical on execute_chemical.inventory_id =inventories.inventory_id 
+		left outer join execute_chemical_group on execute_chemical.chemical_group_id = execute_chemical_group.chemical_group_id
+		left outer join reaction_process on execute_chemical_group.reaction_process_id = reaction_process.reaction_process_id
+		left outer join reaction_status on reaction_status.reaction_status_id = reaction_process.reaction_status_id
+		left outer join reaction on reaction_process.reaction_id = reaction.reaction_id
+		left outer join sys_user on reaction.user_id =sys_user.user_id 
+		left outer join reaction_design on reaction.reaction_design_id = reaction_design.reaction_design_id
+		left outer join project_basic_info on reaction_design.pro_id = project_basic_info.pro_id
+		where reaction.pro_id  in (select pro_id from project_number where user_id =#{userId} and pro_role_id=1)
+		and inventories.inventory_id = #{id}
+		and reaction_process.reaction_status_id !=5
+		union 
+		select inventories.inventory_id,execute_chemical.*,execute_chemical_group.*,
+		reaction_process.reaction_process_id as reaction_process_id1,reaction_process.process_name,reaction.reaction_id,reaction.reaction_name,
+		sys_user.user_id as user_id3,sys_user.realname as realname3,
+		reaction_design.reaction_design_id,reaction_design.reaction_group_name,reaction_design.type,
+		project_basic_info.pro_id,project_basic_info.pro_name
+		from inventories 
+		left outer join execute_chemical on execute_chemical.inventory_id =inventories.inventory_id 
+		left outer join execute_chemical_group on execute_chemical.chemical_group_id = execute_chemical_group.chemical_group_id
+		left outer join reaction_process on execute_chemical_group.reaction_process_id = reaction_process.reaction_process_id
+		left outer join reaction_status on reaction_status.reaction_status_id = reaction_process.reaction_status_id
+		left outer join reaction on reaction_process.reaction_id = reaction.reaction_id
+		left outer join sys_user on reaction.user_id =sys_user.user_id 
+		left outer join reaction_design on reaction.reaction_design_id = reaction_design.reaction_design_id
+		left outer join project_basic_info on reaction_design.pro_id = project_basic_info.pro_id
+		where sys_user.user_id = #{userId}
+		and inventories.inventory_id = #{id}
+		and reaction_process.reaction_status_id !=5
+		order by reaction_process_id1
+	</select>
+
+	<!-- 团队负责人库存列表 -->
+	<select id="getAllInventorys" parameterType="Integer"
+		resultType="com.labwinner.domain.Inventories" resultMap="inventoriesMap">
+		select
+		<include refid="columns" />
+		from inventories 
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+	</select>
+	
+	<select id="getScreenInventorys" parameterType="Integer"
+		resultType="com.labwinner.domain.Inventories" resultMap="inventoriesMap">
+		select
+		<include refid="columns" />
+		from inventories 
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		where <![CDATA[inventories.act_ava_wei<0]]>
+	</select>
+
+	<!-- 团队负责人库存搜索列表 -->
+	<select id="findUserInventorys" resultType="com.labwinner.domain.Inventories"
+		resultMap="inventoriesMap">
+		select
+		<include refid="columns" />
+		from inventories
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		where inventories.inventory_name LIKE CONCAT('%',#{keyword},'%')
+	</select>
+
+	<!-- 获取普通用户对象列表 -->
+	<select id="getAll" parameterType="Integer"
+		resultType="com.labwinner.domain.Inventories" resultMap="inventoriesMap">
+		select inventoryList.* from
+		(
+		select
+		<include refid="columns" />
+		from inventories
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		where secure_rank.secure_rank_id = 1
+		UNION ALL
+		select
+		<include refid="columns" />
+		from inventories
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		left outer join inventory_user on inventory_groups.group_id =inventory_user.group_id
+		left outer join sys_user d on d.user_id = inventory_user.user_id
+		where secure_rank.secure_rank_id = 2
+		and d.user_id = #{userId}
+		) as inventoryList
+	</select>
+
+	<!-- web普通用户关键字搜索 -->
+	<select id="getByKeyword" resultMap="inventoriesMap">
+		select inventoryList.* from
+		(
+		select
+		<include refid="columns" />
+		from inventories
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		where secure_rank.secure_rank_id = 1
+		UNION ALL
+		select
+		<include refid="columns" />
+		from inventories
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		left outer join inventory_user on inventory_groups.group_id =inventory_user.group_id
+		left outer join sys_user d on d.user_id = inventory_user.user_id
+		where secure_rank.secure_rank_id = 2
+		and d.user_id = #{userId}
+		) as inventoryList
+		where inventoryName LIKE CONCAT('%',#{keyword},'%')
+		
+	</select>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getHotWords" resultType="com.labwinner.domain.Inventories"
+		resultMap="inventoriesMap">
+		select inventories.inventory_name as inventoryName,inventories.inventory_id,
+		product_summary.catalogue_code as batch_number,
+		supplier.sup_id,supplier.supr_name as suprName
+		from inventories
+		left outer join inventory_groups on inventories.group_id = inventory_groups.group_id
+    	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		order by inventories.create_date desc limit 10
+	</select>
+	
+	<!-- 获取所有对象列表 -->
+	<select id="getUserHotWords" resultType="com.labwinner.domain.Inventories"
+		resultMap="inventoriesMap">
+	select a.*
+	from 
+    (select
+    	inventories.inventory_name as inventoryName, inventories.inventory_id as inventory_id ,
+    	product_summary.catalogue_code as batch_number,
+		supplier.sup_id,supplier.supr_name as suprName,
+    	inventories.create_date as createDate
+		from inventories
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+    	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		where secure_rank.secure_rank_id = 1
+		UNION 
+		select
+		inventories.inventory_name as inventoryName,inventories.inventory_id as inventory_id ,
+		product_summary.catalogue_code as batch_number,
+		supplier.sup_id,supplier.supr_name as suprName,
+		inventories.create_date as createDate
+		from inventories
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join inventory_user on inventory_groups.group_id =inventory_user.group_id
+		left outer join sys_user d on d.user_id = inventory_user.user_id
+		where secure_rank.secure_rank_id = 2
+		and d.user_id =#{userId}) as a order by a.createDate desc limit 10
+	</select>
+
+	<!-- 获取库存分组列表 -->
+	<select id="getByGroupId" resultType="com.labwinner.domain.Inventories"
+		resultMap="inventoriesMap">
+		select
+		inventories.inventory_id,act_ava_wei,inventories.inventory_name as inventoryName,
+		e.inventory_location_id,e.location_name,e.location_path,
+		f.location_name as name,com_date,maturity_date,
+		product_summary.catalogue_code as batch_number,
+		supplier.sup_id,supplier.supr_name as suprName,
+		a.user_id as
+		user_id1,a.realname as realname1,
+		b.measure_unit_id as id1,
+		b.measure_unit as u1,measurement_type.*
+		from inventories
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join measurement_type on b.measure_type =measurement_type.measure_type
+		where inventories.group_id = #{id} 
+		<if test="cid!=null">
+		and inventories.inventory_location_id=#{cid} 
+		</if>
+		order by inventories.inventory_id
+	</select>
+	
+	<!-- 获取库存分组列表 -->
+	<select id="getByGroupIds" parameterType="java.util.List" resultType="com.labwinner.domain.Inventories"
+		resultMap="inventoriesMap">
+		select
+		inventories.inventory_id,act_ava_wei,inventories.inventory_name as inventoryName,
+		e.inventory_location_id,e.location_name,e.location_path,
+		f.location_name as name,com_date,maturity_date,
+		product_summary.catalogue_code as batch_number,
+		supplier.sup_id,supplier.supr_name as suprName,
+		a.user_id as
+		user_id1,a.realname as realname1,
+		b.measure_unit_id as id1,
+		b.measure_unit as u1,measurement_type.*
+		from inventories
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join measurement_type on b.measure_type =measurement_type.measure_type
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+    	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		where inventories.group_id in
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")"> 
+    	#{item} 
+		</foreach>
+		order by inventories.group_id desc
+	</select>
+
+
+	<select id="getBarCodes" resultType="string" parameterType="map">
+		select bar_code from inventories
+	</select>
+
+	<!-- 根据关键字获取对象 -->
+	<select id="findByName" resultType="com.labwinner.domain.Inventories"
+		resultMap="inventoriesMap">
+		 select inventories.inventory_name as inventoryName,inventory_id ,
+		product_summary.catalogue_code as batch_number,
+		supplier.sup_id,supplier.supr_name as suprName
+		from inventories 
+		left outer join inventory_groups on inventories.group_id = inventory_groups.group_id
+    	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		where
+		inventories.inventory_name LIKE CONCAT('%',#{keyword},'%')
+	</select>
+	
+	<!-- 根据关键字获取对象 -->
+	<select id="findNameByUser" resultType="com.labwinner.domain.Inventories"
+		resultMap="inventoriesMap">
+		select inventories.inventory_name as inventoryName,inventories.inventory_id,
+		product_summary.catalogue_code as batch_number,
+		supplier.sup_id,supplier.supr_name as suprName
+		from inventories
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id 
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		where secure_rank.secure_rank_id = 1
+		and inventories.inventory_name LIKE CONCAT('%',#{keyword},'%')
+		UNION ALL
+		select inventories.inventory_name as inventoryName,inventories.inventory_id, 
+		product_summary.catalogue_code as batch_number,
+		supplier.sup_id,supplier.supr_name as suprName
+		from inventories 
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join inventory_user on inventory_groups.group_id =inventory_user.group_id
+		left outer join sys_user d on d.user_id = inventory_user.user_id
+		where secure_rank.secure_rank_id = 2
+		and d.user_id = #{userId}
+		and inventories.inventory_name LIKE CONCAT('%',#{keyword},'%')
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer"
+		resultType="com.labwinner.domain.Inventories" resultMap="inventoriesMap">
+		select
+		inventories.inventory_id,inventories.act_ava_wei,inventories.com_date,
+		inventories.maturity_date,inventories.inventory_name as inventoryName,
+		e.inventory_location_id,e.location_name,e.location_path,
+		f.location_name as name,qr_info.*,
+		inventory_groups.group_id,inventory_groups.inventory_num,
+		inventory_groups.total_wei,inventory_groups.description,inventory_groups.density_variation,
+		inventory_groups.con_pur,
+		product_summary.catalogue_code as batch_number,
+		a.user_id as user_id1,a.realname as
+		realname1,density_variation,
+		price_currency.pri_cur_id as pri_cur_id1,price_currency.cur_type,price_currency.cur_name,
+		supplier.sup_id,supplier.supr_name as suprName,bar_code,description,
+		secure_rank.secure_rank_id,secure_rank.secure_rank,inventories.price as price1,
+		price_currency.pri_cur_id,price_currency.cur_type,price_currency.cur_name,
+		b.measure_unit_id as id1, b.measure_unit as u1,b.conversion_relation as conversion_relation1,
+		c.measure_unit_id as id2, c.measure_unit as u2,c.conversion_relation as conversion_relation2,
+		inventory_user.*,d.user_id as user_id2,d.realname as realname2,
+		chemical_parameter.ch_par_id,chemical_parameter.chinese_name,
+		chemical_image.dissolvant_describe,chemical_image.chemical_image_id,
+		k.material_type_id,k.material_type,k.material_type_code,k.material_category,l.material_type
+		as name2,
+		inventories.creater,inventories.create_date,
+		inventories.modifier,inventories.modify_date
+		from
+		inventories
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+    	left outer join inventory_groups on inventories.group_id = inventory_groups.group_id
+    	left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		left outer join secure_rank on inventory_groups.secure_rank_id =secure_rank.secure_rank_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join measurement c on inventory_groups.con_pur_unit =c.measure_unit_id
+		left outer join material_type k on inventory_groups.material_type_id =k.material_type_id
+		left outer join material_type l on k.material_category=l.material_type_code
+		left outer join price_currency on inventories.pri_cur_id =price_currency.pri_cur_id
+	
+		left outer join chemical_image on inventory_groups.group_id = chemical_image.group_id
+		left outer join inventory_user on inventory_groups.group_id =inventory_user.group_id
+		left outer join sys_user d on d.user_id = inventory_user.user_id
+		left outer join qr_info on qr_info.inventory_id = inventories.inventory_id
+	
+		where
+		inventories.inventory_id = #{id}
+	</select>
+	
+	<select id="findByBarCode" parameterType="String"
+		resultType="com.labwinner.domain.Inventories" resultMap="inventoriesMap">
+		select
+		<include refid="columns" />
+		from inventories
+		left outer join inventory_location e on inventories.inventory_location_id=e.inventory_location_id
+		left outer join inventory_location f on e.location_path=f.inventory_location_id
+		left outer join sys_user a on inventories.user_id = a.user_id
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join secure_rank on inventory_groups.secure_rank_id=secure_rank.secure_rank_id
+		left outer join measurement b on inventories.measure_unit_id =b.measure_unit_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		where
+		inventories.bar_code = #{barCode}
+	</select>
+
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Inventory"
+		useGeneratedKeys="true" keyProperty="inventoryId">
+		insert into
+		inventories(act_ava_wei,com_date,group_id,
+		maturity_date,inventory_location_id,price,pri_cur_id,
+		user_id,bar_code,measure_unit_id,inventory_name,
+		creater,create_date, modifier,modify_date)
+		value(
+		#{actAvaWei},#{comDate},#{inventoryGroups.groupId},
+		#{maturityDate},#{inventoryLocation.cid},#{price},#{priceCurrency.priCurId},
+		#{sysUser.userId},#{barCode},
+		#{measurement.measureUnitId}, #{inventoryName},
+		#{creater},
+		#{createDate},
+		#{modifier},
+		#{modifyDate})
+
+	</insert>
+
+	<update id="updateInventory" parameterType="com.labwinner.domain.Inventories">
+		update inventories
+		set
+		act_ava_wei=#{actAvaWei},
+		modifier = #{modifier},
+		modify_date = #{modifyDate}
+		where
+		inventory_id=#{inventoryId}
+
+	</update>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.Inventories">
+		update inventories
+		<trim prefix="set" suffixOverrides=",">
+		<if test="actAvaWei!=null">act_ava_wei=#{actAvaWei},</if>
+		<if test="comDate!=null">com_date=#{comDate},</if>
+		<if test="maturityDate!=null">maturity_date=#{maturityDate},</if>
+		<if test="inventoryLocation!=null">inventory_location_id=#{inventoryLocation.cid},</if>
+		<if test="sysUser!=null">user_id=#{sysUser.userId},</if>
+		<if test="measurement!=null">measure_unit_id=#{measurement.measureUnitId},</if>
+		<if test="inventoryName!=null">inventory_name=#{inventoryName},</if>
+		<if test="modifier!=null">modifier=#{modifier},</if> 
+		<if test="modifyDate!=null">modify_date=#{modifyDate},</if>
+		</trim>
+		where
+		inventory_id=#{inventoryId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from inventories where
+		inventory_id=#{id}
+	</delete>
+
+	<!-- 删除对象方法 -->
+	<delete id="deleteByGroupId" parameterType="Integer">
+		delete from inventories
+		where
+		group_id=#{id}
+	</delete>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getByLocationId" parameterType="Integer"
+		resultType="com.labwinner.domain.Inventories" resultMap="inventoriesMap">
+		select * from inventories where inventory_location_id in (select inventory_location_id  from inventory_location where inventory_location_id in(
+     select inventory_location_id from inventory_location where location_path in(
+     select inventory_location_id from inventory_location where location_path in(
+     select inventory_location_id from inventory_location where (inventory_location_id=#{id} or location_path=#{id}) or inventory_location_id=#{id}) or inventory_location_id=#{id}) or inventory_location_id=#{id}))
+	</select>
+
+	<select id="getInventoryNum" parameterType="Integer"
+		resultType="java.lang.Integer" >
+	select count(*) from inventory_groups 
+	 </select>
+ 	<!-- 获取所有对象列表 -->
+	<select id="getBySupId" parameterType="Integer"
+		resultType="com.labwinner.domain.Inventories" resultMap="inventoriesMap">
+		select * from inventories
+		left outer join inventory_groups on inventory_groups.group_id = inventories.group_id
+		left outer join product_summary on inventory_groups.product_summary_id = product_summary.product_summary_id
+		left outer join supplier on product_summary.supplier_id = supplier.sup_id
+		left outer join chemical_parameter on product_summary.ch_par_id=chemical_parameter.ch_par_id
+		where inventory_groups.sup_id=#{id}
+	</select>
+ 
+</mapper> 

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 附件 -->
+<mapper namespace="com.labwinner.dao.ApprovelDao">
+
+	<resultMap id="approvelResultMap" type="com.labwinner.domain.Approvel">
+		<id property="approveId" column="approve_id" />
+		<result property="approvelDate" column="approvel_date" />
+		<result property="approvalOpinion" column="approval_opinion" />
+		<result property="refuseReason" column="refuse_reason" />
+		<association property="approvalResult" javaType="com.labwinner.domain.ApprovalResult">
+			<id property="approvalResultId" column="approval_result_id" />
+			<result property="approvalResult" column="approval_result" />
+		</association>
+		<association property="materialPurchase" javaType="com.labwinner.domain.MaterialPurchase">
+			<id property="matPurId" column="mat_pur_id" />
+			<result property="materialPrice" column="material_price" />
+			<result property="orderNumber" column="order_number" />
+			<result property="allPrice" column="all_price" />
+			<result property="purchaseDate" column="purchase_date" />
+			<result property="taxRate" column="tax_rate" />
+				<result property="purchaseRemarks" column="purchase_remarks" />
+				<result property="count" column="count" />
+			<association property="sysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="user_id" />
+			<result property="realname" column="realname" />
+		</association>
+		 <association property="orderState" javaType="com.labwinner.domain.OrderState">
+        <id property="orderStateId" column="order_state_id"/>
+         <result property="orderState" column="order_state"/>
+         </association> 
+			 <association property="matPriceCurrency" javaType="com.labwinner.domain.PriceCurrency">
+        <id property="priCurId" column="pri_cur_id1"/>
+         <result property="curType" column="cur_type1"/>
+         <result property="curName" column="cur_name1"/>
+         </association> 
+			<association property="supplier" javaType="com.labwinner.domain.Supplier">
+			<id property="supId" column="sup_id" />
+			<result property="suprName" column="supr_name" />
+			</association>
+			<association property="packageType" javaType="com.labwinner.domain.PackageType">
+            <id property="packageTypeId" column="package_type_id"/>
+            <result property="packageTypeName" column="package_type_name"/>
+      	 </association>
+         	 <association property="productType" javaType="com.labwinner.domain.ProductType">
+            <id property="productTypeId" column="product_type_id"/>
+            <result property="productType" column="product_type"/>
+       		</association>
+        	<association property="measurement" javaType="com.labwinner.domain.Measurement">
+        	<id property="measureUnitId" column="measure_unit_id"/>
+        	 <id property="measureUnit" column="measure_unit"/>
+        	 </association>
+				<association property="productSummary" javaType="com.labwinner.domain.ProductSummary">
+			<id property="productSummaryId" column="product_summary_id" />
+			 <result property="materialSpecification" column="material_specification" />
+			  <result property="price" column="price" />
+			    <result property="catalogueCode" column="catalogue_code" />
+			    <result property="innerCode" column="inner_code" />
+			  <association property="priceCurrency" javaType="com.labwinner.domain.PriceCurrency">
+				<id property="priCurId" column="pri_cur_id" />
+				<result property="curType" column="cur_type" />
+				<result property="curName" column="cur_name" />
+			</association>
+			<association property="chemicalParameter" javaType="com.labwinner.domain.ChemicalParameter">
+				<id property="chParId" column="ch_par_id" />
+				<result property="chineseName" column="chinese_name" />
+				<result property="cas" column="CAS" />
+			</association>
+			<association property="packageType" javaType="com.labwinner.domain.PackageType">
+            <id property="packageTypeId" column="package_type_id1"/>
+            <result property="packageTypeName" column="package_type_name1"/>
+       </association>
+         	 <association property="productType" javaType="com.labwinner.domain.ProductType">
+            <id property="productTypeId" column="product_type_id1"/>
+            <result property="productType" column="product_type1"/>
+       </association>
+        <association property="measurement" javaType="com.labwinner.domain.Measurement">
+        <id property="measureUnitId" column="measure_unit_id1"/>
+         <id property="measureUnit" column="measure_unit1"/>
+		</association>
+		</association>
+		</association>
+		<association property="appSysUser" javaType="com.labwinner.domain.SysUser">
+			<id property="userId" column="approvel_person" />
+			<result property="realname" column="realname" />
+		</association>
+		<association property="approvelRefuse" javaType="com.labwinner.domain.ApprovelRefuse">
+			<id property="refuseId" column="refuse_id" />
+			<result property="refuseMemu" column="refuse_memu" />
+		</association>
+	</resultMap>
+
+	<sql id="columns">approve_id, mat_pur_id, approvel_person, approvel_date,approval_opinion,approval_result_id,refuse_reason
+	</sql>
+
+	<!-- 获取所有对象列表 -->
+	<select id="getAll" resultMap="approvelResultMap">
+		 select a.approve_id,ar.approval_result_id,ar.approval_result,m.mat_pur_id,m.purchase_date,m.material_price,m.count,
+		 m.order_number,
+		 mpc.pri_cur_id as pri_cur_id1,mpc.cur_type as cur_type1,mpc.cur_name as cur_name1,m.order_number,u.user_id,u.realname,
+		 o.order_state_id,o.order_state,s.sup_id,s.supr_name,p.material_specification,p.price,p.catalogue_code,
+		 p.inner_code,p.quoted_date,pc.pri_cur_id,pc.cur_type,pc.cur_name,c.chinese_name,appu.user_id,appu.realname,pt1.package_type_id as package_type_id1,
+		 pt1.package_type_name as package_type_name1,prot1.product_type_id as product_type_id1,prot1.product_type as product_type1,
+		 mu1.measure_unit_id as measure_unit_id1,mu1.measure_unit as measure_unit1,
+		 pt.package_type_id ,pt.package_type_name ,prot.product_type_id ,prot.product_type,mu.measure_unit_id,mu.measure_unit
+		from approvel a
+		left outer join material_purchase m	 on a.mat_pur_id=m.mat_pur_id
+		left outer join approval_result ar on a.approval_result_id=ar.approval_result_id
+		left outer join price_currency mpc on mpc.pri_cur_id=m.pri_cur_id
+      	left outer join supplier s on s.sup_id=m.sup_id
+      	left outer join product_summary p on m.product_summary_id=p.product_summary_id and s.sup_id=p.supplier_id
+      	 	left outer join package_type pt1 on p.package_type_id=pt1.package_type_id
+      	left outer join product_type prot1 on p.product_type_id=prot1.product_type_id
+      	left outer join measurement mu1 on p.measure_unit_id=mu1.measure_unit_id
+        left outer join sys_user u on m.user_id=u.user_id
+        left outer join sys_user appu on appu.user_id=a.approvel_person
+		left outer join order_state o on o.order_state_id=m.order_state_id
+      	left outer join chemical_parameter c on p.ch_par_id=c.ch_par_id
+      	left outer join price_currency pc on p.pri_cur_id=pc.pri_cur_id
+      	left outer join package_type pt on m.package_type_id=pt.package_type_id
+      	left outer join product_type prot on m.product_type_id=prot.product_type_id
+      	left outer join measurement mu on m.measure_unit_id=mu.measure_unit_id
+      <if test="roleName != 'ROLE_TEAM'">
+    	where  m.user_id=#{userId}
+    	</if>
+    	order by locate(3,a.approval_result_id) desc
+	</select>
+
+	<!-- 根据主键获取对象 -->
+	<select id="getById" parameterType="Integer" resultMap="approvelResultMap">
+	select a.approve_id,a.approval_opinion,ar.approval_result_id,ar.approval_result,m.mat_pur_id,m.purchase_date,m.material_price,m.count,
+		 m.order_number,m.tax_rate,m.all_price,m.purchase_remarks,mpc.pri_cur_id as pri_cur_id1,mpc.cur_type as cur_type1,mpc.cur_name as cur_name1,m.order_number,u.user_id,u.realname,
+		 o.order_state_id,o.order_state,s.sup_id,s.supr_name,p.material_specification,p.price,p.catalogue_code,
+		 p.inner_code,p.quoted_date,pc.pri_cur_id,pc.cur_type,pc.cur_name,p.ch_par_id,c.CAS,c.chinese_name,appu.user_id,appu.realname,re.refuse_id,re.refuse_memu,pt1.package_type_id as package_type_id1,
+		 pt1.package_type_name as package_type_name1,prot1.product_type_id as product_type_id1,prot1.product_type as product_type1,
+		 mu1.measure_unit_id as measure_unit_id1,mu1.measure_unit as measure_unit1,
+		 pt.package_type_id ,pt.package_type_name ,prot.product_type_id ,prot.product_type,mu.measure_unit_id,mu.measure_unit
+		from approvel a
+		left outer join material_purchase m	 on a.mat_pur_id=m.mat_pur_id
+		left outer join approval_result ar on a.approval_result_id=ar.approval_result_id
+		left outer join price_currency mpc on mpc.pri_cur_id=m.pri_cur_id
+      	left outer join supplier s on s.sup_id=m.sup_id
+      	left outer join product_summary p on m.product_summary_id=p.product_summary_id and s.sup_id=p.supplier_id
+      	left outer join package_type pt1 on p.package_type_id=pt1.package_type_id
+      	left outer join product_type prot1 on p.product_type_id=prot1.product_type_id
+      	left outer join measurement mu1 on p.measure_unit_id=mu1.measure_unit_id
+        left outer join sys_user u on m.user_id=u.user_id
+        left outer join sys_user appu on appu.user_id=a.approvel_person
+		left outer join order_state o on o.order_state_id=m.order_state_id
+      	left outer join chemical_parameter c on p.ch_par_id=c.ch_par_id
+      	left outer join price_currency pc on p.pri_cur_id=pc.pri_cur_id
+      	left outer join package_type pt on m.package_type_id=pt.package_type_id
+      	left outer join product_type prot on m.product_type_id=prot.product_type_id
+      	left outer join measurement mu on m.measure_unit_id=mu.measure_unit_id
+      	left outer join approvel_refuse re on a.refuse_id=re.refuse_id
+		where approve_id=#{id}
+	</select>
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getRefuseList"  resultType="java.util.Map">
+		select * from approvel_refuse order by locate(4,refuse_id) 
+	</select>
+	
+	
+		<!-- 根据主键获取对象 -->
+	<select id="getOrderState"  resultType="java.util.Map">
+		select * from order_state 
+	</select>
+	
+	
+
+	<!-- 保存对象方法 -->
+	<insert id="save" parameterType="com.labwinner.domain.Approvel"
+		useGeneratedKeys="true" keyProperty="approveId">
+		insert into
+		approvel(
+		 mat_pur_id, approvel_person, approvel_date,approval_opinion,approval_result_id,refuse_reason,refuse_id
+		)
+		value(
+		#{materialPurchase.matPurId},#{appSysUser.userId},
+		#{approvelDate}, #{approvalOpinion},
+		#{approvalResult.approvalResultId},
+		#{refuseReason},
+		#{approvelRefuse.refuseId})
+	</insert>
+
+	<!-- 更新对象方法 -->
+	<update id="update" parameterType="com.labwinner.domain.Approvel">
+		update
+		approvel set
+		mat_pur_id=#{materialPurchase.matPurId},
+		approvel_person=#{appSysUser.userId},
+		approvel_date=#{approvelDate},
+		approval_opinion=#{approvalOpinion},
+		approval_result_id=#{approvalResult.approvalResultId},
+		refuse_id=#{approvelRefuse.refuseId}
+		where approve_id=#{approveId}
+	</update>
+
+	<!-- 删除对象方法 -->
+	<delete id="delete" parameterType="Integer">
+		delete from approvel
+		where approve_id=#{approveId}
+	</delete>
+
+
+	<!-- 获取所有对象列表 -->
+	<select id="getByOrderNumber" resultMap="approvelResultMap">
+		 select a.approve_id,ar.approval_result_id,ar.approval_result,m.mat_pur_id,m.purchase_date,m.material_price,m.count,mpc.pri_cur_id as pri_cur_id1,
+		 mpc.cur_type as cur_type1,mpc.cur_name as cur_name1,m.order_number,u.user_id,u.realname,
+		 o.order_state_id,o.order_state,s.sup_id,s.supr_name,p.material_specification,p.price,p.catalogue_code,
+		 p.inner_code,p.quoted_date,pc.pri_cur_id,pc.cur_type,c.chinese_name,pt1.package_type_id as package_type_id1,
+		 pt1.package_type_name as package_type_name1,prot1.product_type_id as product_type_id1,prot1.product_type as product_type1,
+		 mu1.measure_unit_id as measure_unit_id1,mu1.measure_unit as measure_unit1,
+		 pt.package_type_id ,pt.package_type_name ,prot.product_type_id ,prot.product_type,mu.measure_unit_id,mu.measure_unit
+		from approvel a
+		left outer join material_purchase m	 on a.mat_pur_id=m.mat_pur_id
+		left outer join approval_result ar on a.approval_result_id=ar.approval_result_id
+		left outer join price_currency mpc on mpc.pri_cur_id=m.pri_cur_id
+      	left outer join supplier s on s.sup_id=m.sup_id
+      	left outer join product_summary p on m.product_summary_id=p.product_summary_id and s.sup_id=p.supplier_id
+      	left outer join package_type pt1 on p.package_type_id=pt1.package_type_id
+      	left outer join product_type prot1 on p.product_type_id=prot1.product_type_id
+      	left outer join measurement mu1 on p.measure_unit_id=mu1.measure_unit_id
+        left outer join sys_user u on m.user_id=u.user_id
+		left outer join order_state o on o.order_state_id=m.order_state_id
+      	left outer join chemical_parameter c on p.ch_par_id=c.ch_par_id
+      	left outer join price_currency pc on p.pri_cur_id=pc.pri_cur_id
+      	left outer join package_type pt on m.package_type_id=pt.package_type_id
+      	left outer join product_type prot on m.product_type_id=prot.product_type_id
+      	left outer join measurement mu on m.measure_unit_id=mu.measure_unit_id
+      	where  m.order_number =#{keyword}
+      <if test="roleName != 'ROLE_TEAM'">
+    	and m.user_id=#{userId}
+    	</if>
+	</select>
+	
+	<select id="getScreenOrder" resultMap="approvelResultMap">
+	 select a.approve_id,ar.approval_result_id,ar.approval_result,m.mat_pur_id,m.purchase_date,m.material_price,m.count,mpc.pri_cur_id as pri_cur_id1,
+		 mpc.cur_type as cur_type1,mpc.cur_name as cur_name1,m.order_number,u.user_id,u.realname,
+		 o.order_state_id,o.order_state,s.sup_id,s.supr_name,p.material_specification,p.price,p.catalogue_code,
+		 p.inner_code,p.quoted_date,pc.pri_cur_id,pc.cur_type,c.chinese_name,pt1.package_type_id as package_type_id1,
+		 pt1.package_type_name as package_type_name1,prot1.product_type_id as product_type_id1,prot1.product_type as product_type1,
+		 mu1.measure_unit_id as measure_unit_id1,mu1.measure_unit as measure_unit1,
+		 pt.package_type_id ,pt.package_type_name ,prot.product_type_id ,prot.product_type,mu.measure_unit_id,mu.measure_unit
+		from approvel a
+		left outer join material_purchase m	 on a.mat_pur_id=m.mat_pur_id
+		left outer join approval_result ar on a.approval_result_id=ar.approval_result_id
+		left outer join price_currency mpc on mpc.pri_cur_id=m.pri_cur_id
+      	left outer join supplier s on s.sup_id=m.sup_id
+      	left outer join product_summary p on m.product_summary_id=p.product_summary_id and s.sup_id=p.supplier_id
+      	left outer join package_type pt1 on p.package_type_id=pt1.package_type_id
+      	left outer join product_type prot1 on p.product_type_id=prot1.product_type_id
+      	left outer join measurement mu1 on p.measure_unit_id=mu1.measure_unit_id
+        left outer join sys_user u on m.user_id=u.user_id
+		left outer join order_state o on o.order_state_id=m.order_state_id
+      	left outer join chemical_parameter c on p.ch_par_id=c.ch_par_id
+      	left outer join price_currency pc on p.pri_cur_id=pc.pri_cur_id
+      	left outer join package_type pt on m.package_type_id=pt.package_type_id
+      	left outer join product_type prot on m.product_type_id=prot.product_type_id
+      	left outer join measurement mu on m.measure_unit_id=mu.measure_unit_id
+      	where a.approval_result_id=1
+     
+	</select>
+	
+	<select id="getAllForFirst" resultType="java.util.Map">
+		 select a.approve_id,m.mat_pur_id,m.material_price,pc.cur_type,pc.cur_name,p.price,c.chinese_name,s.supr_name,o.order_state_id,o.order_state,pt1.package_type_id as package_type_id1,
+		 pt1.package_type_name as package_type_name1,prot1.product_type_id as product_type_id1,prot1.product_type as product_type1,
+		 mu1.measure_unit_id as measure_unit_id1,mu1.measure_unit as measure_unit1,
+		 pt.package_type_id ,pt.package_type_name ,prot.product_type_id ,prot.product_type,mu.measure_unit_id,mu.measure_unit,mpc.cur_name as curName
+		 
+		from approvel a
+		left outer join material_purchase m	 on a.mat_pur_id=m.mat_pur_id
+		left outer join approval_result ar on a.approval_result_id=ar.approval_result_id
+		left outer join price_currency mpc on mpc.pri_cur_id=m.pri_cur_id
+      	left outer join supplier s on s.sup_id=m.sup_id
+      	left outer join product_summary p on m.product_summary_id=p.product_summary_id and s.sup_id=p.supplier_id
+      	left outer join package_type pt1 on p.package_type_id=pt1.package_type_id
+      	left outer join product_type prot1 on p.product_type_id=prot1.product_type_id
+      	left outer join measurement mu1 on p.measure_unit_id=mu1.measure_unit_id
+      		left outer join package_type pt on m.package_type_id=pt.package_type_id
+      	left outer join product_type prot on m.product_type_id=prot.product_type_id
+      	left outer join measurement mu on m.measure_unit_id=mu.measure_unit_id
+        left outer join sys_user u on m.user_id=u.user_id
+        left outer join sys_user appu on appu.user_id=a.approvel_person
+		left outer join order_state o on o.order_state_id=m.order_state_id
+      	left outer join chemical_parameter c on p.ch_par_id=c.ch_par_id
+      	left outer join price_currency pc on p.pri_cur_id=pc.pri_cur_id
+      <if test="roleName != 'ROLE_TEAM'">
+    	where  m.user_id=#{userId}
+    	</if>
+    	order by locate(3,a.approval_result_id) desc
+	</select>
+	
+	<select id="getAllOrders" resultType="java.lang.Integer">
+		 select count(*) from approvel
+	</select>
+	
+</mapper> 
